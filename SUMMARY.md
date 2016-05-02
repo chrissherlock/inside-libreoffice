@@ -1,6 +1,6 @@
 # Summary
 
 * [Introduction](README.md)
-* [Architectural Overview](chapter1.md)
+* [Architectural Overview](arch_overview.md)
 * [VCL](vcl.md)
 
