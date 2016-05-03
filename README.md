@@ -15,7 +15,10 @@ What this does mean, however, is that the book is a work in progress. Initially,
 
 Feel free to send me feedback:
 
-![](TwitterLogo_#55acee.pn=50x) [@tbsdy](https://twitter.com/tbsdy)
+<div>
+<img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/TwitterLogo_%2355acee.png" style="width:50px;height;30px;vertical-align:middle" />
+[@tbsdy](https://twitter.com/tbsdy)
+</div>
 
 ![](50px-TK_email_icon.svg.png=50x) chris.sherlock79 at gmail.com
 
