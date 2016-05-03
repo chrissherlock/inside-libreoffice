@@ -46,9 +46,13 @@ A number of types are defined for portability reasons:
 |                   |                                 |              | SAL_PRIXUNITPTR        |
 
 † ```sal_Bool``` is deprecated in favour of ```bool```, however it is still used in the UNO API so cannot be completely removed. All code other than the API should use bool
+
 †† On 32-bit architectures ```int``` is 4 bytes wide, but on 64-bit architectures a ```long``` is 4 bytes wide (a ```long``` is also called a ```long int```)
+
 ††† On 32-bit architectures, a ```long int``` is 8 bytes wide, but as a ```long int``` is 4 bytes wide on a 64-bit architecture, a ```long long``` is needed for 8 byte wide longs
+
 †††† on Windows, ```wchar_t``` is a typedef to ```unsigned int```, however MinGW has a native ```wchar_t``` which is the reason for this
+
 ††††† in internal code, ```sal_Unicode``` points to ```char16_t```
 
 There are a few types that are now deprecated:
