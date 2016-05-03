@@ -17,8 +17,8 @@ A number of types are nailed down:
 | Name       | Equiv C++ type | Size in bytes |
 | --------  -| ---------------| --------------|
 | sal_Bool   | bool           | 1             |
-| sal_Int8   | unsigned char  | 1             |
-| sal_uInt8  |
+| sal_Int8   | signed char    | 1             |
+| sal_uInt8  | unsigned char  | 1             |
 
 
 ### alloca.h 
