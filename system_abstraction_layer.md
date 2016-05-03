@@ -105,6 +105,7 @@ Function attributes for exception handling on GCC (but not MinGW) are:
 |                                      | ```SAL_DLLPUBLIC_EXPORT``` ††                  |
 
 † if dynamic library loading is disabled
+
 †† if dynamic library loading is enabled 
 
 ### alloca.h 
