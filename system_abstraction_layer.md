@@ -86,6 +86,17 @@ There are also a number of function attributes macros that have been defined, in
 
 † if dynamic library loading is disabled
 †† if dynamic library loading is enabled 
+
+Function attributes for exception handling on GCC (but not MinGW) are:
+
+| Name                                 | Function attribute                             |
+|--------------------------------------|------------------------------------------------|
+| ```SAL_EXCEPTION_DLLPUBLIC_EXPORT``` | \_\_attribute\_\_((visibility("default"))) †   |
+|                                      | ```SAL_DLLPUBLIC_EXPORT``` ††                  |
+
+† if dynamic library loading is disabled
+†† if dynamic library loading is enabled 
+
 ### alloca.h 
 
 The ```alloca()``` function allocates (as it's name suggests) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually *run out* of stack space and your program will crash. 
