@@ -1,6 +1,21 @@
 # System Abstraction Layer
 ## Headers (include/sal)
 
+### macro.h
+A number of primitive macros are defined
+| Name           | Description                               |
+| ---------------| ------------------------------------------|
+| SAL_N_ELEMENTS | Gets the number of elements in an array   |
+| SAL_BOUND      | Checks to see if the value is between two |
+|                | other values                              |
+| SAL_ABS        | Gets the absolute value of the number     |
+| SAL_STRINGIFY  | Takes a token and turns it into an        |
+|                | escaped string                            |
+
+
+### types.h
+
+
 ### alloca.h 
 
 The ```alloca()``` function allocates (as it's name suggests) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually *run out* of stack space and your program will crash. 
