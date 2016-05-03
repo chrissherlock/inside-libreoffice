@@ -59,6 +59,8 @@ There are a few types that are now deprecated:
 | ```sal_sChar```  | signed char                     |
 | ```sal_uChar```  | unsigned char                   |
 
+A number of macros have also been defined to get the maximum values of int types. The macros have the form ```SAL_MIN_[U]INT*<bit-width>*``` and ```SAL_MAX_[U]INT*<bit-width>*```. The macros assume that the ```sal_Int\*``` types use two's complement to represent the numbers.
+
 There are also a number of function attributes macros that have been defined, in order to be cross platform and utilize compiler features when they are available:
 
 | Name                        | Function attribute                             | Compiler     | 
