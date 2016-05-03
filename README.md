@@ -9,7 +9,7 @@ As with any codebase as old as LibreOffice, it can be quite hard to get your hea
 
 
 ## Work in progress
-I've chosen GitBook as my publishing medium because it has an intuitive distribution mechanism (git! and the editor is super easy to use), integrates with GitHub where I have an account, and because it's almost Wiki like in that I can make my changes, if I need to I can revert them, or branch the content - whatever is necessary :-) I can also accept pull requests on GitHub, if anyone so desires. 
+I've chosen GitBook as my publishing medium because it has an intuitive distribution mechanism (git! and the editor is super easy to use), integrates with GitHub where I have an account, and because it's almost Wiki like in that I can make my changes, if I need to I can revert them, or branch the content - whatever is necessary :-) I can also accept pull requests on GitHub, if anyone so desires. GitBook also has a minimal and intutive design that doesn't get in the way of the subject matter. 
 
 What this does mean, however, is that the book is a work in progress. Initially, it is half formed and I'm still trying to work out the structure. I'm also reading through the code as I go so this is as much an exercise for me to understand LibreOffice's codebase as it is to enlighten the reader!
 
