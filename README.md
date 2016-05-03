@@ -1,4 +1,4 @@
-![](LibreOffice_Initial-Artwork-Logo_BlackWhiteLogo_2000px.png)
+![](LibreOffice_external_logo_1200px.png)
 # Inside LibreOffice
 
 LibreOffice has been around, in one form or another, since the late 80s/early 90s. In 1988 Marco Börries wrote StarWriter for the Zilog Z80, then the next year formed the German company Star Division. Star Division eventually fleshed out their offering and renamed it to Star Office. At some point Star Division also marketed and sold a cross platform C++ framework they called StarView. This, [they claimed](http://www.trumphurst.com/cpplibs/datapage.php?frompage=navbar&sqldata=Category%3D%27Mcom2%27), was part of a larger framework they called SOLAR (which you can still see in several of the classes e.g. SolarMutex). In fact, StarView was in essence what we now call the Visual Components Library (VCL) and contained much the same [class structure](http://collaboration.cmc.ec.gc.ca/science/rpn/biblio/ddj/Website/articles/DDJ/1993/9312/9312h/9312h.htm) we still use today.
