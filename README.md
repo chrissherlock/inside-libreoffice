@@ -16,8 +16,7 @@ What this does mean, however, is that the book is a work in progress. Initially,
 Feel free to send me feedback:
 
 <div>
-<img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/TwitterLogo_%2355acee.png" style="width:50px;height;30px;vertical-align:middle" />
-<span style=""><a href="https://twitter.com/tbsdy">@tbsdy</a></span>
+<img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/TwitterLogo_%2355acee.png" style="width:50px;height;30px;vertical-align:middle" /><span style=""><a href="https://twitter.com/tbsdy">@tbsdy</a></span>
 </div>
 
 ![](50px-TK_email_icon.svg.png=50x) chris.sherlock79 at gmail.com
