@@ -1,7 +1,7 @@
 # System Abstraction Layer
 ## Headers (include/sal)
 ### main.h
-Defines main() entry point into LibreOffice, and is designed as a bunch of cross-platform macros. 
+Defines the main() entry point into LibreOffice, and is designed as a bunch of cross-platform macros. 
 
 ### macro.h
 A number of primitive macros are defined:
