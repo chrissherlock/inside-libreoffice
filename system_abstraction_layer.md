@@ -19,6 +19,7 @@ This header contains a number of macros, typedefs and namespace shortcuts that a
 * MinGW
 * Microsoft Visual C/C++
 
+A particularly useful shortcut was added by Michael Meeks in v4.0 - it alias the namespace com.sun.star to css. You will find yourself using this frequently as you interact with UNO and the API.
 
 A number of types are defined for portability reasons:
 
