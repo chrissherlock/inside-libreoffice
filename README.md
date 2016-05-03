@@ -22,3 +22,6 @@ Feel free to send me feedback:
 <img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/GitHub-Mark-32px.png" style="width:25px;;vertical-align:middle" /> <span style="display:inline-block;;vertical-align:middle"><a href="https://github.com/chrissherlock">GitHub</a></span>
 </div>
 
+
+<div style="margin-top:20px; font-size: xx-small; text-align:center;">The <a href="https://github.com/">GitHub</a>, <a href="https://www.gitbook.com">GitBook</a> and <a href="https://twitter.com/">Twitter</a> trademarks, registered trademarks, service marks, and related branding marks are the legal property of their respective owners. The <a href="https://www.libreoffice.org/">LibreOffice</a> trademark and logo are the legal property of <a href="https://www.documentfoundation.org/">The Document Foundation</a>.</div>
+
