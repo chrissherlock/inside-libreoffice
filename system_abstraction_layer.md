@@ -2,24 +2,38 @@
 ## Headers (include/sal)
 
 ### macro.h
-A number of primitive macros are defined
-| Name           | Description                               |
-| ---------------| ------------------------------------------|
-| SAL_N_ELEMENTS | Gets the number of elements in an array   |
-| SAL_BOUND      | Checks to see if the value is between two |
-|                | other values                              |
-| SAL_ABS        | Gets the absolute value of the number     |
-| SAL_STRINGIFY  | Takes a token and turns it into an        |
-|                | escaped string                            |
+A number of primitive macros are defined:
+
+| Name                 | Description                               |
+|----------------------|-------------------------------------------|
+| ```SAL_N_ELEMENTS``` | Gets the number of elements in an array   |
+| ```SAL_BOUND```      | Checks to see if the value is between two |
+|                      | other values                              |
+| ```SAL_ABS```        | Gets the absolute value of the number     |
+| ```SAL_STRINGIFY```  | Takes a token and turns it into an        |
+|                      | escaped string                            |
 
 ### types.h
 A number of types are nailed down:
-| Name       | Equiv C++ type | Size in bytes |
-| --------  -| ---------------| --------------|
-| sal_Bool   | bool           | 1             |
-| sal_Int8   | signed char    | 1             |
-| sal_uInt8  | unsigned char  | 1             |
 
+| Name             | Equiv C++ type                  | Size in bytes | Format specifier     |
+|------------------|---------------------------------|--------------:|----------------------|
+| ```sal_Bool```   | unsigned char †                 |             1 | %c or %hhu           |
+| ```sal_Int8```   | signed char                     |             1 | %c or %hhi           |
+| ```sal_uInt8```  | unsigned char                   |             1 | %c or %hhu           |
+| ```sal_Int16```  | signed short                    |             2 | %hi                  |
+| ```sal_uInt16``` | unsigned short                  |             2 | %hu                  |
+| ```sal_Int32```  | signed long /                   |             4 | ```SAL_PRIdINT32```  |
+|                  | signed int ††                   |               |                      |    
+| ```sal_uInt32``` | unsigned long /                 |             4 | ```SAL_PRIuUINT32``` |
+|                  | unsigned int ††                 |               | ```SAL_PRIxUINT32``` |
+|                  |                                 |               | ```SAL_PRIXUNIT32``` |
+| ```sal_Int64```  | \_\_int64 (Windows)             |             8 | ```SAL_PRIdINT64```  |
+|                  | signed long int /               |               |
+|                  | signed long long (GNU C) †††    |               |
+| ```sal_uInt64``` | unsigned \_\_int64 (Windows)    |             8 | ```SAL_PRIuUNIT64``` |
+|                  | unsigned long int /             |               | ```SAL_PRIxUNIT64``` |
+|                  | unsigned long long (GNU C) †††  |               | ```SAL_PRIXUNIT64``` |
 
 ### alloca.h 
 
