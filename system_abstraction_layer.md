@@ -94,6 +94,7 @@ There are also a number of function attributes macros that have been defined, in
 | ```SAL_NO_VTABLE```         | \_\_declspec(novtable)                         | Microsoft C  |
 
 † if dynamic library loading is disabled
+
 †† if dynamic library loading is enabled 
 
 Function attributes for exception handling on GCC (but not MinGW) are:
