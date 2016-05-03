@@ -18,5 +18,7 @@ Feel free to send me feedback:
 <div style="text-align:center;"><img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/TwitterLogo_%2355acee.png" style="display:inline-block;width:25px;height;25px;vertical-align:middle" /><span style="vertical-align:middle"><a href="https://twitter.com/tbsdy">@tbsdy</a></span>
 
 <img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/50px-TK_email_icon.svg.png" style="width:25px;height;25px;vertical-align:middle" /> <span style="display:inline-block;;vertical-align:middle">chris.sherlock79 at gmail.com</span>
+
+<img src="https://raw.githubusercontent.com/chrissherlock/inside-libreoffice/master/GitHub-Mark-32px.png" style="width:25px;;vertical-align:middle" /> <span style="display:inline-block;;vertical-align:middle"><a href="https://github.com/chrissherlock">GitHub</a></span>
 </div>
 
