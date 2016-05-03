@@ -65,24 +65,27 @@ There are also a number of function attributes macros that have been defined, in
 |-----------------------------|------------------------------------------------|--------------|
 | ```SAL_DLLPUBLIC_EXPORT```  | \_\_declspec(dllexport)                        | Microsoft C  |
 |                             |                                                | MinGW        |
-|                             | \_\_attribute\_\_ ((visibility("hidden"))) †   | GNU C, Clang |
-|                             | \_\_attribute\_\_ ((visibility("default"))) †† |              |
+|                             | \_\_attribute\_\_((visibility("hidden"))) †    | GNU C, Clang |
+|                             | \_\_attribute\_\_((visibility("default"))) ††  |              |
 | ```SAL_JNI_EXPORT```        | \_\_declspect(dllexport)                       | Microsoft C  |
 |                             |                                                | MinGW        |
-|                             | \_\_attribute\_\_ ((visibility("default")))    | GNU C, Clang | 
+|                             | \_\_attribute\_\_((visibility("default")))     | GNU C, Clang | 
 | ```SAL_DLLPUBLIC_IMPORT```  | \_\_declspec(dllimport)                        | Microsoft C  |
 |                             |                                                | MinGW        |
-|                             | \_\_attribute\_\_ ((visibility("hidden"))) †   | GNU C, Clang |
-|                             | \_\_attribute\_\_ ((visibility("default"))) †† |              |
-| ```SAL_DLLPRIVATE```        | \_\_attribute\_\_ ((visibility("hidden")))     | GNU C, Clang |
-| ```SAL_DLLPUBLIC_TEMPLATE```| \_\_attribute\_\_ ((visibility("hidden"))) †   | GNU C, Clang |
-|                             | \_\_attribute\_\_ ((visibility("default"))) †† | GNU C, Clang |
-| ```SAL_DLLPUBLIC_RTTI```    | \_\_attribute\_\_ ((type_visibility("default"))) | Clang      |
-|                             | \_\_attribute\_\_ ((visibility("default")))    | GNU C        |
+|                             | \_\_attribute\_\_((visibility("hidden"))) †    | GNU C, Clang |
+|                             | \_\_attribute\_\_((visibility("default"))) ††  |              |
+| ```SAL_DLLPRIVATE```        | \_\_attribute\_\_((visibility("hidden")))      | GNU C, Clang |
+| ```SAL_DLLPUBLIC_TEMPLATE```| \_\_attribute\_\_((visibility("hidden"))) †    | GNU C, Clang |
+|                             | \_\_attribute\_\_((visibility("default"))) ††  | GNU C, Clang |
+| ```SAL_DLLPUBLIC_RTTI```    | \_\_attribute\_\_((type_visibility("default")))| Clang        |
+|                             | \_\_attribute\_\_((visibility("default")))     | GNU C        |
 | ```SAL_CALL```              | \_\_cdecl                                      | Microsoft C  |
 |                             |                                                | MinGW        |
 | ```SAL_CALL_ELLIPSE```      | \_\_cdecl                                      | Microsoft C  |
 |                             |                                                | MinGW        |
+| ```SAL_WARN_UNUSED```       | \_\_attribute\_\_((warn_unused_result))        | GNU C >= 4.1 |
+|                             |                                                | Clang        |
+| ```SAL_NO_VTABLE```         | \_\_declspec(novtable)                         | Microsoft C  |
 
 † if dynamic library loading is disabled
 †† if dynamic library loading is enabled 
