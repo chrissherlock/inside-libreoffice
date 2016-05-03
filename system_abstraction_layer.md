@@ -12,8 +12,13 @@ A number of primitive macros are defined
 | SAL_STRINGIFY  | Takes a token and turns it into an        |
 |                | escaped string                            |
 
-
 ### types.h
+A number of types are nailed down:
+| Name       | Equiv C++ type | Size in bytes |
+| --------  -| ---------------| --------------|
+| sal_Bool   | bool           | 1             |
+| sal_Int8   | unsigned char  | 1             |
+| sal_uInt8  |
 
 
 ### alloca.h 
