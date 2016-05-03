@@ -11,6 +11,15 @@ A number of primitive macros are defined:
 | ```SAL_STRINGIFY```  | Takes a token and turns it into an escaped string      |
 
 ### types.h
+
+This header contains a number of macros, typedefs and namespace shortcuts that allow LibreOffice to be cross-platform - and even build under different compilers. The compilers supported are:
+
+* gcc
+* clang
+* MinGW
+* Microsoft Visual C/C++
+
+
 A number of types are defined for portability reasons:
 
 | Name              | Equivalent C type               | Size (bytes) | Format specifier       |
