@@ -17,5 +17,5 @@ Feel free to send me feedback:
 
 ![](TwitterLogo_#55acee.pn=50x) [@tbsdy](https://twitter.com/tbsdy)
 
-![](50px-TK_email_icon.svg.png=50x) chris.sherlock79 <at> gmail.com
+![](50px-TK_email_icon.svg.png=50x) chris.sherlock79 at gmail.com
 
