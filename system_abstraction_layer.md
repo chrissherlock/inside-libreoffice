@@ -17,7 +17,7 @@ int SAL_DLLPUBLIC_EXPORT SAL_CALL main(int argc, char ** argv) \
 }
 ````
 
-```SAL_MAIN_IMPL``` is exactly the same, only it calls on ```sal_main()``` instead of ```sal_main_with_args()```. These macros initialize LibreOffice through ```sal_detail_initialize```. This init function ensures that OS X closes all its file descriptors because non-sandboxed versions of LibreOffice can restart themselves, but not close all their descriptors. It initializes the global timer, and on systems that have syslog sets this up for logging. It then sets the command line arguments. 
+```SAL_MAIN_IMPL``` is exactly the same, only it calls on ```sal_main()``` instead of ```sal_main_with_args()```. These macros initialize LibreOffice through ```sal_detail_initialize```. This init function ensures that OS X closes all its file descriptors because non-sandboxed versions of LibreOffice can restart themselves (normally when [updating extensions](https://bugs.documentfoundation.org/show_bug.cgi?id=50603)), but not close all their descriptors. It initializes the global timer, and on systems that have syslog sets this up for logging. It then prepares the command line arguments. 
 
 
 ### macro.h
