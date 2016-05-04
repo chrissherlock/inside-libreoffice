@@ -1,7 +1,24 @@
 # System Abstraction Layer
 ## Headers (include/sal)
 ### main.h
-Defines the main() entry point into LibreOffice, and is designed as a bunch of cross-platform macros. 
+Defines the main() entry point into LibreOffice, and is designed as a bunch of cross-platform macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
+
+The macros ```SAL_MAIN_WITH_ARGS_IMPL``` and ```SAL_MAIN_IMPL``` both define the ```main()``` function of LibreOffice. The difference is, as per the name suggests, that one takes arguments from the command line, and the other does not. We shall focus on ```SAL_MAIN_WITH_ARGS_IMPL``` as they are both exactly the same except for one function call. The macro is defined as:
+
+````
+#define SAL_MAIN_WITH_ARGS_IMPL \
+int SAL_DLLPUBLIC_EXPORT SAL_CALL main(int argc, char ** argv) \
+{ \
+    int ret; \
+    sal_detail_initialize(argc, argv);   \
+    ret = sal_main_with_args(argc, argv); \
+    sal_detail_deinitialize(); \
+    return ret; \
+}
+````
+
+```SAL_MAIN_IMPL``` is exactly the same, only it calls on ```sal_main()``` instead of ```sal_main_with_args()```. These macros initialize LibreOffice through ```sal_detail_initialize```. This init function ensures that OS X closes all its file descriptors because non-sandboxed versions of LibreOffice can restart themselves, but not close all their descriptors. It initializes the global timer, and on systems that have syslog sets this up for logging. It then sets the command line arguments. 
+
 
 ### macro.h
 A number of primitive macros are defined:
