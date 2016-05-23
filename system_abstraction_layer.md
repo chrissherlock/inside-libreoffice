@@ -1,7 +1,7 @@
 # System Abstraction Layer
 ## Headers (include/sal)
 ### main.h
-Defines the main() entry point into LibreOffice, and is designed as a bunch of cross-platform macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
+Defines the ```main(```) entry point into LibreOffice, and is designed as a bunch of cross-platform macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
 
 The macros ```SAL_MAIN_WITH_ARGS_IMPL``` and ```SAL_MAIN_IMPL``` both define the ```main()``` function of LibreOffice. The difference is, as per the name suggests, that one takes arguments from the command line, and the other does not. We shall focus on ```SAL_MAIN_WITH_ARGS_IMPL``` as they are both exactly the same except for one function call. The macro is defined as:
 
