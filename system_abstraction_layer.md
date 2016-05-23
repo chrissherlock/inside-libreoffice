@@ -49,7 +49,6 @@ SAL_IMPLEMENT_MAIN_WITH_ARGS(argc, argv)
     return 0;
 }
 ```
-
 ## macro.h
 A number of primitive macros are defined:
 
