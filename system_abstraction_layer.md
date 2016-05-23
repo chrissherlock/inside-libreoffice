@@ -1,7 +1,15 @@
 # System Abstraction Layer
-## Headers (include/sal)
-### main.h
-Defines the ```main(```) entry point into LibreOffice, and is designed as a bunch of cross-platform macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
+The System Abstraction Layer (SAL) contains all the modules that contain code that is platform specific and necessary to run LibreOffice. There are really a number of modules that fall into this layer - the Runtime Library (RTL) and the Operating System Layer (OSL) are wholly included in the SAL, whilst the Visual Components Library has parts that fall into the SAL. However, it also includes a grabbag of other classes and code that don't easily fit into these modules, and includes a lightweight debug logging framework, a macro to allow for a cross-platform program entry point, some floating point support routines and macros, a cross platform type system and a number of macros that provide a way in which to support a variety of compilers, including ones that only really support C++03.
+
+The header files for the SAL module are distributed amongst the following directories:
+* ```include/sal```
+* ```include/rtl```
+* ```include/osl```
+
+The headers in the ```include/sal``` directory handle a number of pieces of functionality, described here. 
+
+## Program entry point
+The ```main()``` entry point into LibreOffice is located in , and is designed as a bunch of cross-platform macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
 
 The macros ```SAL_MAIN_WITH_ARGS_IMPL``` and ```SAL_MAIN_IMPL``` both define the ```main()``` function of LibreOffice. The difference is, as per the name suggests, that one takes arguments from the command line, and the other does not. We shall focus on ```SAL_MAIN_WITH_ARGS_IMPL``` as they are both exactly the same except for one function call. The macro is defined as:
 
@@ -43,7 +51,7 @@ SAL_IMPLEMENT_MAIN_WITH_ARGS(argc, argv)
 }
 ```
 
-### macro.h
+## macro.h
 A number of primitive macros are defined:
 
 | Name                 | Description                                            |
@@ -53,7 +61,7 @@ A number of primitive macros are defined:
 | ```SAL_ABS```        | Gets the absolute value of the number                  |
 | ```SAL_STRINGIFY```  | Takes a token and turns it into an escaped string      |
 
-### types.h
+## types.h
 
 This header contains a number of macros, typedefs and namespace shortcuts that allow LibreOffice to be cross-platform - and even build under different compilers. The compilers supported are:
 
@@ -161,7 +169,7 @@ Function attributes for exception handling on GCC (but not MinGW) are:
 
 †† if dynamic library loading is enabled 
 
-### alloca.h 
+## alloca.h 
 
 The ```alloca()``` function allocates (as it's name suggests) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually *run out* of stack space and your program will crash. 
 
