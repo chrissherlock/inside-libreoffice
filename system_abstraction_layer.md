@@ -61,9 +61,9 @@ A number of primitive macros are defined:
 | ```SAL_ABS```        | Gets the absolute value of the number                  |
 | ```SAL_STRINGIFY```  | Takes a token and turns it into an escaped string      |
 
-## types.h
+## Type system
 
-This header contains a number of macros, typedefs and namespace shortcuts that allow LibreOffice to be cross-platform - and even build under different compilers. The compilers supported are:
+The ```include/sal/types.h``` header contains a number of macros, typedefs and namespace aliases that allow LibreOffice to be cross-platform - and even build under different compilers. The compilers supported are:
 
 * gcc
 * clang
@@ -169,11 +169,11 @@ Function attributes for exception handling on GCC (but not MinGW) are:
 
 †† if dynamic library loading is enabled 
 
-## alloca.h 
+## alloca() 
 
 The ```alloca()``` function allocates (as it's name suggests) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually *run out* of stack space and your program will crash. 
 
-alloca.h is included in the sal include directory because there are a variety of locations it is located - in Linux and Solaris, the function is stored in alloca.h; in OS X, BSD and iOS systems it is in sys/types.h and on Windows it is in malloc.h
+The ```alloc()``` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in ```alloca.h```; in OS X, BSD and iOS systems it is in ```sys/types.h``` and on Windows it is in ```malloc.h```. Due to this quirk, LibreOffice defines its own ```alloca.h``` in ```include/sal/alloca.h```
 
 *Note:* ```alloca()``` is considered dangerous because it returns a pointer to the beginning of the space that it allocates when it is called. If you pass this void＊ pointer to the calling function you may cause a stack overflow - in which case the behaviour is *undefined*. On Linux, there is also no indication if the stack frame cannot be extended. 
 
