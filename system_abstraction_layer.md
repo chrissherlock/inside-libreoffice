@@ -7,7 +7,6 @@ The header files for the SAL module are distributed amongst the following direct
 * ```include/osl```
 
 The headers in the ```include/sal``` directory handle a number of pieces of functionality, described here. 
-
 ## Program entry point
 The ```main()``` entry point into LibreOffice is located in ```main.h```, and is designed as a bunch of macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor. 
 
