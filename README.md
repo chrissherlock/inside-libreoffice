@@ -16,8 +16,8 @@ What this does mean, however, is that the book is a work in progress. Initially,
 Feel free to send me feedback:
 
 * **Twitter:** [@tbsdy](https://twitter.com/tbsdy)
-* **GitHub: **[chrissherlock](https://github.com/chrissherlock)
-* **Email: **chris.sherlock79 at gmail.com
+* **GitHub:** [chrissherlock](https://github.com/chrissherlock)
+* **Email:** chris.sherlock79 at gmail.com
 
 <div style="margin-top:20px; font-size: xx-small; text-align:center;">The <a href="https://github.com/">GitHub</a>, <a href="https://www.gitbook.com">GitBook</a> and <a href="https://twitter.com/">Twitter</a> trademarks, registered trademarks, service marks, and related branding marks are the legal property of their respective owners. The <a href="https://www.libreoffice.org/">LibreOffice</a> trademark and logo are the legal property of <a href="https://www.documentfoundation.org/">The Document Foundation</a>.
 
