@@ -13,6 +13,8 @@ In OSL, threads are encapsulated by the `Thread` class. This class has been desi
 ```cpp
 namespace {
 
+osl::Condition global;
+
 class Thread: public osl::Thread
 {
 public:
@@ -24,9 +26,40 @@ private:
 
     osl::Condition &m_cond;
 }
+
+void Thread::onTerminated() 
+{
+    m_cond.set();
+    CPPUNIT_ASSERT_EQUAL(osl::Condition::result_ok, global.wait());
+}
 ```
 
 \(We will get to `osl::Condition` soon\)
 
-To run the thread via the CPPUnit test framework, the test repeats a loop 50 times that creates an `osl::Condition` object instance, then the newly derived Thread class is used to instantiate a new thread instance, passing in the `osl::Condition` object instance. The thread is then created via the [`osl:Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) function which calls [`threadFunc()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#threadFunc), which itself calls on the thread's`osl::Thread:run()` function, then when this is done calls on the thread's`osl::Thread::onTerminated()` function.
+The unit test creates 50 threads which each wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
+
+The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is:
+
+```cpp
+    void test() 
+    {
+        for (int i = 0; i < 50; ++i) {
+            osl::Condition c;
+            Thread t(c);
+            CPPUNIT_ASSERT(t.create());
+            // Make sure virtual Thread::run/onTerminated are called before Thread::~Thread:
+            CPPUNIT_ASSERT_EQUAL(osl::Condition::result_ok, c.wait());
+        }
+        
+        // Make sure Thread::~Thread is called before each spawned thread terminates:
+        global.set();
+        
+        // Give the spawned threads enough time to terminate:
+        osl::Thread::wait(std::chrono::seconds(20));
+    }
+```
+
+To run the thread via the CPPUnit test framework, the test repeats a loop 50 times that creates an `osl::Condition` object instance \(which is a condition variable\), then the newly derived Thread class is used to instantiate a new thread instance, passing in the `osl::Condition` object instance. The thread is then created via the [`osl:Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) function which creates a new low level C-based OSL thread and immediately suspends it. The thread uses a global callback function [`threadFunc()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#threadFunc), which when invoked after the thread is unsuspended calls on the thread's`osl::Thread:run()` function and then calls on the thread's`osl::Thread::onTerminated()` function. 
+
+The 
 
