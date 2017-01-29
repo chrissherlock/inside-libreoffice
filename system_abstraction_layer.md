@@ -4,9 +4,9 @@ The System Abstraction Layer \(SAL\) contains all the modules that contain code 
 
 The header files for the SAL module are distributed amongst the following directories:
 
-* `include/sal`
-* `include/rtl`
-* `include/osl`
+* [`include/sal`](http://opengrok.libreoffice.org/xref/core/include/sal/)
+* [`include/rtl`](http://opengrok.libreoffice.org/xref/core/include/rtl/)
+* [`include/osl`](http://opengrok.libreoffice.org/xref/core/include/osl/)
 
 The headers in the `include/sal` directory handle a number of pieces of functionality, described here.
 
