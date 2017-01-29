@@ -21,7 +21,7 @@ namespace {
         explicit Thread(osl::Condition &cond) : m_cond(cond) {}
 
     private:
-        virtual void SAL_CALL run();
+        virtual void SAL_CALL run() {}
         virtual void SAL_CALL onTerminated();
 
         osl::Condition &m_cond;
