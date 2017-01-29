@@ -17,14 +17,16 @@ class Thread: public osl::Thread
 {
 public:
     explicit Thread(osl::Condition &cond) : m_cond(cond) {}
-    
+
 private:
     virtual void SAL_CALL run();
     virtual void SAL_CALL onTerminated();
-    
+
     osl::Condition &m_cond;
 }
 ```
 
+\(We will get to `osl::Condition` soon\)
 
+To run the thread via the CPPUnit test framework, the test repeats a loop 50 times that creates an `osl::Condition` object instance, then the newly derived Thread class is used to instantiate a new thread instance, passing in the `osl::Condition` object instance. The thread is then created via the [`osl:Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) function which calls [`threadFunc()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#threadFunc), which itself calls on the thread's`osl::Thread:run()` function, then when this is done calls on the thread's`osl::Thread::onTerminated()` function.
 
