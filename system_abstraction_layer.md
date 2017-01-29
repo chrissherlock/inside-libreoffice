@@ -42,14 +42,12 @@ This works across Windows and other platforms because the implementation macro c
 SAL_IMPLEMENT_MAIN()
 {
     DoSomething();
-
     return 0;
 }
 
 SAL_IMPLEMENT_MAIN_WITH_ARGS(argc, argv)
 {
     DoSomethingWithArgs(argc, argv);
-
     return 0;
 }
 ```
