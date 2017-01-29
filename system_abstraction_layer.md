@@ -37,7 +37,7 @@ int SAL_DLLPUBLIC_EXPORT SAL_CALL main(int argc, char ** argv) \
 
 This works across Windows and other platforms because the implementation macro calls `SAL_MAIN_WITH_ARGS_IMPL` and `SAL_MAIN_IMPL` ensure that `WinMain()` is defined on Windows systems, and expands to nothing on non-Windows systems. `WinMain()` on Windows systems is the default entry-point of the Windows C Runtime Library \(Windows CRT\) - LibreOffice does all the heavy lifting in `sal_main()`, which you define using the `SAL_MAIN_WITH_ARGS_IMPL` and `SAL_MAIN_IMPL` macros like this:
 
-```
+```cpp
 #include <sal/main.h>
 SAL_IMPLEMENT_MAIN()
 {
