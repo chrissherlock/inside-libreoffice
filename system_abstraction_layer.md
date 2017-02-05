@@ -14,7 +14,7 @@ The headers in the `include/sal` directory handle a number of pieces of function
 
 The `main()` entry point into LibreOffice is located in `main.h`, and is designed as a bunch of macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor.
 
-The macros `SAL_MAIN_WITH_ARGS_IMPL` and `SAL_MAIN_IMPL` both define the `main()` function of LibreOffice. The difference is, as per the name suggests, that one takes arguments from the command line, and the other does not. We shall focus on `SAL_MAIN_WITH_ARGS_IMPL` as they are both exactly the same except for one function call. The macro is defined as:
+The macros `SAL_MAIN_WITH_ARGS_IMPL` and `SAL_MAIN_IMPL` both define the `main()` function of LibreOffice. The difference, as the name suggests, is that one takes arguments from the command line, and the other does not. We shall focus on `SAL_MAIN_WITH_ARGS_IMPL`as they are both exactly the same except for one function call. The macro is defined as:
 
 ```cpp
 #define SAL_MAIN_WITH_ARGS_IMPL \
@@ -78,35 +78,23 @@ A number of types are defined for portability reasons:
 
 | Name | Equivalent C type | Size \(bytes\) | Format specifier |
 | --- | --- | ---: | --- |
-| `sal_Bool` | unsigned char † | 1 | %c or %hhu |
-| `sal_Int8` | signed char | 1 | %c or %hhi |
-| `sal_uInt8` | unsigned char | 1 | %c or %hhu |
-| `sal_Int16` | signed short | 2 | %hi |
-| `sal_uInt16` | unsigned short | 2 | %hu |
-| `sal_Int32` | signed long / | 4 | `SAL_PRIdINT32` |
-|  | signed int †† |  |  |
-| `sal_uInt32` | unsigned long / | 4 | `SAL_PRIuUINT32` |
-|  | unsigned int †† |  | `SAL_PRIxUINT32` |
-|  |  |  | `SAL_PRIXUNIT32` |
-| `sal_Int64` | \_\_int64 \(Windows\) | 8 | `SAL_PRIdINT64` |
-|  | signed long int / |  | `SAL_CONST_INT64` |
-|  | signed long long \(GNU C\) ††† |  |  |
-| `sal_uInt64` | unsigned \_\_int64 \(Windows\) | 8 | `SAL_PRIuUNIT64` |
-|  | unsigned long int / |  | `SAL_PRIxUNIT64` |
-|  | unsigned long long \(GNU C\) ††† |  | `SAL_PRIXUNIT64` |
-|  |  |  | `SAL_CONST_UINT64` |
-| `sal_Unicode` | wchar\_t \(Windows\) †††† | 2 | Depends on platform... |
-|  | sal\_uInt16 \(non-Windows\) ††††† |  |  |
-| `sal_Handle` | void \* | size of | n/a |
-|  |  | pointer |  |
-| `sal_Size` | sal\_uInt32 / sal\_uInt64 | native width | SAL\_PRI\_SIZET |
-| `sal_sSize` | sal\_Int32 / sal\_Int64 | native width | SAL\_PRI\_SIZET |
-| `sal_PtrDiff` | result of pointer subtraction | native width | SAL\_PRI\_PTRDIFFT |
-| `sal_IntPtr` | native width of integers | size of | SAL\_PRIdINTPTR |
-|  |  | pointer |  |
-| `sal_uIntPtr` | native width of integers | size of | SAL\_PRIuUINTPTR |
-|  |  | pointer | SAL\_PRIxUNITPTR |
-|  |  |  | SAL\_PRIXUNITPTR |
+| `sal_Bool` | `unsigned char` † | 1 | %c or %hhu |
+| `sal_Int8` | `signed char` | 1 | %c or %hhi |
+| `sal_uInt8` | `unsigned char` | 1 | %c or %hhu |
+| `sal_Int16` | `signed short` | 2 | %hi |
+| `sal_uInt16` | `unsigned short` | 2 | %hu |
+| `sal_Int32` | `signed long` <br> `signed int` †† | 4 | `SAL_PRIdINT32` |
+| `sal_uInt32` | `unsigned long` <br> `unsigned int` †† | 4 | `SAL_PRIuUINT32` |
+| `sal_Int64` | `\_\_int64` \(Windows\) | 8 | `SAL_PRIdINT64` |
+| `sal_Int64` | `signed long int` <br> `signed long long` \(GNU C\) ††† |  | `SAL_CONST_INT64` |
+| `sal_uInt64` | `unsigned \_\_int64` \(Windows\) <br> `unsigned long int` <br> `unsigned long long` \(GNU C\) †††  | 8 | `SAL_PRIuUNIT64` |
+| `sal_Unicode` | `wchar\_t` \(Windows\) †††† <br> `sal\_uInt16` \(non-Windows\) ††††† | 2 | Depends on platform... |
+| `sal_Handle` | `void \*` | size of pointer | n/a |
+| `sal_Size` | `sal\_uInt32` <br> `sal\_uInt64` | native width | `SAL\_PRI\_SIZET` |
+| `sal_sSize` | `sal\_Int32` <br> `sal\_Int64` | native width | `SAL\_PRI\_SIZET` |
+| `sal_PtrDiff` | result of pointer subtraction | native width | `SAL\_PRI\_PTRDIFFT` |
+| `sal_IntPtr` | native width of integers | size of pointer | `SAL\_PRIdINTPTR` |
+| `sal_uIntPtr` | native width of integers | size of pointer | `SAL\_PRIuUINTPTR` |
 
 † `sal_Bool` is deprecated in favour of `bool`, however it is still used in the UNO API so cannot be completely removed. All code other than the API should use bool
 
@@ -122,9 +110,9 @@ There are a few types that are now deprecated:
 
 | Name | Equivalent C type |
 | --- | --- |
-| `sal_Char` | char |
-| `sal_sChar` | signed char |
-| `sal_uChar` | unsigned char |
+| `sal_Char` | `char` |
+| `sal_sChar` | `signed char` |
+| `sal_uChar` | `unsigned char` |
 
 A number of macros have also been defined to get the maximum values of int types. The macros have the form `SAL_MIN_[U]INT*<bit-width>*` and `SAL_MAX_[U]INT*<bit-width>*`. The macros assume that the `sal_Int\*` types use two's complement to represent the numbers.
 
@@ -132,29 +120,21 @@ There are also a number of function attributes macros that have been defined, in
 
 | Name | Function attribute | Compiler |
 | --- | --- | --- |
-| `SAL_DLLPUBLIC_EXPORT` | \_\_declspec\(dllexport\) | Microsoft C |
-|  |  | MinGW |
-|  | \_\_attribute\_\_\(\(visibility\("hidden"\)\)\) † | GNU C, Clang |
-|  | \_\_attribute\_\_\(\(visibility\("default"\)\)\) †† |  |
-| `SAL_JNI_EXPORT` | \_\_declspect\(dllexport\) | Microsoft C |
-|  |  | MinGW |
-|  | \_\_attribute\_\_\(\(visibility\("default"\)\)\) | GNU C, Clang |
-| `SAL_DLLPUBLIC_IMPORT` | \_\_declspec\(dllimport\) | Microsoft C |
-|  |  | MinGW |
-|  | \_\_attribute\_\_\(\(visibility\("hidden"\)\)\) † | GNU C, Clang |
-|  | \_\_attribute\_\_\(\(visibility\("default"\)\)\) †† |  |
-| `SAL_DLLPRIVATE` | \_\_attribute\_\_\(\(visibility\("hidden"\)\)\) | GNU C, Clang |
-| `SAL_DLLPUBLIC_TEMPLATE` | \_\_attribute\_\_\(\(visibility\("hidden"\)\)\) † | GNU C, Clang |
-|  | \_\_attribute\_\_\(\(visibility\("default"\)\)\) †† | GNU C, Clang |
-| `SAL_DLLPUBLIC_RTTI` | \_\_attribute\_\_\(\(type\_visibility\("default"\)\)\) | Clang |
-|  | \_\_attribute\_\_\(\(visibility\("default"\)\)\) | GNU C |
-| `SAL_CALL` | \_\_cdecl | Microsoft C |
-|  |  | MinGW |
-| `SAL_CALL_ELLIPSE` | \_\_cdecl | Microsoft C |
-|  |  | MinGW |
-| `SAL_WARN_UNUSED` | \_\_attribute\_\_\(\(warn\_unused\_result\)\) | GNU C &gt;= 4.1 |
-|  |  | Clang |
-| `SAL_NO_VTABLE` | \_\_declspec\(novtable\) | Microsoft C |
+| `SAL_DLLPUBLIC_EXPORT` | `\_\_declspec\(dllexport\)` | Microsoft C <br> MinGW |
+| `SAL_DLLPUBLIC_EXPORT` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` †† | GNU C, Clang |
+|  |  |  |
+| `SAL_JNI_EXPORT` | `\_\_declspect\(dllexport\)` | Microsoft C <br> MinGW |
+| `SAL_JNI_EXPORT` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_IMPORT` | `\_\_declspec\(dllimport\)` | Microsoft C <br> MinGW |
+| `SAL_DLLPUBLIC_IMPORT` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` ††| GNU C <br> Clang  |
+| `SAL_DLLPRIVATE` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_TEMPLATE` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` †† | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_RTTI` | `\_\_attribute\_\_\(\(type\_visibility\("default"\)\)\)` | Clang |
+| `SAL_DLLPUBLIC_RTTI` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` | GNU C |
+| `SAL_CALL` | `\_\_cdecl` | Microsoft C <br> MinGW |
+| `SAL_CALL_ELLIPSE` | `\_\_cdecl` | Microsoft C <br> MinGW |
+| `SAL_WARN_UNUSED` | `\_\_attribute\_\_\(\(warn\_unused\_result\)\)` | GNU C &gt;= 4.1 <br> Clang |
+| `SAL_NO_VTABLE` | `\_\_declspec\(novtable\)` | Microsoft C |
 
 † if dynamic library loading is disabled
 
@@ -164,8 +144,7 @@ Function attributes for exception handling on GCC \(but not MinGW\) are:
 
 | Name | Function attribute |
 | --- | --- |
-| `SAL_EXCEPTION_DLLPUBLIC_EXPORT` | \_\_attribute\_\_\(\(visibility\("default"\)\)\) † |
-|  | `SAL_DLLPUBLIC_EXPORT` †† |
+| `SAL_EXCEPTION_DLLPUBLIC_EXPORT` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` † <br> `SAL_DLLPUBLIC_EXPORT` †† |
 
 † if dynamic library loading is disabled
 
@@ -177,5 +156,5 @@ The `alloca()` function allocates \(as it's name suggests\) temporary memory in 
 
 The `alloc()` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in `alloca.h`; in OS X, BSD and iOS systems it is in `sys/types.h` and on Windows it is in `malloc.h`. Due to this quirk, LibreOffice defines its own `alloca.h` in `include/sal/alloca.h`
 
-_Note:_ `alloca()` is considered dangerous because it returns a pointer to the beginning of the space that it allocates when it is called. If you pass this void＊ pointer to the calling function you may cause a stack overflow - in which case the behaviour is _undefined_. On Linux, there is also no indication if the stack frame cannot be extended.
+_Note:_ `alloca()` is considered dangerous because it returns a pointer to the beginning of the space that it allocates when it is called. If you pass this `void*` pointer to the calling function you may cause a stack overflow - in which case the behaviour is _undefined_. On Linux, there is also no indication if the stack frame cannot be extended.
 
