@@ -8,7 +8,13 @@ As the C++ Standard Template Library has matured, there have also been other lib
 
 A computer program consists of one or many [_threads of execution_](https://en.wikipedia.org/wiki/Thread_(computing). Each thread represents the smallest sequence of programmed instructions that can be managed independently by a scheduler. LibreOffice's OSL can manage multiple threads of execution, which exist within the LibreOffice process.
 
-In OSL, threads are encapsulated by the `Thread` class. This class has been designed to be inherited - to use it, derive your thread class from `Thread` and implement the `run()` function, and if necessary implement the `onTerminated()` function. A very basic example can be found in the SAL unit tests - navigate to [sal/qa/osl/thread/test\_thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx) and review the test class, also named `Thread`:
+### Thread creation
+
+In OSL, threads are encapsulated by the `Thread` class. This class has been designed to be inherited - to use it, derive your thread class from `Thread` and implement the `run()` function, and if necessary implement the `onTerminated()` function. 
+
+To create a new thread, you first call upon the `ThreadClassName::create()` function - which actually calls upon [`osl::Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) - and you then implement your functionality in `ThreadClassName::run()`, which is a pure virtual function in [`osl::Thread::run()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#172). Only one thread can be executing at any time, however whilst you can create a new thread and have it run immediately via the `create()` function, but you can also create a suspended thread until you decide to unsuspend it to do work via [`createSuspended()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#createSuspended).
+
+A very basic example can be found in the SAL unit tests - navigate to [sal/qa/osl/thread/test\_thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx) and review the test class, also named `Thread`:
 
 ```cpp
 osl::Condition global;
@@ -34,7 +40,7 @@ void Thread::onTerminated()
 
 \(We will get to `osl::Condition` soon\)
 
-The unit test creates 50 threads which each wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
+The unit test creates 50 `Thread` instances, which each call the `create()` function. It then has each thread instance wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
 
 The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is:
 
@@ -70,4 +76,10 @@ What, you may ask, is a "condition variable"? A condition variable is essentiall
 `osl::Condition` works by first instantiating a new instance of the condition, and a thread then calls on it's `wait()` function \(which has an optional timeout parameter\). The condition starts as false, and then when condition has been met, then the condition variable's `set()` function is called which releases all waiting threads.
 
 A condition variable can be reused via the `reset()` function, which sets the condition back to false. It also has a `check()` function which checks if the condition is set without blocking execution.
+
+### 
+
+
+
+
 
