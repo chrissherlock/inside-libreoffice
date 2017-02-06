@@ -10,7 +10,7 @@ A computer program consists of one or many [_threads of execution_](https://en.w
 
 ### Thread creation
 
-In OSL, threads are encapsulated by the `Thread` class. This class has been designed to be inherited - to use it, derive your thread class from `Thread` and implement the `run()` function, and if necessary implement the `onTerminated()` function. 
+In OSL, threads are encapsulated by the `Thread` class. This class has been designed to be inherited - to use it, derive your thread class from `Thread` and implement the `run()` function, and if necessary implement the `onTerminated()` function.
 
 To create a new thread, you first call upon the `ThreadClassName::create()` function - which actually calls upon [`osl::Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) - and you then implement your functionality in `ThreadClassName::run()`, which is a pure virtual function in [`osl::Thread::run()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#172). Only one thread can be executing at any time, however whilst you can create a new thread and have it run immediately via the `create()` function, but you can also create a suspended thread until you decide to unsuspend it to do work via [`createSuspended()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#createSuspended).
 
@@ -77,9 +77,13 @@ What, you may ask, is a "condition variable"? A condition variable is essentiall
 
 A condition variable can be reused via the `reset()` function, which sets the condition back to false. It also has a `check()` function which checks if the condition is set without blocking execution.
 
-### 
+### Thread operations
 
+Threads can be suspended via the `suspend()` function, suspended threads can later be resumed via the `resume()` function. A thread can be put to sleep for a time via the `wait()` function, which takes a [`TimeValue`](http://opengrok.libreoffice.org/xref/core/include/osl/time.h#TimeValue) instance to specify the time the thread should be sleeping for. A thread can also wait for another thread to wait for the completion of another thread by calling on the other thread's `join()` function, or if it has no work it can call on the `Yeild()` function to place itself at the bottom of the queue of scheduled threads, then relinquish control to the next thread. And of course, a thread can end itself by calling on the `terminate()` function. If you want to see if a thread is running, then call `isRunning()`.
 
+Threads can be given higher or lower priorities, which effects the thread scheduler of the operating system. This is largely operating system dependent. Linux, for instance, by default uses a [round robin scheduler](http://man7.org/linux/man-pages/man2/sched_setscheduler.2.html), which works by allocating a time slice to each thread of each priority level. The threads at the highest priority level will first be run, each running for the timeslice allocated them, then will be suspended and the scheduler will move on to execute the next thread for it's timeslice, and so on. Once no threads need to execute anything, it drops to the priority below it and executes all these theads in a round robin fashion until it too has no more active threads. The scheduler eventually drops to the lowest priority and does the same on these threads.
+
+A thread's priority is set via `setPriority()` and `getPriority()`.
 
 
 
