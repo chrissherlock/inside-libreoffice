@@ -85,16 +85,16 @@ A number of types are defined for portability reasons:
 | `sal_uInt16` | `unsigned short` | 2 | %hu |
 | `sal_Int32` | `signed long` <br> `signed int` †† | 4 | `SAL_PRIdINT32` |
 | `sal_uInt32` | `unsigned long` <br> `unsigned int` †† | 4 | `SAL_PRIuUINT32` |
-| `sal_Int64` | `\_\_int64` \(Windows\) | 8 | `SAL_PRIdINT64` |
+| `sal_Int64` | `__int64` \(Windows\) | 8 | `SAL_PRIdINT64` |
 | `sal_Int64` | `signed long int` <br> `signed long long` \(GNU C\) ††† |  | `SAL_CONST_INT64` |
-| `sal_uInt64` | `unsigned \_\_int64` \(Windows\) <br> `unsigned long int` <br> `unsigned long long` \(GNU C\) †††  | 8 | `SAL_PRIuUNIT64` |
-| `sal_Unicode` | `wchar\_t` \(Windows\) †††† <br> `sal\_uInt16` \(non-Windows\) ††††† | 2 | Depends on platform... |
-| `sal_Handle` | `void \*` | size of pointer | n/a |
-| `sal_Size` | `sal\_uInt32` <br> `sal\_uInt64` | native width | `SAL\_PRI\_SIZET` |
-| `sal_sSize` | `sal\_Int32` <br> `sal\_Int64` | native width | `SAL\_PRI\_SIZET` |
-| `sal_PtrDiff` | result of pointer subtraction | native width | `SAL\_PRI\_PTRDIFFT` |
-| `sal_IntPtr` | native width of integers | size of pointer | `SAL\_PRIdINTPTR` |
-| `sal_uIntPtr` | native width of integers | size of pointer | `SAL\_PRIuUINTPTR` |
+| `sal_uInt64` | `unsigned __int64` \(Windows\) <br> `unsigned long int` <br> `unsigned long long` \(GNU C\) †††  | 8 | `SAL_PRIuUNIT64` |
+| `sal_Unicode` | `wchar_t` \(Windows\) †††† <br> `sal\_uInt16` \(non-Windows\) ††††† | 2 | Depends on platform... |
+| `sal_Handle` | `void *` | size of pointer | n/a |
+| `sal_Size` | `sal_uInt32` <br> `sal_uInt64` | native width | `SAL_PRI_SIZET` |
+| `sal_sSize` | `sal_Int32` <br> `sal_Int64` | native width | `SAL_PRI_SIZET` |
+| `sal_PtrDiff` | result of pointer subtraction | native width | `SAL_PRI_PTRDIFFT` |
+| `sal_IntPtr` | native width of integers | size of pointer | `SAL_PRIdINTPTR` |
+| `sal_uIntPtr` | native width of integers | size of pointer | `SAL_PRIuUINTPTR` |
 
 † `sal_Bool` is deprecated in favour of `bool`, however it is still used in the UNO API so cannot be completely removed. All code other than the API should use bool
 
@@ -120,21 +120,21 @@ There are also a number of function attributes macros that have been defined, in
 
 | Name | Function attribute | Compiler |
 | --- | --- | --- |
-| `SAL_DLLPUBLIC_EXPORT` | `\_\_declspec\(dllexport\)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_EXPORT` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` †† | GNU C, Clang |
+| `SAL_DLLPUBLIC_EXPORT` | `__declspec\(dllexport\)` | Microsoft C <br> MinGW |
+| `SAL_DLLPUBLIC_EXPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility\("default")))` †† | GNU C, Clang |
 |  |  |  |
-| `SAL_JNI_EXPORT` | `\_\_declspect\(dllexport\)` | Microsoft C <br> MinGW |
-| `SAL_JNI_EXPORT` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_IMPORT` | `\_\_declspec\(dllimport\)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_IMPORT` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` ††| GNU C <br> Clang  |
-| `SAL_DLLPRIVATE` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_TEMPLATE` | `\_\_attribute\_\_\(\(visibility\("hidden"\)\)\)` † <br> `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` †† | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_RTTI` | `\_\_attribute\_\_\(\(type\_visibility\("default"\)\)\)` | Clang |
-| `SAL_DLLPUBLIC_RTTI` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` | GNU C |
-| `SAL_CALL` | `\_\_cdecl` | Microsoft C <br> MinGW |
-| `SAL_CALL_ELLIPSE` | `\_\_cdecl` | Microsoft C <br> MinGW |
-| `SAL_WARN_UNUSED` | `\_\_attribute\_\_\(\(warn\_unused\_result\)\)` | GNU C &gt;= 4.1 <br> Clang |
-| `SAL_NO_VTABLE` | `\_\_declspec\(novtable\)` | Microsoft C |
+| `SAL_JNI_EXPORT` | `__declspec(dllexport)` | Microsoft C <br> MinGW |
+| `SAL_JNI_EXPORT` | `__attribute__((visibility("default")))` | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_IMPORT` | `__declspec(dllimport)` | Microsoft C <br> MinGW |
+| `SAL_DLLPUBLIC_IMPORT` | `__attribute__((visibility\("hidden")))` † <br> `__attribute__((visibility\("default")))` ††| GNU C <br> Clang  |
+| `SAL_DLLPRIVATE` | `__attribute__((visibility("hidden")))` | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_TEMPLATE` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang |
+| `SAL_DLLPUBLIC_RTTI` | `__attribute__((type_visibility("default")))` | Clang |
+| `SAL_DLLPUBLIC_RTTI` | `__attribute__((visibility\("default\)))` | GNU C |
+| `SAL_CALL` | `__cdecl` | Microsoft C <br> MinGW |
+| `SAL_CALL_ELLIPSE` | `__cdecl` | Microsoft C <br> MinGW |
+| `SAL_WARN_UNUSED` | `__attribute__((warn_unused_result))` | GNU C &gt;= 4.1 <br> Clang |
+| `SAL_NO_VTABLE` | `__declspec(novtable)` | Microsoft C |
 
 † if dynamic library loading is disabled
 
@@ -144,7 +144,7 @@ Function attributes for exception handling on GCC \(but not MinGW\) are:
 
 | Name | Function attribute |
 | --- | --- |
-| `SAL_EXCEPTION_DLLPUBLIC_EXPORT` | `\_\_attribute\_\_\(\(visibility\("default"\)\)\)` † <br> `SAL_DLLPUBLIC_EXPORT` †† |
+| `SAL_EXCEPTION_DLLPUBLIC_EXPORT` | `__attribute__((visibility("default")))` † <br> `SAL_DLLPUBLIC_EXPORT` †† |
 
 † if dynamic library loading is disabled
 
