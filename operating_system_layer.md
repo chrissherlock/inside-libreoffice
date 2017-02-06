@@ -14,6 +14,8 @@ In OSL, threads are encapsulated by the `Thread` class. This class has been desi
 
 To create a new thread, you first call upon the `ThreadClassName::create()` function - which actually calls upon [`osl::Thread::create()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#70) - and you then implement your functionality in `ThreadClassName::run()`, which is a pure virtual function in [`osl::Thread::run()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#172). Only one thread can be executing at any time, however whilst you can create a new thread and have it run immediately via the `create()` function, but you can also create a suspended thread until you decide to unsuspend it to do work via [`createSuspended()`](http://opengrok.libreoffice.org/xref/core/include/osl/thread.hxx#createSuspended).
 
+#### Example
+
 A very basic example can be found in the SAL unit tests - navigate to [sal/qa/osl/thread/test\_thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx) and review the test class, also named `Thread`:
 
 ```cpp
@@ -81,7 +83,26 @@ A condition variable can be reused via the `reset()` function, which sets the co
 
 Threads can be suspended via the `suspend()` function, suspended threads can later be resumed via the `resume()` function. A thread can be put to sleep for a time via the `wait()` function, which takes a [`TimeValue`](http://opengrok.libreoffice.org/xref/core/include/osl/time.h#TimeValue) instance to specify the time the thread should be sleeping for. A thread can also wait for another thread to wait for the completion of another thread by calling on the other thread's `join()` function, or if it has no work it can call on the `Yeild()` function to place itself at the bottom of the queue of scheduled threads, then relinquish control to the next thread. And of course, a thread can end itself by calling on the `terminate()` function. If you want to see if a thread is running, then call `isRunning()`.
 
+A thread uses the `schedule()` function to indicate to the thread scheduler that it is ready to be given control and waits for the scheduler to unsuspend it. A common and basic use of the `schedule()` function is to :
+
+```cpp
+void SAL_CALL run() override
+{
+    while (schedule()) {
+        printf("Called schedule() again");
+    }
+}
+```
+
+
+
+What happens here is that a loop is started that calls `schedule()` each time until the thread terminates. All `schedule()` does is to check or wait for the thread to be unsuspended, after which it checks if the thread has been terminated and if so then it returns false - thus ending the loop. Otherwise `schedule()` returns true and the loop continues.
+
 Threads can be given higher or lower priorities, which effects the thread scheduler of the operating system. This is largely operating system dependent. Linux, for instance, by default uses a [round robin scheduler](http://man7.org/linux/man-pages/man2/sched_setscheduler.2.html), which works by allocating a time slice to each thread of each priority level. The threads at the highest priority level will be run first, each running for the timeslice allocated them, then will be suspended and the scheduler will move on to execute the next thread for it's timeslice, and so on. Once no threads need to execute anything, it drops to the priority below it and executes all these theads in a round robin fashion until it too has no more active threads. The scheduler eventually drops to the lowest priority and does the same on these threads.
 
 A thread's priority is set via `setPriority()` and `getPriority()`.
+
+#### Example
+
+As with most things in LibreOffice, there is a unit test available that shows how things should work. In this case, we will examine the source code at [sal/qa/osl/process/osl\_Thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx) This is a comprehensive suite of threading unit tests based on CppUnit. The first test focuses on thread creation - it uses a thread class [`myThread`](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx#myThread) and merely  
 
