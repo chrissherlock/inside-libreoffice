@@ -118,11 +118,35 @@ A further primitive function provided by the `osl::Mutex` class is the rather od
 
 #### Guards
 
-The osl::Mutex class can and is used in LibreOffice code, however often what happens is that a mutex is applied in a function and then is released just before the function returns. Consequently, a safer "guard" class was developed which releases the mutex once the mutex is destroyed.
+The `osl::Mutex` class can and is used in LibreOffice code, however often what happens is that a mutex is applied in a function and then is released just before the function returns. Consequently, a safer "guard" class was developed which releases the mutex once the mutex is destroyed.
 
-Guards are implemented by a base, templatized class named [`osl::Guard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Guard). This is derived from `osl::Mutex` and takes a generic template parameter, which expects a class that implements the `acquire()` and `release()` functions. It works in much the same way as a mutex, except that when the object is deleted the destructor of the `osl::Guard` class releases the mutex it is guarding, and then the `osl::Mutex` destructor is invoked which destroys the operating system structures and underlying mutex data structures. 
+Guards are implemented by a base, templatized class named [`osl::Guard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Guard). This is derived from `osl::Mutex` and takes a generic template parameter, which expects a class that implements the `acquire()` and `release()` functions. It works in much the same way as a mutex, except that when the object is deleted the destructor of the `osl::Guard` class releases the mutex it is guarding, and, due to the rules for object destruction in C++ the `osl::Mutex` destructor is then invoked which destroys the operating system structures and underlying mutex data structures.
 
-The practical result of this is that if you need to keep a mutex running outside of a function, then you should not use a guard, but you will need to be very careful to release and then delete the mutex object manually. If, as is most often the case, you want to keep the mutex till the function returns, then an `osl::Guard` based object is perfect because the object will be destructed when the function returns, and thus the mutex will be released and freed automatically. 
+The practical result of this is that if you need to keep a mutex running outside of a function, then you should not use a guard, but you will need to be very careful to release and then delete the mutex object manually. If, as is most often the case, you want to keep the mutex till the function returns, then an `osl::Guard` based object is perfect because the object will be destructed when the function returns, and thus the mutex will be released and freed automatically.
+
+##### Other guard types
+
+There are two other guard types in the OSL module: clearable guards and resettable guards.
+
+A clearable guard - [`osl::ClearableGuard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#ClearableGuard) - is used to apply a mutex, which can be released in a more flexible manner but still be released and destroyed by the operating system automatically when the guard is destroyed. This class has the same interface as `osl::Guard`, but also includes the function `clear()` which releases the mutex, and then "clears" the mutex by setting the private mutex member variable to NULL.
+
+An example in the LibreOffice code illustrates how this works - in this case, the example is in the VCL Unix-based Drag-n-Drop  function `DropTarget::drop()`:
+
+```cpp
+void DropTarget::drop( const DropTargetDropEvent& dtde ) throw()
+{
+    osl::ClearableGuard< ::osl::Mutex > aGuard( m_aMutex );
+    std::list< Reference< XDropTargetListener > > aListeners( m_aListeners );
+    aGuard.clear();
+
+    for( std::list< Reference< XDropTargetListener > >::iterator it = aListeners.begin(); it!= aListeners.end(); ++it )
+    {
+        (*it)->drop( dtde );
+    }
+}
+```
+
+Without going into the function or class in much detail, it is hopefully reasonably obvious what it is doing - it sends a drop event to all the drop listeners. However, it first needs to convert the member variable `m_aListeners` to a `std::list` of `Reference<XDropTargetListener>`s. This variable, however, must be accessed exclusively by only one thread at a time during this conversion process, so the code attempts to acquire the guard mutex `m_aListeners` first, which blocks till it can acquire the mutex. The `m_aListeners` is converted to a list, and once this is done the guard is cleared \(in other words, the mutex is released\). When the function ends the more expensive destruction of the mutex happens automatically, which allows the drop event to be sent as quickly as possible to the appropriate listeners, at the very small expense of not freeing up memory earlier. 
 
 ### Threading example
 
