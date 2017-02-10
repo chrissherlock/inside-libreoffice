@@ -94,15 +94,79 @@ void SAL_CALL run() override
 }
 ```
 
-
-
 What happens here is that a loop is started that calls `schedule()` each time until the thread terminates. All `schedule()` does is to check or wait for the thread to be unsuspended, after which it checks if the thread has been terminated and if so then it returns false - thus ending the loop. Otherwise `schedule()` returns true and the loop continues.
 
 Threads can be given higher or lower priorities, which effects the thread scheduler of the operating system. This is largely operating system dependent. Linux, for instance, by default uses a [round robin scheduler](http://man7.org/linux/man-pages/man2/sched_setscheduler.2.html), which works by allocating a time slice to each thread of each priority level. The threads at the highest priority level will be run first, each running for the timeslice allocated them, then will be suspended and the scheduler will move on to execute the next thread for it's timeslice, and so on. Once no threads need to execute anything, it drops to the priority below it and executes all these theads in a round robin fashion until it too has no more active threads. The scheduler eventually drops to the lowest priority and does the same on these threads.
 
 A thread's priority is set via `setPriority()` and `getPriority()`.
 
-#### Example
+### Mutexes
 
-As with most things in LibreOffice, there is a unit test available that shows how things should work. In this case, we will examine the source code at [sal/qa/osl/process/osl\_Thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx) This is a comprehensive suite of threading unit tests based on CppUnit. The first test focuses on thread creation - it uses a thread class [`myThread`](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx#myThread) and merely  
+As resources are shared between multiple threads due to the threads being in the same process, mechanisms to allow threads to gain exclusive access to theses resources are needed to ensure that race conditions do not occur. Once such mechanism is the _mutex_, which is short for "mututal exclusion". Mutexes act as a way of allowing a thread to use or modify a resource to the exclusion of all other threads.
+
+#### Base `osl::Mutex` class
+
+The [`osl::Mutex`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Mutex) class is the base class that defines a mutual exclusion synchronization object.  A newly instantiated Mutex object calls on the lower level C-based `osl_createMutex()` function, and this mutex is later destroyed by `osl_destroyMutex()` via the `Mutex`destructor. Once the mutex has been created, the program then attempts to [`acquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#acquire) the mutex which involves reserving it for the sole use of the current thread, or if it is in use already the program blocks execution \(i.e. temporarily stops doing anything\) until the mutex is released by the thread holding it, after which the current thread "acquires" the mutex exclusively. Once the critical bit of work is done, the thread releases the mutex via the [`release()`](http://opengrok.libreoffice.org/xref/core/include/osl/release.hxx#acquire) function, which allows other previous blocked threads to acquire the mutex, or if none are blocked allows new threads to acquire the mutex exclusively.
+
+A further primitive function provided by the `osl::Mutex` class is the rather oddly named [`tryToAcquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#tryToAcquire) function, which attempts to acquire the mutex, but unlike the regular acquire function which blocks the thread, this function just returns an error if another thread holds the mutex. 
+
+`osl::Mutex` also provides for a "global mutex", which can be acquired by calling [`osl::Mutex::getGlobalMutex()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#getGlobalMutex). This static class function acts as a [critical section](https://en.wikipedia.org/wiki/Critical_section) for LibreOffice code - in other words, once in the critical section the thread gains exclusive access to that section of code and any thread that needs access to it will block until the thread holding the global mutex releases it. 
+
+#### Derived mutex classes
+
+
+
+### Threading example
+
+As with most things in LibreOffice, there is a unit test available that shows how things should work. In this case, we will examine the source code at [sal/qa/osl/process/osl\_Thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx) This is a comprehensive suite of threading unit tests based on CppUnit. The first test focuses on thread creation - it uses a thread class [`myThread`](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx#myThread) designed for the purpose.
+
+myThread is defined as the following:
+
+```cpp
+/** Simple thread for testing Thread-create.
+
+    Just add 1 of value 0, and after running, result is 1.
+ */
+
+class myThread : public Thread
+{
+    ThreadSafeValue<sal_Int32> m_aFlag;
+
+public:
+    sal_Int32 getValue() { return m_aFlag.getValue(); }
+
+protected:
+    /** guarded value which initialized 0
+
+        @see ThreadSafeValue
+    */
+    void SAL_CALL run() override
+        {
+            while(schedule())
+            {
+                m_aFlag.incValue();
+                ThreadHelper::thread_sleep_tenth_sec(1);
+            }
+        }
+
+public:
+    virtual void SAL_CALL suspend() override
+        {
+            m_aFlag.acquire();
+            ::osl::Thread::suspend();
+            m_aFlag.release();
+        }
+
+    virtual ~myThread() override
+        {
+            if (isRunning())
+            {
+                t_print("error: not terminated.\n");
+            }
+        }
+
+};
+```
+
+We will temporarily ignore mutexes for now and focus on the thread concepts I discussed above. Note that `ThreadSafeValue` is a templatized class created for this test that allows a thread to gain exclusive access to the value without any other thread interfering with it.
 
