@@ -120,7 +120,9 @@ A further primitive function provided by the `osl::Mutex` class is the rather od
 
 The osl::Mutex class can and is used in LibreOffice code, however often what happens is that a mutex is applied in a function and then is released just before the function returns. Consequently, a safer "guard" class was developed which releases the mutex once the mutex is destroyed.
 
-Guards are implemented by a base, templatized class named [`osl::Guard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Guard). This is derived from `osl::Mutex` and takes a generic template parameter, which expects a class that implements the `acquire()` and `release()` functions. It works in much the same way as a Mutex, except
+Guards are implemented by a base, templatized class named [`osl::Guard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Guard). This is derived from `osl::Mutex` and takes a generic template parameter, which expects a class that implements the `acquire()` and `release()` functions. It works in much the same way as a mutex, except that when the object is deleted the destructor of the `osl::Guard` class releases the mutex it is guarding, and then the `osl::Mutex` destructor is invoked which destroys the operating system structures and underlying mutex data structures. 
+
+The practical result of this is that if you need to keep a mutex running outside of a function, then you should not use a guard, but you will need to be very careful to release and then delete the mutex object manually. If, as is most often the case, you want to keep the mutex till the function returns, then an `osl::Guard` based object is perfect because the object will be destructed when the function returns, and thus the mutex will be released and freed automatically. 
 
 ### Threading example
 
