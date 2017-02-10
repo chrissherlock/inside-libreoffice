@@ -348,5 +348,19 @@ The `ThreadHelper` class does as it suggests, it just makes the thread sleep for
 isRunning = true
 ```
 
+### Comparison with the C++11 thread support library
+
+In C++11 thread support was added to the Standard Template Library. The support is more extensive than what is in the OSL, and it covers everything that is handled in the OSL module. A comparison of the two libraries is interesting, and in fact I personally feel that it would be better if we gradually moved all the thread functionality to the STL and make C++11 a hard prerequisite. 
+
+#### `std::thread` vs `osl::Thread`
+
+| std::thread | osl::Thread |
+| :--- | :--- |
+| **Creation: **Threads created and executed immediately via constructor | **Creation:** Threads first created via constructor, then via the `create()` function |
+| **Execution: **Executed immediately after thread constructed | **Execution:** After thread created, via the `run()` function |
+| **Join:** `join() `function call - calling thread blocks until called thread instance finishes | **Join:** `join()` function call - calling thread blocks until called thread instance finishes |
+| **Sleep:** `sleep_for( std::chrono_duration& )` and `sleep_until( std::chrono::time_point& )` | **Sleep:** static function - `wait( const TimeValue& )`  |
+| **Yeild:** `yield()` - function is only a hint to the implementation that the thread needs to be rescheduled, how this is done is usually operating system/platform dependent | **Yeild:** `Yield()` - moves thread to the bottom of the scheduled thread pool; in OSL the `Schedule()` function waits for the thread to unsuspend, and returns false if it has terminated, otherwise returns true |
+
 
 
