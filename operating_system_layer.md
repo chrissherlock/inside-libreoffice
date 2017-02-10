@@ -44,7 +44,7 @@ void Thread::onTerminated()
 
 The unit test creates 50 `Thread` instances, which each call the `create()` function. It then has each thread instance wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
 
-The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is:
+The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is a very basic example of the use of a [monitor](https://en.wikipedia.org/wiki/Monitor_(synchronization)):
 
 ```cpp
 void test() 
@@ -213,12 +213,12 @@ To wrap up these functions to ensure that no code instantiates a class with an i
 
 As with most things in LibreOffice, there is a unit test available that shows how things should work. In this case, we will examine the source code at [sal/qa/osl/process/osl\_Thread.cxx](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx) This is a comprehensive suite of threading unit tests based on CppUnit. The first test focuses on thread creation - it uses a thread class [`myThread`](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/process/osl_Thread.cxx#myThread) designed for the purpose.
 
-myThread is defined as the following:
+`myThread` is defined as the following:
 
 ```cpp
 /** Simple thread for testing Thread-create.
 
-    Just add 1 of value 0, and after running, result is 1.
+    Just add 1 to an initial value of 0, and after running the result should be 1.
  */
 
 class myThread : public Thread
@@ -261,5 +261,92 @@ public:
 };
 ```
 
-We will temporarily ignore mutexes for now and focus on the thread concepts I discussed above. Note that `ThreadSafeValue` is a templatized class created for this test that allows a thread to gain exclusive access to the value without any other thread interfering with it.
+We will temporarily ignore mutexes for now and focus on the thread concepts I discussed above. Note that `ThreadSafeValue` is a templatized class created for this test that allows a thread to gain exclusive access to the value without any other thread interfering with it. It is defined as:
+
+```cpp
+template <class T>
+class ThreadSafeValue
+{
+    T       m_nFlag;
+    Mutex   m_aMutex;
+
+public:
+    explicit ThreadSafeValue(T n = 0): m_nFlag(n) {}
+    
+    T getValue()
+        {
+            // block if already acquired by another thread.
+            osl::MutexGuard g(m_aMutex);
+            return m_nFlag;
+        }
+        
+    void incValue()
+        {
+            // only one thread operates on the flag.
+            osl::MutexGuard g(m_aMutex);
+            m_nFlag++;
+        }
+        
+    void acquire() { m_aMutex.acquire(); }
+    void release() { m_aMutex.release(); }
+};
+```
+
+There is nothing terribly remarkable about this class, however I do want to highlight the function incValue\(\), which as the name suggests just increments the flag member variable. As the type of this could be any type that implements the ++ operator, it may be that during the post-increment another thread might interleave due to a context switch and thus interfere with the operator function. Thus an `osl::MutexGuard` is set on the class's `m_aMutex` mutex to ensure that this cannot occur. 
+
+We have already seen how a thread is created, but it might be instructive to see how the thread is created in the unit test. 
+
+```cpp
+void create_001()
+{
+    myThread* newthread = new myThread();
+    bool bRes = newthread->create();
+    CPPUNIT_ASSERT_MESSAGE("Can not create a new thread!\n", bRes);
+
+    ThreadHelper::thread_sleep_tenth_sec(1);    // wait short
+    bool isRunning = newthread->isRunning();    // check if thread is running
+    /// wait for the new thread to assure it has run
+    ThreadHelper::thread_sleep_tenth_sec(3);
+    sal_Int32 nValue = newthread->getValue();
+    /// to assure the new thread has terminated
+    termAndJoinThread(newthread);
+    delete newthread;
+
+    printf("   nValue = %d\n", (int) nValue);
+    printf("isRunning = %s\n", isRunning ? "true" : "false");
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Creates a new thread",
+        nValue >= 1 && isRunning
+        );
+
+}
+```
+
+The `termAndJoinThread()` function terminates a running thread and then joins it \(i.e. blocks the current thread until the joined thread finishes\). The function is defined as:
+
+```cpp
+void termAndJoinThread(Thread* _pThread)
+{
+    _pThread->terminate();
+
+// Windows feature???, a suspended thread can not terminated, so we have to wake it up
+#ifdef _WIN32
+    _pThread->resume();
+    ThreadHelper::thread_sleep_tenth_sec(1);
+#endif
+
+    printf("#wait for join.\n");
+    _pThread->join();
+}
+```
+
+The `ThreadHelper` class does as it suggests, it just makes the thread sleep for a specified period of time. The test just creates a new thread based on the `myThread` instance, checks to see if the thread is running and then runs it. `myThread`'s `run()` function increments the thread safe value by 1. Therefore the test should return:
+
+```
+   nValue = 1
+isRunning = true
+```
+
+
 
