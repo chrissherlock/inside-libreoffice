@@ -108,13 +108,19 @@ As resources are shared between multiple threads due to the threads being in the
 
 The [`osl::Mutex`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Mutex) class is the base class that defines a mutual exclusion synchronization object.  A newly instantiated Mutex object calls on the lower level C-based `osl_createMutex()` function, and this mutex is later destroyed by `osl_destroyMutex()` via the `Mutex`destructor. Once the mutex has been created, the program then attempts to [`acquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#acquire) the mutex which involves reserving it for the sole use of the current thread, or if it is in use already the program blocks execution \(i.e. temporarily stops doing anything\) until the mutex is released by the thread holding it, after which the current thread "acquires" the mutex exclusively. Once the critical bit of work is done, the thread releases the mutex via the [`release()`](http://opengrok.libreoffice.org/xref/core/include/osl/release.hxx#acquire) function, which allows other previous blocked threads to acquire the mutex, or if none are blocked allows new threads to acquire the mutex exclusively.
 
-A further primitive function provided by the `osl::Mutex` class is the rather oddly named [`tryToAcquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#tryToAcquire) function, which attempts to acquire the mutex, but unlike the regular acquire function which blocks the thread, this function just returns an error if another thread holds the mutex. 
+> _**Note!**_ if using a `osl::Mutex` object directly, then you should first release the mutex and \_then \_delete the object. This is because the osl\_destroyMutex\(\) function only releases the underlying operating system structures and frees the data structure. Destroying the mutex before unlocking it can lead to undefined behaviour on some platforms - the most notable being POSIX-based systems which uses `[pthread_mutex_destroy](http://pubs.opengroup.org/onlinepubs/9699919799/)` - [IEEE Std 1003.1-2008, 2016 Edition](http://pubs.opengroup.org/onlinepubs/9699919799/) states that:
+>
+> > _"Attempting to destroy a locked mutex, or a mutex that another thread is attempting to lock, or a mutex that is being used in a pthread\_cond\_timedwait\(\) or pthread\_cond\_wait\(\) call by another thread, results in undefined behavior."_
 
-`osl::Mutex` also provides for a "global mutex", which can be acquired by calling [`osl::Mutex::getGlobalMutex()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#getGlobalMutex). This static class function acts as a [critical section](https://en.wikipedia.org/wiki/Critical_section) for LibreOffice code - in other words, once in the critical section the thread gains exclusive access to that section of code and any thread that needs access to it will block until the thread holding the global mutex releases it. 
+A further primitive function provided by the `osl::Mutex` class is the rather oddly named [`tryToAcquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#tryToAcquire) function, which attempts to acquire the mutex, but unlike the regular acquire function which blocks the thread, this function just returns an error if another thread holds the mutex.
 
-#### Derived mutex classes
+`osl::Mutex` also provides for a "global mutex", which can be acquired by calling [`osl::Mutex::getGlobalMutex()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#getGlobalMutex). This static class function acts as a [critical section](https://en.wikipedia.org/wiki/Critical_section) for LibreOffice code - in other words, once in the critical section the thread gains exclusive access to that section of code and any thread that needs access to it will block until the thread holding the global mutex releases it.
 
+#### Guards
 
+The osl::Mutex class can and is used in LibreOffice code, however often what happens is that a mutex is applied in a function and then is released just before the function returns. Consequently, a safer "guard" class was developed which releases the mutex once the mutex is destroyed.
+
+Guards are implemented by a base, templatized class named [`osl::Guard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Guard). This is derived from `osl::Mutex` and takes a generic template parameter, which expects a class that implements the `acquire()` and `release()` functions. It works in much the same way as a Mutex, except
 
 ### Threading example
 
