@@ -44,7 +44,7 @@ void Thread::onTerminated()
 
 The unit test creates 50 `Thread` instances, which each call the `create()` function. It then has each thread instance wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
 
-The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is a very basic example of the use of a [monitor](https://en.wikipedia.org/wiki/Monitor_(synchronization)):
+The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is a very basic example of the use of a [monitor](https://en.wikipedia.org/wiki/Monitor_(synchronization)\):
 
 ```cpp
 void test() 
@@ -146,9 +146,9 @@ void DropTarget::drop( const DropTargetDropEvent& dtde ) throw()
 }
 ```
 
-Without going into the function or class in much detail, it is hopefully reasonably obvious what it is doing - it sends a drop event to all the drop listeners. However, it first needs to convert the member variable `m_aListeners` to a `std::list` of `Reference<XDropTargetListener>`s. This variable, however, must be accessed exclusively by only one thread at a time during this conversion process, so the code attempts to acquire the guard mutex `m_aListeners` first, which blocks till it can acquire the mutex. The `m_aListeners` is converted to a list, and once this is done the guard is cleared \(in other words, the mutex is released\). When the function ends the more expensive destruction of the mutex happens automatically, which allows the drop event to be sent as quickly as possible to the appropriate listeners, at the very small expense of not freeing up memory earlier. 
+Without going into the function or class in much detail, it is hopefully reasonably obvious what it is doing - it sends a drop event to all the drop listeners. However, it first needs to convert the member variable `m_aListeners` to a `std::list` of `Reference<XDropTargetListener>`s. This variable, however, must be accessed exclusively by only one thread at a time during this conversion process, so the code attempts to acquire the guard mutex `m_aListeners` first, which blocks till it can acquire the mutex. The `m_aListeners` is converted to a list, and once this is done the guard is cleared \(in other words, the mutex is released\). When the function ends the more expensive destruction of the mutex happens automatically, which allows the drop event to be sent as quickly as possible to the appropriate listeners, at the very small expense of not freeing up memory earlier.
 
-A _resettable guard_ - [`osl::ResettableGuard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#ResettableGuard) - on the other hand further enhances the clearable guard \(it inherits from `osl::ClearableGuard`\) by allowing a mutex to be reset, or in other words it tries to acquire the guard's mutex if it hasn't been acquired already. This can be useful if you have a block of code and you want to break up the code into multiple critical sections. For instance, the _toolkit _module has a resource listener class `ResourceListener`, which has the function `ResourceListener::startListening()` that has two critical areas:
+A _resettable guard_ - [`osl::ResettableGuard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#ResettableGuard) - on the other hand further enhances the clearable guard \(it inherits from `osl::ClearableGuard`\) by allowing a mutex to be reset, or in other words it tries to acquire the guard's mutex if it hasn't been acquired already. This can be useful if you have a block of code and you want to break up the code into multiple critical sections. For instance, the \_toolkit \_module has a resource listener class `ResourceListener`, which has the function `ResourceListener::startListening()` that has two critical areas:
 
 ```cpp
 void ResourceListener::startListening(
@@ -197,9 +197,9 @@ void ResourceListener::startListening(
 }
 ```
 
-The first critical section must check the `mb_Listening` flag and check if the `m_xResource` is instantiated. Because the resource listener can change at any time, there could be a situation where the listener changes state from start to stop \(or vice versa\) whilst checking to see if the resource has been instantiated. Thus a mutex guard is necessary to ensure anything that wants to modify these variables blocks until the function is done checking the resource has been instantiated. Once this is done, the guard is cleared with` aGuard.clear()`.
+The first critical section must check the `mb_Listening` flag and check if the `m_xResource` is instantiated. Because the resource listener can change at any time, there could be a situation where the listener changes state from start to stop \(or vice versa\) whilst checking to see if the resource has been instantiated. Thus a mutex guard is necessary to ensure anything that wants to modify these variables blocks until the function is done checking the resource has been instantiated. Once this is done, the guard is cleared with`aGuard.clear()`.
 
-At this point if the resource listener is not listening and the resource hasn't been set, then it must stop the listener. As soon as this check completes, however, the resource listener needs to set it's resource to the new resource supplied to the function. To do so requires a mutex to prevent a race condition, so rather than setup a new guard instance, it just calls on `aGuard.reset()` sets the resource and then clears the guard once again. 
+At this point if the resource listener is not listening and the resource hasn't been set, then it must stop the listener. As soon as this check completes, however, the resource listener needs to set it's resource to the new resource supplied to the function. To do so requires a mutex to prevent a race condition, so rather than setup a new guard instance, it just calls on `aGuard.reset()` sets the resource and then clears the guard once again.
 
 To wrap up these functions to ensure that no code instantiates a class with an incompatible interface, the following typedefs are defined:
 
@@ -272,29 +272,29 @@ class ThreadSafeValue
 
 public:
     explicit ThreadSafeValue(T n = 0): m_nFlag(n) {}
-    
+
     T getValue()
         {
             // block if already acquired by another thread.
             osl::MutexGuard g(m_aMutex);
             return m_nFlag;
         }
-        
+
     void incValue()
         {
             // only one thread operates on the flag.
             osl::MutexGuard g(m_aMutex);
             m_nFlag++;
         }
-        
+
     void acquire() { m_aMutex.acquire(); }
     void release() { m_aMutex.release(); }
 };
 ```
 
-There is nothing terribly remarkable about this class, however I do want to highlight the function incValue\(\), which as the name suggests just increments the flag member variable. As the type of this could be any type that implements the ++ operator, it may be that during the post-increment another thread might interleave due to a context switch and thus interfere with the operator function. Thus an `osl::MutexGuard` is set on the class's `m_aMutex` mutex to ensure that this cannot occur. 
+There is nothing terribly remarkable about this class, however I do want to highlight the function incValue\(\), which as the name suggests just increments the flag member variable. As the type of this could be any type that implements the ++ operator, it may be that during the post-increment another thread might interleave due to a context switch and thus interfere with the operator function. Thus an `osl::MutexGuard` is set on the class's `m_aMutex` mutex to ensure that this cannot occur.
 
-We have already seen how a thread is created, but it might be instructive to see how the thread is created in the unit test. 
+We have already seen how a thread is created, but it might be instructive to see how the thread is created in the unit test.
 
 ```cpp
 void create_001()
@@ -350,17 +350,25 @@ isRunning = true
 
 ### Comparison with the C++11 thread support library
 
-In C++11 thread support was added to the Standard Template Library. The support is more extensive than what is in the OSL, and it covers everything that is handled in the OSL module. A comparison of the two libraries is interesting, and in fact I personally feel that it would be better if we gradually moved all the thread functionality to the STL and make C++11 a hard prerequisite. 
+In C++11 thread support was added to the Standard Template Library. The support is more extensive than what is in the OSL, and it covers everything that is handled in the OSL module. A comparison of the two libraries is interesting, and in fact I personally feel that it would be better if we gradually moved all the thread functionality to the STL and make C++11 a hard prerequisite.
 
 #### `std::thread` vs `osl::Thread`
 
-| std::thread | osl::Thread |
+| **`std::thread`** | **`osl::Thread`** |
 | :--- | :--- |
 | **Creation: **Threads created and executed immediately via constructor | **Creation:** Threads first created via constructor, then via the `create()` function |
 | **Execution: **Executed immediately after thread constructed | **Execution:** After thread created, via the `run()` function |
-| **Join:** `join() `function call - calling thread blocks until called thread instance finishes | **Join:** `join()` function call - calling thread blocks until called thread instance finishes |
-| **Sleep:** `sleep_for( std::chrono_duration& )` and `sleep_until( std::chrono::time_point& )` | **Sleep:** static function - `wait( const TimeValue& )`  |
+| **Join:** `join()`function call - calling thread blocks until called thread instance finishes | **Join:** `join()` function call - calling thread blocks until called thread instance finishes |
+| **Sleep:** <br>`sleep_for( std::chrono_duration& )`<br>`sleep_until( std::chrono::time_point& )` | **Sleep:** static function - `wait( const TimeValue& )` |
 | **Yeild:** `yield()` - function is only a hint to the implementation that the thread needs to be rescheduled, how this is done is usually operating system/platform dependent | **Yeild:** `Yield()` - moves thread to the bottom of the scheduled thread pool; in OSL the `Schedule()` function waits for the thread to unsuspend, and returns false if it has terminated, otherwise returns true |
+
+#### `std::mutex` vs `osl::Mutex`
+
+| **`std::mutex`** | **`osl::mutex`** |
+| :--- | :--- |
+| **Gain exclusive access:**<br>`lock()` - blocks until access granted<br>`try_lock()` - lock attempted, if not gained then returns immediately (non-blocking) | **Gain exclusive access:**<br>`acquire()` - blocks until access granted<br>`tryToAcquire()` - lock attempted, if not gained then returns immediately (non-blocking) |
+|  |  |
+|  |  |
 
 
 
