@@ -148,7 +148,7 @@ void DropTarget::drop( const DropTargetDropEvent& dtde ) throw()
 
 Without going into the function or class in much detail, it is hopefully reasonably obvious what it is doing - it sends a drop event to all the drop listeners. However, it first needs to convert the member variable `m_aListeners` to a `std::list` of `Reference<XDropTargetListener>`s. This variable, however, must be accessed exclusively by only one thread at a time during this conversion process, so the code attempts to acquire the guard mutex `m_aListeners` first, which blocks till it can acquire the mutex. The `m_aListeners` is converted to a list, and once this is done the guard is cleared \(in other words, the mutex is released\). When the function ends the more expensive destruction of the mutex happens automatically, which allows the drop event to be sent as quickly as possible to the appropriate listeners, at the very small expense of not freeing up memory earlier. 
 
-A resettable guard - [`osl::ResettableGuard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#ResettableGuard) - on the other hand further enhances the clearable guard \(it inherits from `osl::ClearableGuard`\) by allowing a mutex to be reset, or in other words it tries to acquire the guard's mutex if it hasn't been acquired already. This can be useful if you hae a block of code and you want to break up the code into multiple critical sections. For instance, the _toolkit _module has a resource listener class `ResourceListener`, which has the function `ResourceListener::startListening()` that has two critical areas:
+A _resettable guard_ - [`osl::ResettableGuard`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#ResettableGuard) - on the other hand further enhances the clearable guard \(it inherits from `osl::ClearableGuard`\) by allowing a mutex to be reset, or in other words it tries to acquire the guard's mutex if it hasn't been acquired already. This can be useful if you hae a block of code and you want to break up the code into multiple critical sections. For instance, the _toolkit _module has a resource listener class `ResourceListener`, which has the function `ResourceListener::startListening()` that has two critical areas:
 
 ```cpp
 void ResourceListener::startListening(
@@ -200,6 +200,14 @@ void ResourceListener::startListening(
 The first critical section must check the `mb_Listening` flag and check if the `m_xResource` is instantiated. Because the resource listener can change at any time, there could be a situation where the listener changes state from start to stop \(or vice versa\) whilst checking to see if the resource has been instantiated. Thus a mutex guard is necessary to ensure anything that wants to modify these variables blocks until the function is done checking the resource has been instantiated. Once this is done, the guard is cleared with` aGuard.clear()`.
 
 At this point if the resource listener is not listening and the resource hasn't been set, then it must stop the listener. As soon as this check completes, however, the resource listener needs to set it's resource to the new resource supplied to the function. To do so requires a mutex to prevent a race condition, so rather than setup a new guard instance, it just calls on `aGuard.reset()` sets the resource and then clears the guard once again. 
+
+To wrap up these functions to ensure that no code instantiates a class with an incompatible interface, the following typedefs are defined:
+
+```cpp
+    typedef Guard<Mutex> MutexGuard;
+    typedef ClearableGuard<Mutex> ClearableMutexGuard;
+    typedef ResettableGuard< Mutex > ResettableMutexGuard; 
+```
 
 ### Threading example
 
