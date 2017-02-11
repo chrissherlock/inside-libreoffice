@@ -367,8 +367,16 @@ In C++11 thread support was added to the Standard Template Library. The support 
 | **`std::mutex`** | **`osl::mutex`** |
 | :--- | :--- |
 | **Gain exclusive access:**<br>`lock()` - blocks until access granted<br>`try_lock()` - lock attempted, if not gained then returns immediately (non-blocking) | **Gain exclusive access:**<br>`acquire()` - blocks until access granted<br>`tryToAcquire()` - lock attempted, if not gained then returns immediately (non-blocking) |
-|  |  |
-|  |  |
+| **Release exclusive access:** `unlock()` | **Release exclusive access:** `release()` |
+
+> _**Note:**_ `std::lock_guard` takes a `std::mutex` as it's template parameter, whilst `osl::MutexGuard` is the corresponding typedef in OSL 
+
+#### `std::condition_variable` vs `osl::Condition`
+
+| **`std::condition_variable`** | **`osl::Condition`** |
+| :--- | :--- |
+| **Notify:**<br>`notify_one()` - notify only one specific thread<br>`notify_all()` - notify _all_ waiting threads | **Notify:** `set()` |
+| **Waiting:** `wait()` | **Waiting:** `wait()` |
 
 
 
