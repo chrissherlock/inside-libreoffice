@@ -356,7 +356,7 @@ In C++11 thread support was added to the Standard Template Library. The support 
 
 | **`std::thread`** | **`osl::Thread`** |
 | :--- | :--- |
-| **Creation: **Threads created and executed immediately via constructor | **Creation:** Threads first created via constructor, then via the `create()` function |
+| **Creation: **Threads created and executed immediately via constructor. Can take a function and an argument. | **Creation:** Threads first created via constructor, then via the `create()` function |
 | **Execution: **Executed immediately after thread constructed | **Execution:** After thread created, via the `run()` function |
 | **Join:** `join()`function call - calling thread blocks until called thread instance finishes | **Join:** `join()` function call - calling thread blocks until called thread instance finishes |
 | **Sleep:** <br>`sleep_for( std::chrono_duration& )`<br>`sleep_until( std::chrono::time_point& )` | **Sleep:** static function - `wait( const TimeValue& )` |
