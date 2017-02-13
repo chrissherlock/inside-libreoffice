@@ -375,8 +375,8 @@ In C++11 thread support was added to the Standard Template Library. The support 
 
 | **`std::condition_variable`** | **`osl::Condition`** |
 | :--- | :--- |
-| **Notify:**<br>`notify_one()` - notify only one specific thread<br>`notify_all()` - notify _all_ waiting threads | **Notify:** `set()` |
-| **Waiting:** `wait()` | **Waiting:** `wait()` |
+| **Notify:**<br>`notify_one()` - notify only one specific thread<br>`notify_all()` - notify _all_ waiting threads | **Notify:** `set()` - notifies thread waiting on condition variable that it can start execution again |
+| **Waiting:** <br>`wait( std::unique_lock<std::mutex> )` - blocks the current thread until the conditional variable is woken up<br>`wait_for( std::unique_lock<std::mutex>, std::chrono_duration, Predicate )` - blocks the current thread until the conditional variable is woken up, or till a particular time<br>`wait_until( std::unique_lock<std::mutex>, const std::chrono::duration& rel_time, Duration )` - blocks the current thread until the conditional variable is woken up, or the timer runs out | **Waiting:** `wait( Timer& )` - blocks the current thread until the conditional variable. Optionally takes a timer as a time out value |
 
 
 
