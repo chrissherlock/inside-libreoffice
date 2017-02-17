@@ -6,7 +6,7 @@ Whilst all operating systems supported by LibreOffice use processes to execute c
 
 ## Common functionality
 
-Both Unix and Windows load a process from a stored image, which contains the program instructions associated with the program. [Common features](https://en.wikipedia.org/wiki/Process_(computing)\#Representation\) of processes under both operating systems are:
+Both Unix and Windows load a process from a stored image, which contains the program instructions associated with the program. [Common features](https://en.wikipedia.org/wiki/Process_(computing)#Representation) of processes under both operating systems are:
 
 * memory handling via:
   * [virtual memory](https://en.wikipedia.org/wiki/Virtual_memory) which maps virtual addresses in a process to physical addresses in memory. 
