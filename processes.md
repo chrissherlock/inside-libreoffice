@@ -29,8 +29,8 @@ A process can exist within a number of states, the main ones being:
 * From the created state, the process switches to a _waiting_ state, where it waits for the scheduler to make it run via what is known as a [_context switch_](https://en.wikipedia.org/wiki/Context_switch)
 * Once the scheduler does a context switch successfully the process will start executing, which is a state more commonly known as _running_
 * Another valid state is for a process to be waiting on another process to finish it's exclusive control of a resource that it needs. When a process is prevent from running in these circumstances, the processes is said to be _blocked_. 
-
-image::/assets/900px-Process_states.svg.png[Process states,align="center"] 
+<span style="align: center">
+![Process states](/assets/900px-Process_states.svg.png)<br>**Figure: Process States** <br>Source: [Wikipedia](https://en.wikipedia.org/wiki/Process_%28computing%29#/media/File:Process_states.svg), License: Public Domain</span>
 
 
 
