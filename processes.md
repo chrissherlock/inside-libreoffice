@@ -30,7 +30,7 @@ A process can exist within a number of states, the main ones being:
 * Once the scheduler does a context switch successfully the process will start executing, which is a state more commonly known as _running_
 * Another valid state is for a process to be waiting on another process to finish it's exclusive control of a resource that it needs. When a process is prevent from running in these circumstances, the processes is said to be _blocked_. 
 
-![](/assets/900px-Process_states.svg.png "Process states")
+image::/assets/900px-Process_states.svg.png[Process states,align="center"] 
 
 
 
