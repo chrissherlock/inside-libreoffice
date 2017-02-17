@@ -32,5 +32,18 @@ A process can exist within a number of states, the main ones being:
 <span style="align: center">
 ![Process states](/assets/900px-Process_states.svg.png)<br>**Figure: Process States** <br>Source: [Wikipedia](https://en.wikipedia.org/wiki/Process_%28computing%29#/media/File:Process_states.svg), License: Public Domain</span>
 
+## Differences between Win32 and POSIX process models
+
+The areas of difference between Win32 and POSIX process models are process pipes, interprocess communication, process termination and a different security model.
+
+### Process pipes
+
+On POSIX systems, a file descriptor is used to communicate between processes. Instead of just anonymous pipes for standard input, standard output and standard error, POSIX based systems allow the connect two processes through any file descriptor.
+
+On Win32 systems, the [`STARTUPINFO`](https://msdn.microsoft.com/en-us/library/windows/desktop/ms686331%28v=vs.85%29.aspx) structure references Windows handles (the `HANDLE` macro) that point to standard input, standard output and standard error pipes. When a new process is created via the [`CreateProcess()`](https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425%28v=vs.85%29.aspx) function, you setup the [`STARTUPINFO`](https://msdn.microsoft.com/en-us/library/windows/desktop/ms686331%28v=vs.85%29.aspx) structure and use the [`CreatePipe()`](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365152%28v=vs%2e85%29.aspx) function to create an anonymous pipe to connect the read end of the pipe to the write end of the pipe - each process then associates the pipe to the `hStdInput`, `hStdOutput` and/or `hStdError` structure fields. However, as the `STARTUPINFO` structure on allows standard input, standard output and standard error you cannot setup extra channels like you can in POSIX.
+
+### Interprocess communication
+### Process termination
+
 
 
