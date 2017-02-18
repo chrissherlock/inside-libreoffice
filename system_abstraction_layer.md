@@ -88,7 +88,7 @@ A number of types are defined for portability reasons:
 | `sal_Int64` | `__int64` \(Windows\) | 8 | `SAL_PRIdINT64` |
 | `sal_Int64` | `signed long int` <br> `signed long long` \(GNU C\) ††† |  | `SAL_CONST_INT64` |
 | `sal_uInt64` | `unsigned __int64` \(Windows\) <br> `unsigned long int` <br> `unsigned long long` \(GNU C\) †††  | 8 | `SAL_PRIuUNIT64` |
-| `sal_Unicode` | `wchar_t` \(Windows\) †††† <br> `sal\_uInt16` \(non-Windows\) ††††† | 2 | Depends on platform... |
+| `sal_Unicode` | `wchar_t` \(Windows\) †††† <br> `sal_uInt16` \(non-Windows\) ††††† | 2 | Depends on platform... |
 | `sal_Handle` | `void *` | size of pointer | n/a |
 | `sal_Size` | `sal_uInt32` <br> `sal_uInt64` | native width | `SAL_PRI_SIZET` |
 | `sal_sSize` | `sal_Int32` <br> `sal_Int64` | native width | `SAL_PRI_SIZET` |
@@ -120,17 +120,17 @@ There are also a number of function attributes macros that have been defined, in
 
 | Name | Function attribute | Compiler |
 | --- | --- | --- |
-| `SAL_DLLPUBLIC_EXPORT` | `__declspec\(dllexport\)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_EXPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility\("default")))` †† | GNU C, Clang |
+| `SAL_DLLPUBLIC_EXPORT` | `__declspec(dllexport)` | Microsoft C <br> MinGW |
+| `SAL_DLLPUBLIC_EXPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C, Clang |
 |  |  |  |
 | `SAL_JNI_EXPORT` | `__declspec(dllexport)` | Microsoft C <br> MinGW |
 | `SAL_JNI_EXPORT` | `__attribute__((visibility("default")))` | GNU C <br> Clang |
 | `SAL_DLLPUBLIC_IMPORT` | `__declspec(dllimport)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_IMPORT` | `__attribute__((visibility\("hidden")))` † <br> `__attribute__((visibility\("default")))` ††| GNU C <br> Clang  |
+| `SAL_DLLPUBLIC_IMPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` ††| GNU C <br> Clang  |
 | `SAL_DLLPRIVATE` | `__attribute__((visibility("hidden")))` | GNU C <br> Clang |
 | `SAL_DLLPUBLIC_TEMPLATE` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang |
 | `SAL_DLLPUBLIC_RTTI` | `__attribute__((type_visibility("default")))` | Clang |
-| `SAL_DLLPUBLIC_RTTI` | `__attribute__((visibility\("default\)))` | GNU C |
+| `SAL_DLLPUBLIC_RTTI` | `__attribute__((visibility("default)))` | GNU C |
 | `SAL_CALL` | `__cdecl` | Microsoft C <br> MinGW |
 | `SAL_CALL_ELLIPSE` | `__cdecl` | Microsoft C <br> MinGW |
 | `SAL_WARN_UNUSED` | `__attribute__((warn_unused_result))` | GNU C &gt;= 4.1 <br> Clang |
@@ -154,7 +154,7 @@ Function attributes for exception handling on GCC \(but not MinGW\) are:
 
 The `alloca()` function allocates \(as it's name suggests\) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually _run out_ of stack space and your program will crash.
 
-The `alloc()` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in `alloca.h`; in OS X, BSD and iOS systems it is in `sys/types.h` and on Windows it is in `malloc.h`. Due to this quirk, LibreOffice defines its own `alloca.h` in `include/sal/alloca.h`
+The `alloca()` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in `alloca.h`; in OS X, BSD and iOS systems it is in `sys/types.h` and on Windows it is in `malloc.h`. Due to this quirk, LibreOffice defines its own `alloca.h` in `include/sal/alloca.h`
 
 _Note:_ `alloca()` is considered dangerous because it returns a pointer to the beginning of the space that it allocates when it is called. If you pass this `void*` pointer to the calling function you may cause a stack overflow - in which case the behaviour is _undefined_. On Linux, there is also no indication if the stack frame cannot be extended.
 
