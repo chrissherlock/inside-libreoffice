@@ -43,6 +43,17 @@ On POSIX systems, a file descriptor is used to communicate between processes. In
 On Win32 systems, the [`STARTUPINFO`](https://msdn.microsoft.com/en-us/library/windows/desktop/ms686331%28v=vs.85%29.aspx) structure references Windows handles (the `HANDLE` macro) that point to standard input, standard output and standard error pipes. When a new process is created via the [`CreateProcess()`](https://msdn.microsoft.com/en-us/library/windows/desktop/ms682425%28v=vs.85%29.aspx) function, you setup the `STARTUPINFO` structure and use the [`CreatePipe()`](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365152%28v=vs%2e85%29.aspx) function to create an anonymous pipe to [connect the read end of the pipe to the write end of the pipe](https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499%28v=vs.85%29.aspx) - each process then associates the pipe to the `hStdInput`, `hStdOutput` and/or `hStdError` structure fields. However, as the `STARTUPINFO` structure on allows standard input, standard output and standard error you cannot setup extra channels like you can in POSIX. It is also important to note that named pipes must be used for asynchronous IO as anonymous pipes are unable to use asynchronous IO.
 
 ### Interprocess communication
+
+Aside from anonymous pipes, processes on most operating systems can communicate with each other via shared memory and named pipes. However, POSIX compliant systems can also use Unix domain sockets. 
+
+| IPC Method          | Description                                |
+|---------------------|--------------------------------------------| 
+| Shared Memory       | Shared memory works by allowing multiple processes access to a block of memory which is accessed by all the processes. A process will read and write to this memory to communicate between each process. As more than one process is accessing the same block of memory, synchonization primitives are necessary to mitigate race conditions and things such as dirty reads. |
+| Named Pipes         | Allows processes to communicate via the filesystem, through a file that becomes a unidirectional data channel. On a Unix system, the named pipe remains till it is specifically removed, whereas on Windows systems when the last reference to the named pipe is closed the pipe is removed. |
+| Unix Domain Sockets | Applies to POSIX compliant operating systems. Creates a socket, but uses filesystem inodes for addressing. These allow for bidirectional communication between more than two processes and supports passing file descriptors between processes. |
+
+The OSL implements bi-directional "pipes", which are indeed named pipes on Windows; on Unix, however, it is implemented as a Unix Domain Socket so is not really a true Unix named pipe.
+ 
 ### Process termination
 
 
