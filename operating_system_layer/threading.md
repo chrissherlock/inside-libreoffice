@@ -38,7 +38,7 @@ void Thread::onTerminated()
 
 The unit test creates 50 `Thread` instances, which each call the `create()` function. It then has each thread instance wait on one global condition variable. Once all the threads have been created the main thread sets the global condition variable, which "wakes up" all of the created threads and the main thread then waits for 20 seconds to give each of the threads time to complete fully before the program in turn terminates itself.
 
-The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is a very basic example of the use of a [monitor](https://en.wikipedia.org/wiki/Monitor_(synchronization)\):
+The [unit test function](http://opengrok.libreoffice.org/xref/core/sal/qa/osl/thread/test_thread.cxx#53) is a very basic example of the use of a [monitor](https://en.wikipedia.org/wiki/Monitor_%28synchronization%29):
 
 ```cpp
 void test() 
@@ -102,7 +102,7 @@ As resources are shared between multiple threads due to the threads being in the
 
 The [`osl::Mutex`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#Mutex) class is the base class that defines a mutual exclusion synchronization object.  A newly instantiated Mutex object calls on the lower level C-based `osl_createMutex()` function, and this mutex is later destroyed by `osl_destroyMutex()` via the `Mutex`destructor. Once the mutex has been created, the program then attempts to [`acquire()`](http://opengrok.libreoffice.org/xref/core/include/osl/mutex.hxx#acquire) the mutex which involves reserving it for the sole use of the current thread, or if it is in use already the program blocks execution \(i.e. temporarily stops doing anything\) until the mutex is released by the thread holding it, after which the current thread "acquires" the mutex exclusively. Once the critical bit of work is done, the thread releases the mutex via the [`release()`](http://opengrok.libreoffice.org/xref/core/include/osl/release.hxx#acquire) function, which allows other previous blocked threads to acquire the mutex, or if none are blocked allows new threads to acquire the mutex exclusively.
 
-> _**Note!**_ if using a `osl::Mutex` object directly, then you should first release the mutex and \_then \_delete the object. This is because the osl\_destroyMutex\(\) function only releases the underlying operating system structures and frees the data structure. Destroying the mutex before unlocking it can lead to undefined behaviour on some platforms - the most notable being POSIX-based systems which uses `[pthread_mutex_destroy](http://pubs.opengroup.org/onlinepubs/9699919799/)` - [IEEE Std 1003.1-2008, 2016 Edition](http://pubs.opengroup.org/onlinepubs/9699919799/) states that:
+> _**Note!**_ if using a `osl::Mutex` object directly, then you should first release the mutex and \_then \_delete the object. This is because the `osl_destroyMutex()` function only releases the underlying operating system structures and frees the data structure. Destroying the mutex before unlocking it can lead to undefined behaviour on some platforms - the most notable being POSIX-based systems which uses [`pthread_mutex_destroy`](http://pubs.opengroup.org/onlinepubs/9699919799/) - [IEEE Std 1003.1-2008, 2016 Edition](http://pubs.opengroup.org/onlinepubs/9699919799/) states that:
 >
 > > _"Attempting to destroy a locked mutex, or a mutex that another thread is attempting to lock, or a mutex that is being used in a pthread\_cond\_timedwait\(\) or pthread\_cond\_wait\(\) call by another thread, results in undefined behavior."_
 
