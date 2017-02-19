@@ -56,5 +56,35 @@ The OSL implements bi-directional "pipes", which are indeed named pipes on Windo
  
 ### Process termination
 
+#### Windows process termination
 
+Windows has a very different way of terminating processes to Unix systems. In Windows, a process terminates but does not terminate any child processes it has created. It deferences any kernel objects that it holds, but until all references are removed by all processes then that kernel object will not be destroyed. According to Microsoft, the following occurs:
 
+> Terminating a process has the following results:
+* Any remaining threads in the process are marked for termination.
+* Any resources allocated by the process are freed.
+* All kernel objects are closed.
+* The process code is removed from memory.
+* The process exit code is set.
+* The process object is signaled.
+
+> While open handles to kernel objects are closed automatically when a process terminates, the objects themselves exist until all open handles to them are closed. Therefore, an object will remain valid after a process that is using it terminates if another process has an open handle to it. 
+
+\([Terminating a Process](https://msdn.microsoft.com/en-us/library/windows/desktop/ms686722%28v=vs.85%29.aspx "Terminating a Process"), MSDN article\) 
+
+Processes on Windows will terminate under the following circumstances:
+
+* When a thread calls on `ExitProcess()`
+* When the last thread terminates
+* Any thread calls on the `TerminateProcess()` with the handle of the process object
+* When an end user logs of the system
+* When the system is shutdown
+* If a console process receives a CTRL+C or a CTRL+BREAK signal, the process calls on `ExitProcess()`
+
+# Unix/POSIX process termination
+
+On Unix systems, however, it is a bit more complicated. A process will terminate when the process calls on `exit(n)` (or  `return n` in C and C++), and the value _n_ is passed to the process' parent process. However, the process will not fully remove the process from the kernel's process tables until the parent process collects the exit status, which is the exit code and the termination reason, which is normally contained in a 16-bit integer (the first byte containing the exit code, and the second byte containing a bit field with the termination reason). 
+
+To collect a termination status from a child process, the parent process must call the `wait()` or `waitpid()` system call. The `wait()` system call waits for the child process to finish, and blocks the parent process until it gets the exit status of at least one of the child processes (which one exits first, it does not matter). The `waitpid()` system call, on the other hand, allows the PID to be specified as the first parameter, also also allows the system call to be non-blocking if the third options parameter is set. 
+
+> **Note:** if -1 is specified as the PID argument of `waitpid()`, then the process waits for the first child process to terminate, whilst a PID of 0 makes it wait for the first process in the process group to terminate. If the PID value is less than 0 then this indicates the process must wait for the first process of any whose process group ID is equal to the absolute value of PID) 
