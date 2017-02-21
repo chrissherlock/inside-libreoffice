@@ -81,7 +81,7 @@ Processes on Windows will terminate under the following circumstances:
 * When the system is shutdown
 * If a console process receives a CTRL+C or a CTRL+BREAK signal, the process calls on `ExitProcess()`
 
-### Unix/POSIX process termination
+#### Unix/POSIX process termination
 
 On Unix systems, however, it is a bit more complicated. A process will terminate when the process calls on `exit(n)` (or  `return n` in C and C++), and the value _n_ is passed to the process' parent process. However, the process will not fully remove the process from the kernel's process tables until the parent process collects the exit status, which is the exit code and the termination reason, which is normally contained in a 16-bit integer (the first byte containing the exit code, and the second byte containing a bit field with the termination reason). 
 
