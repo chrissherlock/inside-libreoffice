@@ -326,3 +326,115 @@ Load the image and execute it in a new process.
 ```
 
 Cleans up the process by freeing allocated memory structures.
+
+It is also worthwhile looking at how Unix loads the image and executes it as a process:
+
+```cpp
+oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
+                                                sal_Char *pszArguments[],
+                                                oslProcessOption Options,
+                                                oslSecurity Security,
+                                                sal_Char *pszDirectory,
+                                                sal_Char *pszEnvironments[],
+                                                oslProcess *pProcess,
+                                                oslFileHandle   *pInputWrite,
+                                                oslFileHandle   *pOutputRead,
+                                                oslFileHandle   *pErrorRead
+                                                )
+{
+    int     i;
+    ProcessData Data;
+    oslThread hThread;
+
+    memset(&Data,0,sizeof(ProcessData));
+    Data.m_pInputWrite = pInputWrite;
+    Data.m_pOutputRead = pOutputRead;
+    Data.m_pErrorRead = pErrorRead;
+
+    OSL_ASSERT(pszImageName != nullptr);
+
+    if ( pszImageName == nullptr )
+    {
+        return osl_Process_E_NotFound;
+    }
+
+    Data.m_pszArgs[0] = strdup(pszImageName);
+    Data.m_pszArgs[1] = nullptr;
+
+    if ( pszArguments != nullptr )
+    {
+        for (i = 0; ((i + 2) < MAX_ARGS) && (pszArguments[i] != nullptr); i++)
+            Data.m_pszArgs[i+1] = strdup(pszArguments[i]);
+        Data.m_pszArgs[i+2] = nullptr;
+    }
+
+    Data.m_options = Options;
+    Data.m_pszDir  = (pszDirectory != nullptr) ? strdup(pszDirectory) : nullptr;
+
+    if (pszEnvironments != nullptr)
+    {
+        for (i = 0; ((i + 1) < MAX_ENVS) &&  (pszEnvironments[i] != nullptr); i++)
+            Data.m_pszEnv[i] = strdup(pszEnvironments[i]);
+         Data.m_pszEnv[i+1] = nullptr;
+    }
+    else
+         Data.m_pszEnv[0] = nullptr;
+
+    if (Security != nullptr)
+    {
+        Data.m_uid  = static_cast<oslSecurityImpl*>(Security)->m_pPasswd.pw_uid;
+        Data.m_gid  = static_cast<oslSecurityImpl*>(Security)->m_pPasswd.pw_gid;
+        Data.m_name = static_cast<oslSecurityImpl*>(Security)->m_pPasswd.pw_name;
+    }
+    else
+        Data.m_uid = (uid_t)-1;
+
+    Data.m_pProcImpl = static_cast<oslProcessImpl*>(malloc(sizeof(oslProcessImpl)));
+    Data.m_pProcImpl->m_pid = 0;
+    Data.m_pProcImpl->m_terminated = osl_createCondition();
+    Data.m_pProcImpl->m_pnext = nullptr;
+
+    if (ChildListMutex == nullptr)
+        ChildListMutex = osl_createMutex();
+
+    Data.m_started = osl_createCondition();
+
+    hThread = osl_createThread(ChildStatusProc, &Data);
+
+    if (hThread != nullptr)
+    {
+        osl_waitCondition(Data.m_started, nullptr);
+    }
+    osl_destroyCondition(Data.m_started);
+
+    for (i = 0; Data.m_pszArgs[i] != nullptr; i++)
+          free(const_cast<char *>(Data.m_pszArgs[i]));
+
+    for (i = 0; Data.m_pszEnv[i] != nullptr; i++)
+          free(Data.m_pszEnv[i]);
+
+    if ( Data.m_pszDir != nullptr )
+    {
+        free(const_cast<char *>(Data.m_pszDir));
+    }
+
+    osl_destroyThread(hThread);
+
+    if (Data.m_pProcImpl->m_pid != 0)
+    {
+         assert(hThread != nullptr);
+
+        *pProcess = Data.m_pProcImpl;
+
+         if (Options & osl_Process_WAIT)
+            osl_joinProcess(*pProcess);
+
+         return osl_Process_E_None;
+    }
+
+    osl_destroyCondition(Data.m_pProcImpl->m_terminated);
+    free(Data.m_pProcImpl);
+
+    return osl_Process_E_Unknown;
+}
+```
