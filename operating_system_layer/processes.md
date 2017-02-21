@@ -131,4 +131,198 @@ The parameters are:
 
 * `pProcess` - an output parameter, this variable is a pointer to an oslProcess variable, which receives the handle of the newly created process. This parameter must not be NULL.
 
-On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`.
+On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`. The function in Unix is as follows:
+
+```cpp
+
+oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
+                                            rtl_uString *ustrImageName,
+                                            rtl_uString *ustrArguments[],
+                                            sal_uInt32   nArguments,
+                                            oslProcessOption Options,
+                                            oslSecurity Security,
+                                            rtl_uString *ustrWorkDir,
+                                            rtl_uString *ustrEnvironment[],
+                                            sal_uInt32   nEnvironmentVars,
+                                            oslProcess *pProcess,
+                                            oslFileHandle   *pInputWrite,
+                                            oslFileHandle   *pOutputRead,
+                                            oslFileHandle   *pErrorRead
+                                            )
+{
+    rtl::OUString image;
+    if (ustrImageName == nullptr)
+    {
+        if (nArguments == 0)
+        {
+            return osl_Process_E_InvalidError;
+        }
+        image = rtl::OUString::unacquired(ustrArguments);
+    }
+    else
+    {
+        osl::FileBase::RC e = osl::FileBase::getSystemPathFromFileURL(
+            rtl::OUString::unacquired(&ustrImageName), image);
+        if (e != osl::FileBase::E_None)
+        {
+            SAL_INFO(
+                "sal.osl",
+                "getSystemPathFromFileURL("
+                    << rtl::OUString::unacquired(&ustrImageName)
+                    << ") failed with " << e);
+            return osl_Process_E_Unknown;
+        }
+    }
+```
+
+The above gets the executable image name, checks that the directory exists if the first argument is NULL. 
+
+```cpp
+
+    if ((Options & osl_Process_SEARCHPATH) != 0)
+    {
+        rtl::OUString path;
+        if (osl::detail::find_in_PATH(image, path))
+        {
+            image = path;
+        }
+    }
+```
+
+Searches for the image via the $PATH variable.
+
+```cpp
+
+    oslProcessError Error;
+    sal_Char* pszWorkDir=nullptr;
+    sal_Char** pArguments=nullptr;
+    sal_Char** pEnvironment=nullptr;
+    unsigned int idx;
+
+    char szImagePath[PATH_MAX] = "";
+    if (!image.isEmpty()
+        && (UnicodeToText(
+                szImagePath, SAL_N_ELEMENTS(szImagePath), image.getStr(),
+                image.getLength())
+            == 0))
+    {
+        int e = errno;
+        SAL_INFO("sal.osl", "UnicodeToText(" << image << ") failed with " << e);
+        return osl_Process_E_Unknown;
+    }
+
+    char szWorkDir[PATH_MAX] = "";
+    if (ustrWorkDir != nullptr && ustrWorkDir->length)
+    {
+        oslFileError e = FileURLToPath(szWorkDir, PATH_MAX, ustrWorkDir);
+        if (e != osl_File_E_None)
+        {
+            SAL_INFO(
+                "sal.osl",
+                "FileURLToPath(" << rtl::OUString::unacquired(&ustrWorkDir)
+                    << ") failed with " << e);
+            return osl_Process_E_Unknown;
+        }
+        pszWorkDir = szWorkDir;
+    }
+    ```
+
+Gets the directory the executable resides in.
+        
+```cpp
+
+    if ( pArguments == nullptr && nArguments > 0 )
+    {
+        pArguments = static_cast<sal_Char**>(malloc((nArguments + 2) * sizeof(sal_Char*)));
+    }
+
+    for ( idx = 0 ; idx < nArguments ; ++idx )
+    {
+        rtl_String* strArg =nullptr;
+
+        rtl_uString2String(&strArg,
+                           rtl_uString_getStr(ustrArguments[idx]),
+                           rtl_uString_getLength(ustrArguments[idx]),
+                           osl_getThreadTextEncoding(),
+                           OUSTRING_TO_OSTRING_CVTFLAGS);
+
+        pArguments[idx]=strdup(rtl_string_getStr(strArg));
+        rtl_string_release(strArg);
+        pArguments[idx+1]=nullptr;
+    }
+```
+
+Processes the arguments. 
+        
+```cpp
+
+    for ( idx = 0 ; idx < nEnvironmentVars ; ++idx )
+    {
+        rtl_String* strEnv=nullptr;
+
+        if ( pEnvironment == nullptr )
+        {
+            pEnvironment = static_cast<sal_Char**>(malloc((nEnvironmentVars + 2) * sizeof(sal_Char*)));
+        }
+
+        rtl_uString2String( &strEnv,
+                            rtl_uString_getStr(ustrEnvironment[idx]),
+                            rtl_uString_getLength(ustrEnvironment[idx]),
+                            osl_getThreadTextEncoding(),
+                            OUSTRING_TO_OSTRING_CVTFLAGS);
+
+        pEnvironment[idx]=strdup(rtl_string_getStr(strEnv));
+        rtl_string_release(strEnv);
+        pEnvironment[idx+1]=nullptr;
+    }
+```
+
+Processes the environment variables. 
+        
+```cpp
+
+    Error = osl_psz_executeProcess(szImagePath,
+                                   pArguments,
+                                   Options,
+                                   Security,
+                                   pszWorkDir,
+                                   pEnvironment,
+                                   pProcess,
+                                   pInputWrite,
+                                   pOutputRead,
+                                   pErrorRead
+                                   );
+```
+
+Load the image and execute it in a new process. 
+
+```cpp
+    if ( pArguments != nullptr )
+    {
+        for ( idx = 0 ; idx < nArguments ; ++idx )
+        {
+            if ( pArguments[idx] != nullptr )
+            {
+                free(pArguments[idx]);
+            }
+        }
+        free(pArguments);
+    }
+
+    if ( pEnvironment != nullptr )
+    {
+        for ( idx = 0 ; idx < nEnvironmentVars ; ++idx )
+        {
+            if ( pEnvironment[idx] != nullptr )
+            {
+                free(pEnvironment[idx]);
+            }
+        }
+        free(pEnvironment);
+    }
+
+    return Error;
+}
+```
+
+Cleans up the process by freeing allocated memory structures.
