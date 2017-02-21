@@ -342,15 +342,24 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
                                                 oslFileHandle   *pErrorRead
                                                 )
 {
-    int     i;
+    int i;
     ProcessData Data;
     oslThread hThread;
 
     memset(&Data,0,sizeof(ProcessData));
+```
+
+Zero-initializes the process data structure.
+
+```cpp
     Data.m_pInputWrite = pInputWrite;
     Data.m_pOutputRead = pOutputRead;
     Data.m_pErrorRead = pErrorRead;
+```
 
+Initializes the process data structure's anonymous pipes.
+
+```cpp
     OSL_ASSERT(pszImageName != nullptr);
 
     if ( pszImageName == nullptr )
@@ -367,10 +376,13 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
             Data.m_pszArgs[i+1] = strdup(pszArguments[i]);
         Data.m_pszArgs[i+2] = nullptr;
     }
-
     Data.m_options = Options;
     Data.m_pszDir  = (pszDirectory != nullptr) ? strdup(pszDirectory) : nullptr;
+```
 
+Sets up the process data structure's executable image name, arguments and working directory. 
+
+```cpp
     if (pszEnvironments != nullptr)
     {
         for (i = 0; ((i + 1) < MAX_ENVS) &&  (pszEnvironments[i] != nullptr); i++)
@@ -378,8 +390,14 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
          Data.m_pszEnv[i+1] = nullptr;
     }
     else
+    {
          Data.m_pszEnv[0] = nullptr;
+    }
+```
 
+Sets up the environment variables. 
+
+```cpp
     if (Security != nullptr)
     {
         Data.m_uid  = static_cast<oslSecurityImpl*>(Security)->m_pPasswd.pw_uid;
@@ -387,13 +405,24 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
         Data.m_name = static_cast<oslSecurityImpl*>(Security)->m_pPasswd.pw_name;
     }
     else
+    {
         Data.m_uid = (uid_t)-1;
+    }
+```
+
+Sets up the security of the process - sets the Unix user ID (uid), group ID (gid) and the name of the process owner. 
+
+```cpp
 
     Data.m_pProcImpl = static_cast<oslProcessImpl*>(malloc(sizeof(oslProcessImpl)));
     Data.m_pProcImpl->m_pid = 0;
     Data.m_pProcImpl->m_terminated = osl_createCondition();
     Data.m_pProcImpl->m_pnext = nullptr;
+```
 
+Initializes the process ID (PID) as 0, sets up a condition variable (for more details on this, see the threads chapter), and sets the next process in the linked list to NULL. 
+
+```cpp
     if (ChildListMutex == nullptr)
         ChildListMutex = osl_createMutex();
 
