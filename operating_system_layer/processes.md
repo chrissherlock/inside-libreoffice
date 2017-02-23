@@ -8,7 +8,7 @@ Whilst all operating systems supported by LibreOffice use processes to execute c
 
 Both Unix and Windows load a process from a stored image, which contains the program instructions associated with the program. [Common features](https://en.wikipedia.org/wiki/Process_%28computing%29#Representation) of processes under both operating systems are:
 
-* memory handling via:
+* Memory handling via:
   * [virtual memory](https://en.wikipedia.org/wiki/Virtual_memory) which maps virtual addresses in a process to physical addresses in memory. 
   * mechanisms for gathering input and output between processes
   * a set of stack frames in the [_call stack_](https://en.wikipedia.org/wiki/Call_stack). Each stack frame holds:
@@ -16,12 +16,12 @@ Both Unix and Windows load a process from a stored image, which contains the pro
     * a frame pointer that holds the address of the calling function so that it can be returned control once the current function returns
     * the parameters passed to the function by the calling function
   * the _heap_ \(or sometimes called the _free store_\) which allows programs to dynamically allocate blocks of unused memory from a large pool of memory
-* resource descriptors are allocated to a process by the operating system, for such things as files, synchronization primitives and shared memory - in Windows these are called [handles](https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/) and in Unix they are [file descriptors](https://en.wikipedia.org/wiki/File_descriptor)
-* the ability to hold processor state, also known as the process' [_context_](https://en.wikipedia.org/wiki/Context_(computing))
-* security attributes, such as the process owner and the set of allowable operations the process has permission to run
-* the ability to spawn child processes
-* the ability to manage one or more threads within the process
-* [_environment variables_](https://en.wikipedia.org/wiki/Environment_variable), which are inherited from their parent processes
+* Resource descriptors are allocated to a process by the operating system, for such things as files, synchronization primitives and shared memory - in Windows these are called [handles](https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/) and in Unix they are [file descriptors](https://en.wikipedia.org/wiki/File_descriptor)
+* The ability to hold processor state, also known as the process' [_context_](https://en.wikipedia.org/wiki/Context_(computing))
+* Security attributes, such as the process owner and the set of allowable operations the process has permission to run
+* The ability to spawn child processes
+* The ability to manage one or more threads within the process
+* [_Environment variables_](https://en.wikipedia.org/wiki/Environment_variable), which are inherited from their parent processes
 
 A process can exist within a number of states, the main ones being:
 
