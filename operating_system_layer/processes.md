@@ -415,10 +415,20 @@ Sets up the security of the process - sets the Unix user ID (uid), group ID (gid
 
 Initializes the process ID (PID) as 0, sets up a condition variable (for more details on this, see the threads chapter), and sets the next process in the linked list to NULL. 
 
+Note the line:
+
+```cpp
+    Data.m_pProcImpl->m_terminated = osl_createCondition();
+```
+
+This sets up a condition variable that is set if the thread is unexpected terminated. 
+
 ```cpp
     if (ChildListMutex == nullptr)
         ChildListMutex = osl_createMutex();
 ```
+
+`ChildListMutex` ensures that the pointer to the global pointer to the mutex that protects access to the global linked list of child processes is set to a new mutex. 
 
 ```cpp
     Data.m_started = osl_createCondition();
@@ -430,7 +440,11 @@ Initializes the process ID (PID) as 0, sets up a condition variable (for more de
         osl_waitCondition(Data.m_started, nullptr);
     }
     osl_destroyCondition(Data.m_started);
+```
 
+The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
+
+```cpp
     for (i = 0; Data.m_pszArgs[i] != nullptr; i++)
           free(const_cast<char *>(Data.m_pszArgs[i]));
 
@@ -443,7 +457,11 @@ Initializes the process ID (PID) as 0, sets up a condition variable (for more de
     }
 
     osl_destroyThread(hThread);
+```
 
+Free up all resources.
+
+```cpp
     if (Data.m_pProcImpl->m_pid != 0)
     {
          assert(hThread != nullptr);
@@ -455,10 +473,13 @@ Initializes the process ID (PID) as 0, sets up a condition variable (for more de
 
          return osl_Process_E_None;
     }
+```
 
+If the process has been flagged to wait, then this waits for the child process to finish (via `osl_joinProcess(*pProcess)`, which blocks the current process until the specified process finishes).
+
+```cpp
     osl_destroyCondition(Data.m_pProcImpl->m_terminated);
     free(Data.m_pProcImpl);
 
     return osl_Process_E_Unknown;
 }
-```
