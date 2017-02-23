@@ -97,7 +97,7 @@ The OSL uses a C API for managing the process lifecycle:
 
 Process creation occurs by calling the osl_executeProcess()` function, which loads a program image into a new process. The function definition is:
 
-```c
+```cpp
 SAL_DLLPUBLIC oslProcessError SAL_CALL osl_executeProcess(
     rtl_uString* ustrImageName,
     rtl_uString* ustrArguments[],
@@ -107,8 +107,7 @@ SAL_DLLPUBLIC oslProcessError SAL_CALL osl_executeProcess(
     rtl_uString* ustrDirectory,
     rtl_uString* ustrEnvironments[],
     sal_uInt32 nEnvironmentVars,
-    oslProcess* pProcess);
-    
+    oslProcess* pProcess); 
 ```
 
 The parameters are:
@@ -134,7 +133,6 @@ The parameters are:
 On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`. The function in Unix is as follows:
 
 ```cpp
-
 oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
                                             rtl_uString *ustrImageName,
                                             rtl_uString *ustrArguments[],
@@ -192,7 +190,6 @@ The above gets the executable image name, checks that the directory exists if th
 Searches for the image via the $PATH variable.
 
 ```cpp
-
     oslProcessError Error;
     sal_Char* pszWorkDir=nullptr;
     sal_Char** pArguments=nullptr;
@@ -225,12 +222,11 @@ Searches for the image via the $PATH variable.
         }
         pszWorkDir = szWorkDir;
     }
-    ```
+```
 
 Gets the directory the executable resides in.
         
 ```cpp
-
     if ( pArguments == nullptr && nArguments > 0 )
     {
         pArguments = static_cast<sal_Char**>(malloc((nArguments + 2) * sizeof(sal_Char*)));
@@ -255,7 +251,6 @@ Gets the directory the executable resides in.
 Processes the arguments. 
         
 ```cpp
-
     for ( idx = 0 ; idx < nEnvironmentVars ; ++idx )
     {
         rtl_String* strEnv=nullptr;
@@ -280,7 +275,6 @@ Processes the arguments.
 Processes the environment variables. 
         
 ```cpp
-
     Error = osl_psz_executeProcess(szImagePath,
                                    pArguments,
                                    Options,
@@ -413,7 +407,6 @@ Sets up the environment variables.
 Sets up the security of the process - sets the Unix user ID (uid), group ID (gid) and the name of the process owner. 
 
 ```cpp
-
     Data.m_pProcImpl = static_cast<oslProcessImpl*>(malloc(sizeof(oslProcessImpl)));
     Data.m_pProcImpl->m_pid = 0;
     Data.m_pProcImpl->m_terminated = osl_createCondition();
@@ -425,7 +418,9 @@ Initializes the process ID (PID) as 0, sets up a condition variable (for more de
 ```cpp
     if (ChildListMutex == nullptr)
         ChildListMutex = osl_createMutex();
+```
 
+```cpp
     Data.m_started = osl_createCondition();
 
     hThread = osl_createThread(ChildStatusProc, &Data);
