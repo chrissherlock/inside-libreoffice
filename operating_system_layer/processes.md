@@ -483,3 +483,6 @@ If the process has been flagged to wait, then this waits for the child process t
 
     return osl_Process_E_Unknown;
 }
+```
+
+If the process was terminated abnormally the application cleans up by destroying the termination condition variable, and frees the process structure. 
