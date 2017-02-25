@@ -152,7 +152,7 @@ Function attributes for exception handling on GCC \(but not MinGW\) are:
 
 ## `alloca()`
 
-The `alloca()` function allocates \(as it's name suggests\) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate to much to the stack you can actually _run out_ of stack space and your program will crash.
+The `alloca()` function allocates \(as its name suggests\) temporary memory in the calling functions stack frame. As it is in the stack frame and not in the heap, it automatically gets freed when the function returns. However, it is a "dangerous" function in that if you allocate too much to the stack you can actually _run out_ of stack space and your program will crash.
 
 The `alloca()` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in `alloca.h`; in OS X, BSD and iOS systems it is in `sys/types.h` and on Windows it is in `malloc.h`. Due to this quirk, LibreOffice defines its own `alloca.h` in `include/sal/alloca.h`
 
