@@ -132,6 +132,8 @@ The parameters are:
 
 On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`. The function in Unix is as follows:
 
+**Step 1:** gets the executable image name, checks that the directory exists if the first argument is NULL. 
+
 ```cpp
 oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
                                             rtl_uString *ustrImageName,
@@ -172,8 +174,8 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
         }
     }
 ```
+**Step 2:** search for the image via the `$PATH` variable.
 
-The above gets the executable image name, checks that the directory exists if the first argument is NULL. 
 
 ```cpp
 
@@ -187,7 +189,7 @@ The above gets the executable image name, checks that the directory exists if th
     }
 ```
 
-Searches for the image via the $PATH variable.
+**Step 3:** get the directory the executable resides in.
 
 ```cpp
     oslProcessError Error;
@@ -224,7 +226,7 @@ Searches for the image via the $PATH variable.
     }
 ```
 
-Gets the directory the executable resides in.
+**Step 4:** process the arguments. 
         
 ```cpp
     if ( pArguments == nullptr && nArguments > 0 )
@@ -248,7 +250,7 @@ Gets the directory the executable resides in.
     }
 ```
 
-Processes the arguments. 
+**Step 5:** process the environment variables. 
         
 ```cpp
     for ( idx = 0 ; idx < nEnvironmentVars ; ++idx )
@@ -272,7 +274,8 @@ Processes the arguments.
     }
 ```
 
-Processes the environment variables. 
+**Step 6:** Load the image and execute it in a new process. 
+
         
 ```cpp
     Error = osl_psz_executeProcess(szImagePath,
@@ -288,7 +291,8 @@ Processes the environment variables.
                                    );
 ```
 
-Load the image and execute it in a new process. 
+**Step 7:** clean up the process by freeing allocated memory structures.
+
 
 ```cpp
     if ( pArguments != nullptr )
@@ -319,9 +323,9 @@ Load the image and execute it in a new process.
 }
 ```
 
-Cleans up the process by freeing allocated memory structures.
-
 It is also worthwhile looking at how Unix loads the image and executes it as a process:
+
+**Step 1:** Zero-initialize the process data structure.
 
 ```cpp
 oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
@@ -343,7 +347,8 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
     memset(&Data,0,sizeof(ProcessData));
 ```
 
-Zero-initializes the process data structure.
+**Step 2:** initialize the process' data structure's anonymous pipes.
+
 
 ```cpp
     Data.m_pInputWrite = pInputWrite;
@@ -351,7 +356,7 @@ Zero-initializes the process data structure.
     Data.m_pErrorRead = pErrorRead;
 ```
 
-Initializes the process data structure's anonymous pipes.
+**Step 3:** setup the process data structure's executable image name, arguments and working directory. 
 
 ```cpp
     OSL_ASSERT(pszImageName != nullptr);
@@ -374,7 +379,7 @@ Initializes the process data structure's anonymous pipes.
     Data.m_pszDir  = (pszDirectory != nullptr) ? strdup(pszDirectory) : nullptr;
 ```
 
-Sets up the process data structure's executable image name, arguments and working directory. 
+**Step 4:** setup the environment variables.
 
 ```cpp
     if (pszEnvironments != nullptr)
@@ -389,7 +394,7 @@ Sets up the process data structure's executable image name, arguments and workin
     }
 ```
 
-Sets up the environment variables. 
+**Step 5:** sets up the security of the process - sets the Unix user ID (uid), group ID (gid) and the name of the process owner.  
 
 ```cpp
     if (Security != nullptr)
@@ -403,8 +408,8 @@ Sets up the environment variables.
         Data.m_uid = (uid_t)-1;
     }
 ```
-
-Sets up the security of the process - sets the Unix user ID (uid), group ID (gid) and the name of the process owner. 
+**Step 6:** initializes the process ID \(PID\) as 0, sets up a condition variable (for more details on this, see the threads chapter), and sets the next process in the linked list to NULL. 
+ 
 
 ```cpp
     Data.m_pProcImpl = static_cast<oslProcessImpl*>(malloc(sizeof(oslProcessImpl)));
