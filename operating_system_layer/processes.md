@@ -428,12 +428,14 @@ Note the line:
 
 This sets up a condition variable that is set if the thread is unexpected terminated. 
 
+**Step 7:** `ChildListMutex` ensures that the pointer to the global pointer to the mutex that protects access to the global linked list of child processes is set to a new mutex. 
+
 ```cpp
     if (ChildListMutex == nullptr)
         ChildListMutex = osl_createMutex();
 ```
 
-`ChildListMutex` ensures that the pointer to the global pointer to the mutex that protects access to the global linked list of child processes is set to a new mutex. 
+**Step 8:** The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
 
 ```cpp
     Data.m_started = osl_createCondition();
@@ -447,8 +449,9 @@ This sets up a condition variable that is set if the thread is unexpected termin
     osl_destroyCondition(Data.m_started);
 ```
 
-The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
+**Step 9:** Free up all resources
 
+The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
 ```cpp
     for (i = 0; Data.m_pszArgs[i] != nullptr; i++)
           free(const_cast<char *>(Data.m_pszArgs[i]));
@@ -464,7 +467,7 @@ The process is actually executed in this thread, when it is done it sets the con
     osl_destroyThread(hThread);
 ```
 
-Free up all resources.
+**Step 10:** If the process has been flagged to wait, then this waits for the child process to finish (via `osl_joinProcess(*pProcess)`, which blocks the current process until the specified process finishes).
 
 ```cpp
     if (Data.m_pProcImpl->m_pid != 0)
@@ -480,7 +483,7 @@ Free up all resources.
     }
 ```
 
-If the process has been flagged to wait, then this waits for the child process to finish (via `osl_joinProcess(*pProcess)`, which blocks the current process until the specified process finishes).
+**Step 11:** If the process was terminated abnormally the application cleans up by destroying the termination condition variable, and frees the process structure. 
 
 ```cpp
     osl_destroyCondition(Data.m_pProcImpl->m_terminated);
@@ -489,5 +492,3 @@ If the process has been flagged to wait, then this waits for the child process t
     return osl_Process_E_Unknown;
 }
 ```
-
-If the process was terminated abnormally the application cleans up by destroying the termination condition variable, and frees the process structure. 
