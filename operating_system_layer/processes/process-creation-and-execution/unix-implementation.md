@@ -572,8 +572,13 @@ A copy of the file descriptors of the parent process is provided to the child pr
         }
 ```
 
-**Parent process: Step 1:**
-```
+**Parent process: Step 1:** `fork()` returns a non-zero positive value that holds the child process' ID when in the parent process that called on `fork()`.  If the value is -1 then this indicates an error and `errno` is set.
+
+As with the child process closing the Unix domain socket's parent file descriptor, the parent process must close the child process' Unix domain socket file descriptor so it can later be reclaimed by the operating system. 
+
+The unused pipe ends of the parent process must also be closed for the same reason. 
+
+```c
         else
         {   /* Parent  */
             int i = -1;
@@ -583,7 +588,11 @@ A copy of the file descriptors of the parent process is provided to the child pr
             if (stdInput[0] != -1) close( stdInput[0] );
             if (stdOutput[1] != -1) close( stdOutput[1] );
             if (stdError[1] != -1) close( stdError[1] );
-    
+```
+
+**Parent process: Step 2:** If the PID is less than 0, then it indicates an error. The parent process waits for the child process to send its error to the parent process, which it reads from the socket. If the read fails, then `errno` returns `EINTR` so it breaks out of the loop.
+
+```c    
             if (pid > 0)
             {
                 while (((i = read(channel[0], &status, sizeof(status))) < 0))
@@ -592,9 +601,17 @@ A copy of the file descriptors of the parent process is provided to the child pr
                         break;
                 }
             }
-    
+```
+
+**Parent process: Step 3:** Once the child process has terminated, then close the IPC socket on the parent. 
+
+```c    
             if (channel[0] != -1) close(channel[0]);
-    
+```
+
+**Parent process: Step 4a:** If the process finished cleanly, then lock the child list, record the process ID, add the process to the linked list of children, and store the pipe ends in `ProcessData` structure. 
+
+```c    
             if ((pid > 0) && (i == 0))
             {
                 pid_t   child_pid;
@@ -616,13 +633,21 @@ A copy of the file descriptors of the parent process is provided to the child pr
                     *(pdata->m_pErrorRead) = osl::detail::createFileHandleFromFD( stdError[0] );
     
                 osl_releaseMutex(ChildListMutex);
-    
+```
+
+Notify threads that the process has finished starting.
+
+```c    
                 osl_setCondition(pdata->m_started);
-    
+```
+
+Now for final cleanup we need to run `waitpid(...)` on the child process. 
+
+```c    
                 do
                 {
                     child_pid = waitpid(pid, &status, 0);
-                } while ( 0 > child_pid && EINTR == errno );
+                } while (0 > child_pid && EINTR == errno);
     
                 if ( child_pid < 0)
                 {
@@ -634,8 +659,14 @@ A copy of the file descriptors of the parent process is provided to the child pr
     
                     child_pid = pid;
                 }
-    
-                if ( child_pid > 0 )
+```
+
+Walk the child process list until it finds the child process that exited and check to see and store the process status - if the process exited normally (`WIFEXITED(status)`) then record this, otherwise if the process terminated abnormally (`WIFSIGNALED(status)`), in which case store the termination process status, or if it terminated for any other reason then store -1. 
+
+After the status has been recorded set the termination condition variable. 
+
+```c    
+                if (child_pid > 0)
                 {
                     oslProcessImpl* pChild;
     
@@ -664,35 +695,40 @@ A copy of the file descriptors of the parent process is provided to the child pr
                     osl_releaseMutex(ChildListMutex);
                 }
             }
+```
+
+**Parent process: Step 4b:** If the process terminated abnormally the close the pipe ends, and if for some reason the child process was actually created, to prevent the process from being a "defunct" process wait on the process, then once this is done set the condition variable to notify the parent thread.
+
+```c
             else
             {
                 SAL_WARN("sal.osl", "ChildStatusProc : starting '" << data.m_pszArgs[0] << "' failed");
                 SAL_WARN("sal.osl", "Failed to launch child process, child reports errno=" << status << " (" << strerror(status) << ")");
     
                 /* Close pipe ends */
-                if ( pdata->m_pInputWrite )
+                if (pdata->m_pInputWrite)
                     *pdata->m_pInputWrite = nullptr;
     
-                if ( pdata->m_pOutputRead )
+                if (pdata->m_pOutputRead)
                     *pdata->m_pOutputRead = nullptr;
     
-                if ( pdata->m_pErrorRead )
+                if (pdata->m_pErrorRead)
                     *pdata->m_pErrorRead = nullptr;
     
                 if (stdInput[1] != -1) close( stdInput[1] );
                 if (stdOutput[0] != -1) close( stdOutput[0] );
                 if (stdError[0] != -1) close( stdError[0] );
     
-                //if pid > 0 then a process was created, even if it later failed
-                //e.g. bash searching for a command to execute, and we still
-                //need to clean it up to avoid "defunct" processes
+                // if pid > 0 then a process was created, even if it later failed
+                // e.g. bash searching for a command to execute, and we still
+                // need to clean it up to avoid "defunct" processes
                 if (pid > 0)
                 {
                     pid_t child_pid;
                     do
                     {
                         child_pid = waitpid(pid, &status, 0);
-                    } while ( 0 > child_pid && EINTR == errno );
+                    } while (0 > child_pid && EINTR == errno);
                 }
     
                 /* notify (and unblock) parent thread */
