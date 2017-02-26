@@ -95,7 +95,7 @@ If a process' parent dies and the children processes remain alive, these process
 
 The OSL uses a C API for managing the process lifecycle:
 
-Process creation occurs by calling the osl_executeProcess()` function, which loads a program image into a new process. The function definition is:
+Process creation occurs by calling the `osl_executeProcess()` function, which loads a program image into a new process. The function definition is:
 
 ```cpp
 SAL_DLLPUBLIC oslProcessError SAL_CALL osl_executeProcess(
