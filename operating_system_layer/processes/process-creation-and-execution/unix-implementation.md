@@ -488,10 +488,16 @@ A copy of the file descriptors of the parent process is provided to the child pr
             }
 ```
 
+**Child process: Step 3:** change the working director of the process
+
 ```c    
             if (data.m_pszDir)
                 chstatus = chdir(data.m_pszDir);
-    
+```
+
+**Child process: Step 4:** if allowed, then checks for invalid environment variables, closes the write end of the standard input descriptor and the read end of standard output and standard error, as these do not get used in the child process.  
+
+```c    
             if (chstatus == 0 && ((data.m_uid == (uid_t)-1) || ((data.m_uid == getuid()) && (data.m_gid == getgid()))))
             {
                 int i;
@@ -499,11 +505,11 @@ A copy of the file descriptors of the parent process is provided to the child pr
                 {
                     if (strchr(data.m_pszEnv[i], '=') == nullptr)
                     {
-                        unsetenv(data.m_pszEnv[i]); /*TODO: check error return*/
+                        unsetenv(data.m_pszEnv[i]); /* TODO: check error return*/
                     }
                     else
                     {
-                        putenv(data.m_pszEnv[i]); /*TODO: check error return*/
+                        putenv(data.m_pszEnv[i]); /* TODO: check error return*/
                     }
                 }
     
