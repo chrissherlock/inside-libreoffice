@@ -6,18 +6,18 @@ The function `osl_executeProcess_WithRedirectedIO()` in Unix works as follows:
 
 ```cpp
 oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
-    rtl_uString *ustrImageName,
-    rtl_uString *ustrArguments[],
-    sal_uInt32 nArguments,
-    oslProcessOption Options,
-    oslSecurity Security,
-    rtl_uString *ustrWorkDir,
-    rtl_uString *ustrEnvironment[],
-    sal_uInt32 nEnvironmentVars,
-    oslProcess *pProcess,
-    oslFileHandle *pInputWrite,
-    oslFileHandle *pOutputRead,
-    oslFileHandle *pErrorRead
+        rtl_uString *ustrImageName,
+        rtl_uString *ustrArguments[],
+        sal_uInt32 nArguments,
+        oslProcessOption Options,
+        oslSecurity Security,
+        rtl_uString *ustrWorkDir,
+        rtl_uString *ustrEnvironment[],
+        sal_uInt32 nEnvironmentVars,
+        oslProcess *pProcess,
+        oslFileHandle *pInputWrite,
+        oslFileHandle *pOutputRead,
+        oslFileHandle *pErrorRead
     )
 {
     rtl::OUString image;
