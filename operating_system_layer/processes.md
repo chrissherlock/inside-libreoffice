@@ -93,7 +93,9 @@ If a process' parent dies and the children processes remain alive, these process
 
 ## OSL C API
 
-The OSL uses a C API for managing the process lifecycle:
+The OSL uses a C API for managing the process lifecycle.
+
+### Process creation and execution
 
 Process creation occurs by calling the `osl_executeProcess()` function, which loads a program image into a new process. The function definition is:
 
@@ -130,7 +132,11 @@ The parameters are:
 
 * `pProcess` - an output parameter, this variable is a pointer to an oslProcess variable, which receives the handle of the newly created process. This parameter must not be NULL.
 
-On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`. The function in Unix is as follows:
+On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_WithRedirectedIO()`. 
+
+#### Unix implementation
+
+The function `osl_executeProcess_WithRedirectedIO()` in Unix works as follows:
 
 **Step 1:** gets the executable image name, checks that the directory exists if the first argument is NULL. 
 
@@ -323,7 +329,7 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
 }
 ```
 
-It is also worthwhile looking at how Unix loads the image and executes it as a process:
+The process is actually loaded and executed in step 6, with a call to `osl_psz_executeProcess(...)`, which works as follows:
 
 **Step 1:** Zero-initialize the process data structure.
 
