@@ -429,7 +429,7 @@ Handles operating systems that have no processes.
         (void) fcntl(channel[1], F_SETFD, FD_CLOEXEC);
 ```
 
-**Step 3:** redirect IO pipes
+**Step 3:** create pipes for standard input, standard ouput and standard error
 
 ```c    
         /* Create redirected IO pipes */
@@ -495,7 +495,7 @@ A copy of the file descriptors of the parent process is provided to the child pr
                 chstatus = chdir(data.m_pszDir);
 ```
 
-**Child process: Step 4:** if allowed, then checks for invalid environment variables, closes the write end of the standard input descriptor and the read end of standard output and standard error, as these do not get used in the child process.  
+**Child process: Step 4:** if allowed, then checks for invalid environment variables, closes the write end of the standard input descriptor and the read end of standard output and standard error (as these do not get used in the child process and redirects the pipes created earlier to their corresponding pipe ends 
 
 ```c    
             if (chstatus == 0 && ((data.m_uid == (uid_t)-1) || ((data.m_uid == getuid()) && (data.m_gid == getgid()))))
