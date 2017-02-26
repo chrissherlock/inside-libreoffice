@@ -330,6 +330,7 @@ Note that it calls on `osl_createThread(ChildStatusProc, &Data)` - we fork and e
 **Step 9:** Free up all resources
 
 The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
+
 ```cpp
     for (i = 0; Data.m_pszArgs[i] != nullptr; i++)
         free(const_cast<char *>(Data.m_pszArgs[i]));
