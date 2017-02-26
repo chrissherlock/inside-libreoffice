@@ -433,38 +433,49 @@ Handles operating systems that have no processes.
 
 ```c    
         /* Create redirected IO pipes */
-        if ( status == 0 && data.m_pInputWrite && pipe( stdInput ) == -1 )
+        if ( status == 0 && data.m_pInputWrite && pipe(stdInput) == -1 )
         {
             status = errno;
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdInput) errno " << status);
         }
     
-        if ( status == 0 && data.m_pOutputRead && pipe( stdOutput ) == -1 )
+        if ( status == 0 && data.m_pOutputRead && pipe(stdOutput) == -1 )
         {
             status = errno;
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdOutput) errno " << status);
         }
     
-        if ( status == 0 && data.m_pErrorRead && pipe( stdError ) == -1 )
+        if ( status == 0 && data.m_pErrorRead && pipe(stdError) == -1 )
         {
             status = errno;
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdError) errno " << status);
         }
 ```
-
+**Step 4:** [fork the process](http://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html). What this means is that the process is cloned with a new process ID, and the cloned process is made the child of the process that forked it. 
 
 ```c    
         if ( (status == 0) && ((pid = fork()) == 0) )
         {
+```
+
+**Child process: Step 1:** if `fork(...)` returns 0 then the process is the child process. 
+
+A copy of the file descriptors of the parent process is provided to the child process, which means that the child process needs to close the file descriptor used for the parent process of the Unix domain socket used for IPC between the child and parent processes. This needs to be done because until all file descriptors referencing this socket are closed the resource will not be freed.  
+
+```c
             /* Child */
             int chstatus = 0;
             int errno_copy;
     
             if (channel[0] != -1) close(channel[0]);
-    
+```
+
+**Child process: Step 2:** if there is a valid process user owner (`data.m_uid` is not -1) and the process owner or the process group of the child process are not the same as the parent's, then the process's uid and guid is changed to the one passed to the function. It also clears the `$HOME` environment variable. 
+
+```c    
             if ((data.m_uid != (uid_t)-1) && ((data.m_uid != getuid()) || (data.m_gid != getgid())))
             {
                 OSL_ASSERT(geteuid() == 0);     /* must be root */
@@ -475,7 +486,9 @@ Handles operating systems that have no processes.
                 const rtl::OUString envVar("HOME");
                 osl_clearEnvironment(envVar.pData);
             }
-    
+```
+
+```c    
             if (data.m_pszDir)
                 chstatus = chdir(data.m_pszDir);
     
