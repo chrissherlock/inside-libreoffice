@@ -545,7 +545,7 @@ A copy of the file descriptors of the parent process is provided to the child pr
                 }
 ```
 
-**Child process: Step 5:" program now executes the program and passes on the arguments via `execv(...)`.
+**Child process: Step 5:** program now executes the program and passes on the arguments via `execv(...)`.
     
 ```c  
                 // No need to check the return value of execv. If we return from
@@ -554,6 +554,7 @@ A copy of the file descriptors of the parent process is provided to the child pr
             }
 ```
 
+**Child process: unreachable code:** we can only get into this section if `execv` fails. If this occurs, then we send the error to the parent process to advise it of the problem. 
 ```c    
             SAL_WARN("sal.osl", "Failed to exec, errno=" << errno << " (" << strerror(errno) << ")");
     
@@ -569,6 +570,10 @@ A copy of the file descriptors of the parent process is provided to the child pr
     
             _exit(255);
         }
+```
+
+**Parent process: Step 1:**
+```
         else
         {   /* Parent  */
             int i = -1;
