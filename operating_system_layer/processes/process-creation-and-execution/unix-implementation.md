@@ -1,6 +1,6 @@
 # Unix implementation
 
-The function `osl_executeProcess_WithRedirectedIO()` in Unix works as follows:
+`osl_executeProcess(...)` calls on `osl_executeProcess_WithRedirectedIO(...)`, which on Unix platforms works as follows:
 
 **Step 1:** gets the executable image name, checks that the directory exists if the first argument is NULL.
 
@@ -315,7 +315,7 @@ This sets up a condition variable that is set if the thread is unexpected termin
 
 **Step 8:** The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
 
-Note that it calls on `osl_createThread(ChildStatusProc, &Data)` - we fork and execute the process in `ChildStatusProc()` which I will detail later.
+Note that it calls on `osl_createThread(ChildStatusProc, &Data)` - we fork and execute the process in `ChildStatusProc(...)` which I will detail later.
 
 ```cpp
     Data.m_started = osl_createCondition();
@@ -371,5 +371,289 @@ The process is actually executed in this thread, when it is done it sets the con
     free(Data.m_pProcImpl);
     
     return osl_Process_E_Unknown;
+}
+```
+
+## `ChildStatusProc(...)` function
+
+`ChildStatusProc(...)` forks and executes the process, sets up a Unix domain socket between the child and parent processes and redirects IO pipes. It works as follows:
+
+**Step 1:** setup the function
+
+We need to declare the function with C linking.
+
+```c
+extern "C" {
+```
+
+```c
+    static void ChildStatusProc(void *pData)
+    {
+        osl_setThreadName("osl_executeProcess");
+    
+        pid_t pid = -1;
+        int   status = 0;
+        int   channel[2] = { -1, -1 };
+        ProcessData  data;
+        ProcessData *pdata;
+        int     stdOutput[2] = { -1, -1 }, stdInput[2] = { -1, -1 }, stdError[2] = { -1, -1 };
+    
+        pdata = static_cast<ProcessData *>(pData);
+    
+        /* make a copy of our data, because forking will only copy
+           our local stack of the thread, so the process data will not be accessible
+           in our child process */
+        memcpy(&data, pData, sizeof(data));
+```
+
+```c
+#ifdef NO_CHILD_PROCESSES
+#define fork() (errno = EINVAL, -1)
+#endif
+        if (socketpair(AF_UNIX, SOCK_STREAM, 0, channel) == -1)
+        {
+            status = errno;
+            SAL_WARN("sal.osl", "executeProcess socketpair() errno " << status);
+        }
+    
+        (void) fcntl(channel[0], F_SETFD, FD_CLOEXEC);
+        (void) fcntl(channel[1], F_SETFD, FD_CLOEXEC);
+    
+        /* Create redirected IO pipes */
+        if ( status == 0 && data.m_pInputWrite && pipe( stdInput ) == -1 )
+        {
+            status = errno;
+            assert(status != 0);
+            SAL_WARN("sal.osl", "executeProcess pipe(stdInput) errno " << status);
+        }
+    
+        if ( status == 0 && data.m_pOutputRead && pipe( stdOutput ) == -1 )
+        {
+            status = errno;
+            assert(status != 0);
+            SAL_WARN("sal.osl", "executeProcess pipe(stdOutput) errno " << status);
+        }
+    
+        if ( status == 0 && data.m_pErrorRead && pipe( stdError ) == -1 )
+        {
+            status = errno;
+            assert(status != 0);
+            SAL_WARN("sal.osl", "executeProcess pipe(stdError) errno " << status);
+        }
+    
+        if ( (status == 0) && ((pid = fork()) == 0) )
+        {
+            /* Child */
+            int chstatus = 0;
+            int errno_copy;
+    
+            if (channel[0] != -1) close(channel[0]);
+    
+            if ((data.m_uid != (uid_t)-1) && ((data.m_uid != getuid()) || (data.m_gid != getgid())))
+            {
+                OSL_ASSERT(geteuid() == 0);     /* must be root */
+    
+                if (! INIT_GROUPS(data.m_name, data.m_gid) || (setuid(data.m_uid) != 0))
+                    SAL_WARN("sal.osl", "Failed to change uid and guid, errno=" << errno << " (" << strerror(errno) << ")" );
+    
+                const rtl::OUString envVar("HOME");
+                osl_clearEnvironment(envVar.pData);
+            }
+    
+            if (data.m_pszDir)
+                chstatus = chdir(data.m_pszDir);
+    
+            if (chstatus == 0 && ((data.m_uid == (uid_t)-1) || ((data.m_uid == getuid()) && (data.m_gid == getgid()))))
+            {
+                int i;
+                for (i = 0; data.m_pszEnv[i] != nullptr; i++)
+                {
+                    if (strchr(data.m_pszEnv[i], '=') == nullptr)
+                    {
+                        unsetenv(data.m_pszEnv[i]); /*TODO: check error return*/
+                    }
+                    else
+                    {
+                        putenv(data.m_pszEnv[i]); /*TODO: check error return*/
+                    }
+                }
+    
+                /* Connect std IO to pipe ends */
+    
+                /* Write end of stdInput not used in child process */
+                if (stdInput[1] != -1) close( stdInput[1] );
+    
+                /* Read end of stdOutput not used in child process */
+                if (stdOutput[0] != -1) close( stdOutput[0] );
+    
+                /* Read end of stdError not used in child process */
+                if (stdError[0] != -1) close( stdError[0] );
+    
+                /* Redirect pipe ends to std IO */
+    
+                if ( stdInput[0] != STDIN_FILENO )
+                {
+                    dup2( stdInput[0], STDIN_FILENO );
+                    if (stdInput[0] != -1) close( stdInput[0] );
+                }
+    
+                if ( stdOutput[1] != STDOUT_FILENO )
+                {
+                    dup2( stdOutput[1], STDOUT_FILENO );
+                    if (stdOutput[1] != -1) close( stdOutput[1] );
+                }
+    
+                if ( stdError[1] != STDERR_FILENO )
+                {
+                    dup2( stdError[1], STDERR_FILENO );
+                    if (stdError[1] != -1) close( stdError[1] );
+                }
+    
+                // No need to check the return value of execv. If we return from
+                // it, an error has occurred.
+                execv(data.m_pszArgs[0], const_cast<char **>(data.m_pszArgs));
+            }
+    
+            SAL_WARN("sal.osl", "Failed to exec, errno=" << errno << " (" << strerror(errno) << ")");
+    
+            SAL_WARN("sal.osl", "ChildStatusProc : starting '" << data.m_pszArgs[0] << "' failed");
+    
+            /* if we reach here, something went wrong */
+            errno_copy = errno;
+            if ( !safeWrite(channel[1], &errno_copy, sizeof(errno_copy)) )
+                SAL_WARN("sal.osl", "sendFdPipe : sending failed (" << strerror(errno) << ")");
+    
+            if ( channel[1] != -1 )
+                close(channel[1]);
+    
+            _exit(255);
+        }
+        else
+        {   /* Parent  */
+            int i = -1;
+            if (channel[1] != -1) close(channel[1]);
+    
+            /* Close unused pipe ends */
+            if (stdInput[0] != -1) close( stdInput[0] );
+            if (stdOutput[1] != -1) close( stdOutput[1] );
+            if (stdError[1] != -1) close( stdError[1] );
+    
+            if (pid > 0)
+            {
+                while (((i = read(channel[0], &status, sizeof(status))) < 0))
+                {
+                    if (errno != EINTR)
+                        break;
+                }
+            }
+    
+            if (channel[0] != -1) close(channel[0]);
+    
+            if ((pid > 0) && (i == 0))
+            {
+                pid_t   child_pid;
+                osl_acquireMutex(ChildListMutex);
+    
+                pdata->m_pProcImpl->m_pid = pid;
+                pdata->m_pProcImpl->m_pnext = ChildList;
+                ChildList = pdata->m_pProcImpl;
+    
+                /* Store used pipe ends in data structure */
+    
+                if ( pdata->m_pInputWrite )
+                    *(pdata->m_pInputWrite) = osl::detail::createFileHandleFromFD( stdInput[1] );
+    
+                if ( pdata->m_pOutputRead )
+                    *(pdata->m_pOutputRead) = osl::detail::createFileHandleFromFD( stdOutput[0] );
+    
+                if ( pdata->m_pErrorRead )
+                    *(pdata->m_pErrorRead) = osl::detail::createFileHandleFromFD( stdError[0] );
+    
+                osl_releaseMutex(ChildListMutex);
+    
+                osl_setCondition(pdata->m_started);
+    
+                do
+                {
+                    child_pid = waitpid(pid, &status, 0);
+                } while ( 0 > child_pid && EINTR == errno );
+    
+                if ( child_pid < 0)
+                {
+                    SAL_WARN("sal.osl", "Failed to wait for child process, errno=" << errno << " (" << strerror(errno) << ")");
+    
+                    /*
+                    We got an other error than EINTR. Anyway we have to wake up the
+                    waiting thread under any circumstances */
+    
+                    child_pid = pid;
+                }
+    
+                if ( child_pid > 0 )
+                {
+                    oslProcessImpl* pChild;
+    
+                    osl_acquireMutex(ChildListMutex);
+    
+                    pChild = ChildList;
+    
+                    /* check if it is one of our child processes */
+                    while (pChild != nullptr)
+                    {
+                        if (pChild->m_pid == child_pid)
+                        {
+                            if (WIFEXITED(status))
+                                pChild->m_status = WEXITSTATUS(status);
+                            else if (WIFSIGNALED(status))
+                                pChild->m_status = 128 + WTERMSIG(status);
+                            else
+                                pChild->m_status = -1;
+    
+                            osl_setCondition(pChild->m_terminated);
+                        }
+    
+                        pChild = pChild->m_pnext;
+                    }
+    
+                    osl_releaseMutex(ChildListMutex);
+                }
+            }
+            else
+            {
+                SAL_WARN("sal.osl", "ChildStatusProc : starting '" << data.m_pszArgs[0] << "' failed");
+                SAL_WARN("sal.osl", "Failed to launch child process, child reports errno=" << status << " (" << strerror(status) << ")");
+    
+                /* Close pipe ends */
+                if ( pdata->m_pInputWrite )
+                    *pdata->m_pInputWrite = nullptr;
+    
+                if ( pdata->m_pOutputRead )
+                    *pdata->m_pOutputRead = nullptr;
+    
+                if ( pdata->m_pErrorRead )
+                    *pdata->m_pErrorRead = nullptr;
+    
+                if (stdInput[1] != -1) close( stdInput[1] );
+                if (stdOutput[0] != -1) close( stdOutput[0] );
+                if (stdError[0] != -1) close( stdError[0] );
+    
+                //if pid > 0 then a process was created, even if it later failed
+                //e.g. bash searching for a command to execute, and we still
+                //need to clean it up to avoid "defunct" processes
+                if (pid > 0)
+                {
+                    pid_t child_pid;
+                    do
+                    {
+                        child_pid = waitpid(pid, &status, 0);
+                    } while ( 0 > child_pid && EINTR == errno );
+                }
+    
+                /* notify (and unblock) parent thread */
+                osl_setCondition(pdata->m_started);
+            }
+        }
+    }
+
 }
 ```
