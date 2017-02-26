@@ -543,12 +543,18 @@ A copy of the file descriptors of the parent process is provided to the child pr
                     dup2( stdError[1], STDERR_FILENO );
                     if (stdError[1] != -1) close( stdError[1] );
                 }
+```
+
+**Child process: Step 5:" program now executes the program and passes on the arguments via `execv(...)`.
     
+```c  
                 // No need to check the return value of execv. If we return from
                 // it, an error has occurred.
                 execv(data.m_pszArgs[0], const_cast<char **>(data.m_pszArgs));
             }
-    
+```
+
+```c    
             SAL_WARN("sal.osl", "Failed to exec, errno=" << errno << " (" << strerror(errno) << ")");
     
             SAL_WARN("sal.osl", "ChildStatusProc : starting '" << data.m_pszArgs[0] << "' failed");
