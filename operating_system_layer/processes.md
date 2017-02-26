@@ -443,6 +443,8 @@ This sets up a condition variable that is set if the thread is unexpected termin
 
 **Step 8:** The process is actually executed in this thread, when it is done it sets the condition variable to allow the function to shutdown the process cleanly.
 
+Note that it calls on `osl_createThread(ChildStatusProc, &Data)` - we fork and execute the process in `ChildStatusProc()` which I will detail later. 
+
 ```cpp
     Data.m_started = osl_createCondition();
 
