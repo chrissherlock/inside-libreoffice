@@ -197,6 +197,8 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
 }
 ```
 
+## Loading and execution the image
+
 The process is actually loaded and executed in step 6, with a call to `osl_psz_executeProcess(...)`, which works as follows:
 
 **Step 1:** Zero-initialize the process data structure.
