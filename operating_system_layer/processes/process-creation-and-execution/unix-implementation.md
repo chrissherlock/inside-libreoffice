@@ -384,13 +384,15 @@ We need to declare the function with C linking.
 
 ```c
 extern "C" {
-```
-
-```c
     static void ChildStatusProc(void *pData)
     {
+```
+
+It gives the current thread a name and declares the variables needed.
+
+```c
         osl_setThreadName("osl_executeProcess");
-    
+  
         pid_t pid = -1;
         int   status = 0;
         int   channel[2] = { -1, -1 };
@@ -406,10 +408,17 @@ extern "C" {
         memcpy(&data, pData, sizeof(data));
 ```
 
+Handles operating systems that have no processes. 
+
 ```c
 #ifdef NO_CHILD_PROCESSES
 #define fork() (errno = EINVAL, -1)
 #endif
+```
+
+**Step 2:** create a Unix domain socket so that the parent and child processes can communicate. A Unix domain socket is part of the Unix address family (what the "AF" in "AF_UNIX" stands for), and uses a byte-oriented bi-directional stream. The `socketpair(...)` function returns a pair of file descriptors that define both communication endpoints. These file descriptors are set to close on execution termination with `fcntl(...)` by setting `FD_CLOEXEC`.
+
+```c
         if (socketpair(AF_UNIX, SOCK_STREAM, 0, channel) == -1)
         {
             status = errno;
@@ -418,7 +427,11 @@ extern "C" {
     
         (void) fcntl(channel[0], F_SETFD, FD_CLOEXEC);
         (void) fcntl(channel[1], F_SETFD, FD_CLOEXEC);
-    
+```
+
+**Step 3:** redirect IO pipes
+
+```c    
         /* Create redirected IO pipes */
         if ( status == 0 && data.m_pInputWrite && pipe( stdInput ) == -1 )
         {
@@ -440,7 +453,10 @@ extern "C" {
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdError) errno " << status);
         }
-    
+```
+
+
+```c    
         if ( (status == 0) && ((pid = fork()) == 0) )
         {
             /* Child */
