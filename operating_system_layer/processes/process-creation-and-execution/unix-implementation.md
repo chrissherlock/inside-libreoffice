@@ -104,12 +104,12 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
 
 **Step 4:** process the arguments.
 ```cpp
-    if ( pArguments == nullptr && nArguments > 0 )
+    if (pArguments == nullptr && nArguments > 0)
     {
         pArguments = static_cast<sal_Char**>(malloc((nArguments + 2) * sizeof(sal_Char*)));
     }
         
-    for ( idx = 0 ; idx < nArguments ; ++idx )
+    for (idx = 0 ; idx < nArguments ; ++idx)
     {
         rtl_String* strArg = nullptr;
         
@@ -127,11 +127,11 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
 
 **Step 5:** process the environment variables.
 ```cpp
-    for ( idx = 0 ; idx < nEnvironmentVars ; ++idx )
+    for (idx = 0 ; idx < nEnvironmentVars ; ++idx)
     {
         rtl_String* strEnv=nullptr;
         
-        if ( pEnvironment == nullptr )
+        if (pEnvironment == nullptr)
         {
             pEnvironment = static_cast<sal_Char**>(malloc((nEnvironmentVars + 2) * sizeof(sal_Char*)));
         }
@@ -168,7 +168,7 @@ oslProcessError SAL_CALL osl_executeProcess_WithRedirectedIO(
 
 
 ```cpp
-    if ( pArguments != nullptr )
+    if (pArguments != nullptr)
     {
         for (idx = 0 ; idx < nArguments ; ++idx)
         {
@@ -237,7 +237,7 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
 ```cpp
     OSL_ASSERT(pszImageName != nullptr);
     
-    if ( pszImageName == nullptr )
+    if (pszImageName == nullptr)
     {
         return osl_Process_E_NotFound;
     }
@@ -245,7 +245,7 @@ oslProcessError SAL_CALL osl_psz_executeProcess(sal_Char *pszImageName,
     Data.m_pszArgs[0] = strdup(pszImageName);
     Data.m_pszArgs[1] = nullptr;
     
-    if ( pszArguments != nullptr )
+    if (pszArguments != nullptr)
     {
         for (i = 0; ((i + 2) < MAX_ARGS) && (pszArguments[i] != nullptr); i++)
             Data.m_pszArgs[i+1] = strdup(pszArguments[i]);
@@ -433,21 +433,21 @@ Handles operating systems that have no processes.
 
 ```c    
         /* Create redirected IO pipes */
-        if ( status == 0 && data.m_pInputWrite && pipe(stdInput) == -1 )
+        if (status == 0 && data.m_pInputWrite && pipe(stdInput) == -1)
         {
             status = errno;
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdInput) errno " << status);
         }
     
-        if ( status == 0 && data.m_pOutputRead && pipe(stdOutput) == -1 )
+        if (status == 0 && data.m_pOutputRead && pipe(stdOutput) == -1)
         {
             status = errno;
             assert(status != 0);
             SAL_WARN("sal.osl", "executeProcess pipe(stdOutput) errno " << status);
         }
     
-        if ( status == 0 && data.m_pErrorRead && pipe(stdError) == -1 )
+        if (status == 0 && data.m_pErrorRead && pipe(stdError) == -1)
         {
             status = errno;
             assert(status != 0);
@@ -457,7 +457,7 @@ Handles operating systems that have no processes.
 **Step 4:** [fork the process](http://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html). What this means is that the process is cloned with a new process ID, and the cloned process is made the child of the process that forked it. 
 
 ```c    
-        if ( (status == 0) && ((pid = fork()) == 0) )
+        if ((status == 0) && ((pid = fork()) == 0))
         {
 ```
 
