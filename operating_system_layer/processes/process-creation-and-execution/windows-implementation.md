@@ -220,7 +220,7 @@ Setup the command line for the process.
     }
 ```
 
-Once the process has been created, then the handles need to be closed. 
+**Step 7:** Once the process has been created, then the handles need to be closed. 
 
 ```c
     /* Now we can close the pipe ends that are used by the child process */
