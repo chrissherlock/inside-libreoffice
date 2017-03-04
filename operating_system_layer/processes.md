@@ -95,5 +95,5 @@ If a process' parent dies and the children processes remain alive, these process
 
 The OSL uses a C API for managing the process lifecycle. The API covers:
 
-* [Process creation and deletion](/operating_system_layer/processes/process-creation-and-execution.md)
+* [Process creation and execution](/operating_system_layer/processes/process-creation-and-execution.md)
 
