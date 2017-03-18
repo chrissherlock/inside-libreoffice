@@ -8,6 +8,7 @@
       * [Process creation and execution](operating_system_layer/processes/process-creation-and-execution.md)
         * [Unix implementation](operating_system_layer/processes/process-creation-and-execution/unix-implementation.md)
         * [Windows implementation](operating_system_layer/processes/process-creation-and-execution/windows-implementation.md)
+      * [Process termination](operating_system_layer/processes/process-termination.md)
     * [Threading](operating_system_layer/threading.md)
 * [VCL](vcl.md)
 
