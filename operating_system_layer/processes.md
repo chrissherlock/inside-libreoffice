@@ -1,6 +1,6 @@
 # Processes
 
-When running a computer program, every operating system uses the concept of a [_process_](https://en.wikipedia.org/wiki/Process_(computing)\). An operating system process encapsulates the program code and any state that it must maintain to successfully perform the task the programmer wishes to accomplish. Each process runs one or more [_threads of execution_](https://en.wikipedia.org/wiki/Thread_(computing)\), which is a sequence of instructions run by a process and managed by a [scheduler](https://en.wikipedia.org/wiki/Scheduling_(computing)\), which can either run multiple threads simultaneously, or switch between them as needed.
+When running a computer program, every operating system uses the concept of a [_process_](https://en.wikipedia.org/wiki/Process_%28computing%29). An operating system process encapsulates the program code and any state that it must maintain to successfully perform the task the programmer wishes to accomplish. Each process runs one or more [_threads of execution_](https://en.wikipedia.org/wiki/Thread_%28computing%29), which is a sequence of instructions run by a process and managed by a [scheduler](https://en.wikipedia.org/wiki/Scheduling_%28computing%29), which can either run multiple threads simultaneously, or switch between them as needed.
 
 Whilst all operating systems supported by LibreOffice use processes to execute code, there are really only two process models that LibreOffice implements in the OSL - the Windows process model, and the Unix POSIX process model. Whilst many process concepts are the same between these two operating systems, there are some significant differences that the OSL attempts to unify in a common abstraction.
 
@@ -17,7 +17,7 @@ Both Unix and Windows load a process from a stored image, which contains the pro
     * the parameters passed to the function by the calling function
   * the _heap_ \(or sometimes called the _free store_\) which allows programs to dynamically allocate blocks of unused memory from a large pool of memory
 * Resource descriptors are allocated to a process by the operating system, for such things as files, synchronization primitives and shared memory - in Windows these are called [handles](https://blogs.technet.microsoft.com/markrussinovich/2009/09/29/pushing-the-limits-of-windows-handles/) and in Unix they are [file descriptors](https://en.wikipedia.org/wiki/File_descriptor)
-* The ability to hold processor state, also known as the process' [_context_](https://en.wikipedia.org/wiki/Context_(computing))
+* The ability to hold processor state, also known as the process' [_context_](https://en.wikipedia.org/wiki/Context_%28computing%29)
 * Security attributes, such as the process owner and the set of allowable operations the process has permission to run
 * The ability to spawn child processes
 * The ability to manage one or more threads within the process
