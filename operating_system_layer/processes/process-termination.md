@@ -10,7 +10,7 @@ The other way that a process can terminate is abnormally, via the `abort()` syst
 
 * **SIGTERM** - signals program termination, and is what `kill` uses by default. This signal can be blocked, handled or ignored. 
 
-* **SIGQUIT** - the quit signal allows a program to terminate and produces a core dump for later examination
+* **SIGQUIT** - the quit signal allows a program to terminate and produces a core dump for later examination. This signal can be blocked, handled or ignored. 
 
 * **SIGKILL** - tells the program to immediately terminate, and is considered a fatal error as it can't be ignored or blocked. This is the signal that the infamous `kill -9` command sends. 
 
