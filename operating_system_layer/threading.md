@@ -1,6 +1,6 @@
 # Threading
 
-A computer program consists of one or many [_threads of execution_](https://en.wikipedia.org/wiki/Thread_(computing). Each thread represents the smallest sequence of programmed instructions that can be managed independently by a scheduler. LibreOffice's OSL can manage multiple threads of execution, which exist within the LibreOffice process.
+A computer program consists of one or many [_threads of execution_](https://en.wikipedia.org/wiki/Thread_%28computing%29. Each thread represents the smallest sequence of programmed instructions that can be managed independently by a scheduler. LibreOffice's OSL can manage multiple threads of execution, which exist within the LibreOffice process.
 
 ## Thread creation
 
