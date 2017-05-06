@@ -10,6 +10,7 @@
         * [Windows implementation](operating_system_layer/processes/process-creation-and-execution/windows-implementation.md)
       * [Process termination](operating_system_layer/processes/process-termination.md)
     * [Threading](operating_system_layer/threading.md)
+  * [Runtime Layer](runtime-layer.md)
 * [VCL](vcl.md)
 * [Miscellaneous odds and ends](miscellaneous-odds-and-ends.md)
 
