@@ -20,7 +20,7 @@ The other way that a process can terminate is abnormally, via the `abort()` syst
 
 ### Unix termination function
 
-The termination function is implemented in `oslterminateProcess()`_ - it is quite simple in that it merely calls on the POSIX _`kill()`_ function, and sends the _`SIGKILL`_ signal to the process. If the signal is processed, then _`oslProcessENone` is returned, if not then it checks what the error is and advises that the process cannot be found \(`errno` is `ESRCH`, returning `oslProcessENotFound`_\), permissions were denied to terminate the process \(_`errno`_ is _`EPERM`_, returned _`oslProcessENoPermission`\), or the termination process failure reason is unknown \(returns `oslProcessE_Unknown`\).
+The termination function is implemented in `osl_terminateProcess()` - it is quite simple in that it merely calls on the POSIX `kill()` function, and sends the `SIGKILL` signal to the process. If the signal is processed, then `osl_Process_E_None` is returned, if not then it checks what the error is and advises that the process cannot be found \(errno is `ESRCH`, returning `osl_Process_E_NotFound`\), permissions were denied to terminate the process \(`errno `is `EPERM`, returned `osl_Process_E_No_Permission`\), or the termination process failure reason is unknown \(returns `osl_ProcessE_Unknown`\).
 
 > **Sidenote:** I am a bit opinionated on this one. I don't think we should call on `SIGKILL`, I think we should use `SIGTERM` so that we can handle the signal. We don't seem to have any code that needs this though, so it remains `SIGKILL`.
 
@@ -55,9 +55,9 @@ On Windows a process is terminated after either `TerminateProcess()` or `ExitPro
 
 ### Windows termination function
 
-The Windows termination function is somewhat more involved than the Unix version. Like in Unix version, the termination function is implemented in `oslterminateProcess()`_ , however we want to avoid the use of `TerminateProcess()` so that we can ensure an orderly process shutdown. _
+The Windows termination function is somewhat more involved than the Unix version. Like in Unix version, the termination function is implemented in `osl_terminate_Process()`_ , _however we want to avoid the use of `TerminateProcess()` so that we can ensure an orderly process shutdown._ _
 
-_**Step 1:** validate process identity is correct_
+**Step 1:** validate process identity is correct
 
 ```cpp
 oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
@@ -95,7 +95,7 @@ oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
         SAL_WARN("sal.osl", "Could not duplicate process handle, let's hope for the best...");
 ```
 
-**Step 3:** if the process is running, then create a new thread in this process and call on `ExitProcess()` in this thread. 
+**Step 3:** if the process is running, then create a new thread in this process and call on `ExitProcess()` in this thread.
 
 ```cpp
     DWORD dwProcessStatus = 0;
@@ -111,7 +111,7 @@ oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
         FARPROC pfnExitProc = GetProcAddress(hKernel, "ExitProcess");
         hRemoteThread = CreateRemoteThread(
                             hProcess,           /* process handle */
-                            nullptr,               /* default security descriptor */
+                            nullptr,            /* default security descriptor */
                             0,                  /* initial size of stack in bytes is default
                                                    size for executable */
                             reinterpret_cast<LPTHREAD_START_ROUTINE>(pfnExitProc), /* Win32 ExitProcess() */
@@ -123,7 +123,7 @@ oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
     }
 ```
 
-**Step 4:** Wait for the process to terminate, then close the termination thread handle so that the process can fully exit and then the duplicated process handle \(if this was created successfully\). If the termination thread finished successfully, then we know that the process terminated. If, however, there was no termination thread, then the function must fall back to terminate the process `TerminateProcess()`, which is less than ideal but much better than nothing at all. 
+**Step 4:** Wait for the process to terminate, then close the termination thread handle so that the process can fully exit and then the duplicated process handle \(if this was created successfully\). If the termination thread finished successfully, then we know that the process terminated. If, however, there was no termination thread, then the function must fall back to terminate the process `TerminateProcess()`, which is less than ideal but much better than nothing at all.
 
 ```cpp
     bool bHasExited = false;
