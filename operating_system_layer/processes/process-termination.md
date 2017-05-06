@@ -18,7 +18,40 @@ The other way that a process can terminate is abnormally, via the `abort()` syst
 
 * **SIGHUP** - the "hang up" signal, so called because it informs the process that the user's controlling terminal has been disconnected. This signal is so called because in the days of mainframes, actual terminals were connected to the mainframe via a serial cable, but often a modem was used and the signal was sent if there was a line disconnection, or more frequently when the user hung up the modem.  This signal can be ignored, which is what the `nohup` program does. When all the a `SIGHUP` signal is sent to all jobs \(defined as "a set of processes, comprising a shell pipeline, and any processes descended from it, that are all in the same process group"\) by the _session leader_ process, and once all the process groups have ended the session leader process terminates itself.
 
+### Unix termination function
+
+The termination function is implemented in `osl`_`terminateProcess()` - it is quite simple in that it merely calls on the POSIX `kill()` function, and sends the `SIGKILL` signal to the process. If the signal is processed, then `osl`_`Process`_`E`_`None` is returned, if not then it checks what the error is and advises that the process cannot be found \(`errno` is `ESRCH`, returning `osl`_`Process`_`E`_`NotFound`\), permissions were denied to terminate the process \(`errno` is `EPERM`, returned `osl`_`Process`_`E`_`NoPermission`\), or the termination process failure reason is unknown \(returns `osl`_`Process`_`E_Unknown`\).
+
+> **Sidenote:** I am a bit opinionated on this one. I don't think we should call on `SIGKILL`, I think we should use `SIGTERM` so that we can handle the signal. We don't seem to have any code that needs this though, so it remains `SIGKILL`.
+
+```cpp
+oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
+{
+    if (Process == nullptr)
+        return osl_Process_E_Unknown;
+
+    if (kill(static_cast<oslProcessImpl*>(Process)->m_pid, SIGKILL) != 0)
+    {
+        switch (errno)
+        {
+            case EPERM:
+                return osl_Process_E_NoPermission;
+
+            case ESRCH:
+                return osl_Process_E_NotFound;
+
+            default:
+                return osl_Process_E_Unknown;
+        }
+    }
+
+    return osl_Process_E_None;
+}
+```
+
 ## Windows
 
-On Windows a process is terminated after either `TerminateProcess()` or `ExitProcess()` is called, or the final thread is terminated. If ExitProcess\(\) is called, then each attached dll has its entrypoint called \(`DLL`_`PROCESS`_`DETACH`\) indicating that the process is detaching from the dll. This does not occur when `TerminateProcess()` is called. Unlike Unix, however, a child process does not need to be reparented, and does not make the parent process wait.  
+On Windows a process is terminated after either `TerminateProcess()` or `ExitProcess()` is called, or the final thread is terminated. If ExitProcess\(\) is called, then each attached dll has its entrypoint called \(`DLLPROCESSDETACH`\) indicating that the process is detaching from the dll. This does not occur when `TerminateProcess()` is called. Unlike Unix, however, a child process does not need to be reparented, and does not make the parent process wait.
+
+
 
