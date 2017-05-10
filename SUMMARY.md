@@ -11,7 +11,7 @@
       * [Process termination](operating_system_layer/processes/process-termination.md)
     * [Threading](operating_system_layer/threading.md)
   * [Runtime Layer](runtime-layer.md)
-* Tools
+* [Tools](tools.md)
 * [VCL](vcl.md)
 * [Miscellaneous odds and ends](miscellaneous-odds-and-ends.md)
 
