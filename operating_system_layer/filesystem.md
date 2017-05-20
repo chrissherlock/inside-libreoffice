@@ -45,12 +45,12 @@ A system path is a filesystem location encoded in the format required by the und
 >
 > There is also another issue whereby `~user` does not expand to the user - which I believe is largely because we haven't implemented anything that lets us impersonate users via the logon functions in `OslSecurity`.
 
-On Windows, the function checks to see if a UNC path is being used (i.e. of the form \\\server\path\to\file.txt), in which case it converts it to the file URI form.
+On Windows, the function checks to see if a UNC path is being used (i.e. of the form `\\server\path\to\file.txt`), in which case it converts it to the file URI form.
 
 ## File searches
 
 Both Windows and Unix has a way of directing the command processor or shell to find files in the filesystem. Both use the environment variable `$PATH` to influence searches, however each does this differently. On Windows, the `%path%` is searched _after_ the current directory is searched for the executable. On Unix, only the paths in `$PATH` are searched. Thus, a search function to unify the two operating systems is used in LibreOffice - `osl_getFileURLFromSystemPath()` which searches for a specified filename in a listed search path, and thereafter searches each of the directories in the system's PATH. The delimiter is not unified, however, so on Windows you must use the semicolon (;) and on Unix, you must use the colon (:). The API Doxygen comment for the function states that:
 
-> The value of an environment variable should be used (e.g. LD_LIBRARY_PATH) if the caller is not aware of the Operating System and so doesn't know which path list delimiter to use.
+> The value of an environment variable should be used (e.g. `LD_LIBRARY_PATH`) if the caller is not aware of the Operating System and so doesn't know which path list delimiter to use.
 
 
