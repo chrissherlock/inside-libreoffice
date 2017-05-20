@@ -41,6 +41,8 @@ A system path is a filesystem location encoded in the format required by the und
 
 > **Note:** the POSIX standard actually states that any path starting with double-slashes should be treated in an implementation-defined manner. This is a bug reported in [bug 107967](https://bugs.documentfoundation.org/show_bug.cgi?id=107967). 
 >
+> Interestingly, we have a quandry I have emailed the listed author of RFC8089 about: When we convert from system paths to file URIs, the RFC handles everything except for system paths on POSIX systems that start with double slashes. POSIX defines this as up to the operating system to implement. However, I cannot see anywhere in the RFC where it describes how to handle initial double slashes in file URIs. I literally have no idea what we should be doing in this case...
+>
 > There is also another issue whereby `~user` does not expand to the user - which I believe is largely because we haven't implemented anything that lets us impersonate users via the logon functions in `OslSecurity`.
 
 On Windows, the function checks to see if a UNC path is being used (i.e. of the form \\server\path\to\file.txt), in which case it converts it to the file URI form.
