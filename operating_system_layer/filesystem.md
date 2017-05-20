@@ -45,4 +45,4 @@ A system path is a filesystem location encoded in the format required by the und
 >
 > There is also another issue whereby `~user` does not expand to the user - which I believe is largely because we haven't implemented anything that lets us impersonate users via the logon functions in `OslSecurity`.
 
-On Windows, the function checks to see if a UNC path is being used (i.e. of the form \\server\path\to\file.txt), in which case it converts it to the file URI form.
+On Windows, the function checks to see if a UNC path is being used (i.e. of the form \\\server\path\to\file.txt), in which case it converts it to the file URI form.
