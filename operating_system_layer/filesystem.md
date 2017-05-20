@@ -37,6 +37,6 @@ To get an absolute file URI, you must call `osl_getAbsoluteFileURL()` - the firs
 
 ## System paths
 
-A system path is a filesystem location encoded in the format required by the underlying operating system. Both Unix and Windows have specific quirks that must be converted before LibreOffice can form a file URI. On Unix, the `osl_getFileURLFromSystemPath()` first checks if the path starts with the ~ character (or ~user), and if so replaces it with the appropriate home directory, and it converts any occurences of double-slashes to single slashes. 
+A system path is a filesystem location encoded in the format required by the underlying operating system. Both Unix and Windows have specific quirks that must be converted before LibreOffice can form a file URI. On Unix, the `osl_getFileURLFromSystemPath()` first checks if the path starts with the ~ character (or ~user), and if so replaces it with the appropriate home directory, and it converts any occurences of repeated slashes to a single slash. 
 
-> **Note:** the POSIX standard actually states that any path starting with double-slashes should be treated in an implementation manner, and in fact it's not _double-slashes_ that should change to single slashes, but in fact it is multiple slashes that should change to a single slash. These are documented in bugs [107967](https://bugs.documentfoundation.org/show_bug.cgi?id=107967) and [107968](https://bugs.documentfoundation.org/show_bug.cgi?id=107968)
+> **Note:** the POSIX standard actually states that any path starting with double-slashes should be treated in an implementation manner. This is a bug reported in [bug 107967](https://bugs.documentfoundation.org/show_bug.cgi?id=107967)
