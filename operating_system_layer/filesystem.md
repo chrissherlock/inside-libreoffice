@@ -33,4 +33,10 @@ file:///c:/path/to/file
 
 The API does not refer to file URIs as Universal Resource _Indicators_, but as file URLs (Universal Resource _Locations_), which is actually a misnomer as a URL specifically refers to web resources and not files on local filesystems. 
 
-To get an absolute file URI, you must call `osl_getAbsoluteFileURL` - the first parameter being the base directory of the relative path, and the path relative to the base directory. Alternatively, if the base parameter is set to NULL or is empty, then the OSL expects the relative parameter to actually hold an absolute URI. This function returns an error code, and uses the third parameters as an output parameter to hold the absolute file URI it generates. 
+To get an absolute file URI, you must call `osl_getAbsoluteFileURL()` - the first parameter being the base directory of the relative path, and the path relative to the base directory. Alternatively, if the base parameter is set to NULL or is empty, then the OSL expects the relative parameter to actually hold an absolute URI. This function returns an error code, and uses the third parameters as an output parameter to hold the absolute file URI it generates. 
+
+## System paths
+
+A system path is a filesystem location encoded in the format required by the underlying operating system. Both Unix and Windows have specific quirks that must be converted before LibreOffice can form a file URI. On Unix, the `osl_getFileURLFromSystemPath()` first checks if the path starts with the ~ character (or ~user), and if so replaces it with the appropriate home directory, and it converts any occurences of double-slashes to single slashes. 
+
+> **Note:** the POSIX standard actually states that any path starting with double-slashes should be treated in an implementation manner, and in fact it's not _double-slashes_ that should change to single slashes, but in fact it is multiple slashes that should change to a single slash. These are documented in bugs [107967](https://bugs.documentfoundation.org/show_bug.cgi?id=107967) and [107968](https://bugs.documentfoundation.org/show_bug.cgi?id=107968)
