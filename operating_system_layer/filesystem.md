@@ -13,5 +13,18 @@ The OSL provides a universal portable and high performance interface that can ac
 
    The input bitmask supports a flag `osl_FileStatus_Mask_Validate` which can be used to force retrieving uncached validated information. Setting this flag when calling `osl_getFileStatus` in combination with no other flag is a synonym for a "FileExists". This should only be done when processing a single file \(i.e. before opening\) and _never_ during enumeration of directory contents on any step of information processing. This would change the runtime behaviour from O\(n\) to O\(n\*n/2\) on nearly every file system.  On Windows NT-based operating systems, reading the contents of an directory with 7000 entries and getting full information about every file only takes 0.6 seconds. Specifying the flag osl\_FileStatus\_Mask\_Validate for each entry will increase the time to 180 seconds \(!!!\).
 
+## File URIs
+
+The filesystem abstraction uses file URIs as a way of handling the different file system naming conventions in a cross-platform way. The format of a file URI is:
+
+
+
+```
+file://host/path
+```
+
+File is a 
+
+
 
 
