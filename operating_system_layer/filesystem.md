@@ -15,15 +15,19 @@ The OSL provides a universal portable and high performance interface that can ac
 
 ## File URIs
 
-The filesystem abstraction uses file URIs as a way of handling the different file system naming conventions in a cross-platform way. The format of a file URI is:
-
-
+The filesystem abstraction uses file URIs as a way of handling the different file system naming conventions in a cross-platform way. The format of a file URI is specified in [RFC8089](https://tools.ietf.org/html/rfc8089) and looks like the following:
 
 ```
 file://host/path
 ```
 
-File is a 
+The host part is the name of the system on which to locate the file (and should be the FQDN), and the path is the directory name that specifies the location of the file in the filesystem. The host part is optional, so you can specify ```file:///path/to/file.txt``` 
+
+There is an exception for DOS and Windows drive letters, in that the file URI will include the drive letter and a colon, then the absolute path:
+
+```
+file:///c:/path/to/file
+```
 
 
 
