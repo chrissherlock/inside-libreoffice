@@ -21,7 +21,7 @@ The filesystem abstraction uses file URIs as a way of handling the different fil
 file://host/path
 ```
 
-The host part is the name of the system on which to locate the file (and should be the FQDN), and the path is the directory name that specifies the location of the file in the filesystem. The host part is optional, so you can specify ```file:///path/to/file.txt``` 
+The host part is the name of the system on which to locate the file (and should be the FQDN), and the path is the directory name that specifies the location of the file in the filesystem. The host part is optional, so you can specify `file:///path/to/file.txt`
 
 There is an exception for DOS and Windows drive letters, in that the file URI will include the drive letter and a colon, then the absolute path:
 
@@ -29,6 +29,8 @@ There is an exception for DOS and Windows drive letters, in that the file URI wi
 file:///c:/path/to/file
 ```
 
+## Absolute file URIs
 
+The API does not refer to file URIs as Universal Resource _Indicators_, but as file URLs (Universal Resource _Locations_), which is actually a misnomer as a URL specifically refers to web resources and not files on local filesystems. 
 
-
+To get an absolute file URI, you must call `osl_getAbsoluteFileURL` - the first parameter being the base directory of the relative path, and the path relative to the base directory. Alternatively, if the base parameter is set to NULL or is empty, then the OSL expects the relative parameter to actually hold an absolute URI. This function returns an error code, and uses the third parameters as an output parameter to hold the absolute file URI it generates. 
