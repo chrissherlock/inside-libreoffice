@@ -66,8 +66,8 @@ There are two functions that can be called:
 
 In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in [`oslFileStatus`](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#oslFileStatus):
 
-```cpp
-struct _oslFileStatus {
+```c
+typedef struct _oslFileStatus {
 /** Must be initialized with the size in bytes of the structure before passing it to any function */
     sal_uInt32      uStructSize;
 /** Determines which members of the structure contain valid data */
@@ -98,6 +98,55 @@ struct _oslFileStatus {
     rtl_uString *ustrLinkTargetURL;
 } oslFileStatus;
 ```
+
+File types are:
+
+```c
+typedef enum {
+    osl_File_Type_Directory,
+    osl_File_Type_Volume,
+    osl_File_Type_Regular,
+    osl_File_Type_Fifo,
+    osl_File_Type_Socket,
+    osl_File_Type_Link,
+    osl_File_Type_Special,
+    osl_File_Type_Unknown
+} oslFileType;
+```
+
+# File operations
+
+As with any file system, you can perform a number of logical operations on the files that reside within it via the LibreOffice OSL API. The OSL API follows the Unix file system convention, which uses the following paradigm:
+
+1. **_Open_** the file for usage by the process
+
+  The API function that performs this is:
+  
+  ```cpp
+  SAL_CALL osl_openFile(
+      rtl_uString* strPath,
+      oslFileHandle* pHandle,
+      sal_uInt32 uFlags);
+  ```
+  
+  The function is given a file URI, which it converts to a system path, and is provided a set of flags to tell it what mode to open the file in. A file handle that represents the file descriptor is passed back as an output parameter.
+  
+  Windows and Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#osl_File_OpenFlag_Read):
+  * `osl_File_OpenFlag_Read`
+  * `osl_File_OpenFlag_Write`
+  * `osl_File_OpenFlag_Create`
+  * `osl_File_OpenFlag_NoLock`<p>
+    
+  Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/detail/file.h#osl_File_OpenFlag_Trunc): 
+  * `osl_File_OpenFlag_Trunc`
+  * `osl_File_OpenFlag_NoExcl`
+  * `osl_File_OpenFlag_Private`
+  
+2. Move the cursor to the location in the file where you will be performing an operation (often called _seeking_)
+3. _Read_ or _write_ to the file at this cursor position, and if necessary move the cursor again; repeat as necessary
+4. When all file processing is finished, then indicate that the process is done with it by _closing_ the file.
+
+
 
 
 
