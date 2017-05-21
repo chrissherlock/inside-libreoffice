@@ -141,7 +141,7 @@ As with any file system, you can perform a number of logical operations on the f
   * `osl_File_OpenFlag_NoExcl`
   * `osl_File_OpenFlag_Private`<p>
   
-2. Move the cursor to the location in the file where you will be performing an operation (often called **_seeking_**)
+2. Move the cursor (current position) to the location in the file where you will be performing an operation (often called **_seeking_**)
 
 3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary
 
