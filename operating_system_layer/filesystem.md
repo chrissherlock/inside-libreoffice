@@ -129,7 +129,7 @@ As with any file system, you can perform a number of logical operations on the f
       sal_uInt32 uFlags);
   ```
   
-  The function is given a file URI, which it converts to a system path, and is provided a set of flags to tell it what mode to open the file in. A file handle that represents the file descriptor is passed back as an output parameter.
+  The function is given a file URI, which it converts to a system path, and is provided a set of flags to tell it what mode to open the file in. A file handle that represents the file descriptor is passed back as an output parameter. This is used as a token to refer to the opened file when performing file operations.
   
   Windows and Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#osl_File_OpenFlag_Read):
   * `osl_File_OpenFlag_Read`
