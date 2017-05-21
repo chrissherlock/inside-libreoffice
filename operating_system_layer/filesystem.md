@@ -66,8 +66,6 @@ There are two functions that can be called:
 
 In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in `oslFileStatus`:
 
-
-
 ```cpp
 struct _oslFileStatus {
 /** Must be initialized with the size in bytes of the structure before passing it to any function */
