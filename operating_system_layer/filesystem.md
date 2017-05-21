@@ -2,8 +2,7 @@
 
 The OSL provides a universal portable and high performance interface that can access file system functionality on any operating systems. The interface has a few main goals:
 
-1. The path specifications always has to be absolute. Any usage of relative path specifications is forbidden. Exceptions are `osl_getSystemPathFromFileURL()`, `osl_getFileURLFromSystemPath()` and `osl_getAbsoluteFileURL()`. Most operating  
-   systems provide a "Current Directory" per process, which is the reason why  relative path specifications can cause problems in multithreading  environments.
+1. The path specifications always has to be absolute. Any usage of relative path specifications is forbidden. Exceptions are `osl_getSystemPathFromFileURL()`, `osl_getFileURLFromSystemPath()` and `osl_getAbsoluteFileURL()`. Most operating systems provide a "Current Directory" per process, which is the reason why  relative path specifications can cause problems in multithreading  environments.
 
 2. Proprietary notations of file paths are not supported. Every path notation must the file URL specification. File URLs must be encoded in UTF8 and after that escaped. Although the URL parameter is a unicode string, the must contain only ASCII characters.
 
