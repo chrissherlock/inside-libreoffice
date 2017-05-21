@@ -140,9 +140,9 @@ As with any file system, you can perform a number of logical operations on the f
   Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/detail/file.h#osl_File_OpenFlag_Trunc): 
   * `osl_File_OpenFlag_Trunc`
   * `osl_File_OpenFlag_NoExcl`
-  * `osl_File_OpenFlag_Private`
+  * `osl_File_OpenFlag_Private`<p>
   
-2. Move the cursor to the location in the file where you will be performing an operation (often called _seeking_)
+2. Move the cursor to the location in the file where you will be performing an operation (often called **_seeking_**)
 3. _Read_ or _write_ to the file at this cursor position, and if necessary move the cursor again; repeat as necessary
 4. When all file processing is finished, then indicate that the process is done with it by _closing_ the file.
 
