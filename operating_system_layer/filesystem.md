@@ -53,4 +53,13 @@ Both Windows and Unix have a way of directing the command processor or shell to 
 
 > The value of an environment variable should be used (e.g. `LD_LIBRARY_PATH`) if the caller is not aware of the Operating System and so doesn't know which path list delimiter to use.
 
+## Temp files
+
+To create a temp file, you must be fairly careful to ensure that you don't lead to a race condition whereby a temp file is created, then another process writes or replaces the file. 
+
+There are two functions that can be called:
+
+* `osl_getTempDirURL()` - gets the location of temporary files
+* `osl_createTempFile()` - creates a secure temporary file
+
 
