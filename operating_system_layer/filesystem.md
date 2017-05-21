@@ -64,7 +64,7 @@ There are two functions that can be called:
 
 ## File status
 
-In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in `oslFileStatus`:
+In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in `[oslFileStatus](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#oslFileStatus)`:
 
 ```cpp
 struct _oslFileStatus {
