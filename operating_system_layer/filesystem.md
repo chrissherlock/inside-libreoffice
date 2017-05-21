@@ -62,4 +62,46 @@ There are two functions that can be called:
 * `osl_getTempDirURL()` - gets the location of temporary files
 * `osl_createTempFile()` - creates a secure temporary file
 
+## File status
+
+In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in `oslFileStatus`:
+
+
+
+```cpp
+struct _oslFileStatus {
+/** Must be initialized with the size in bytes of the structure before passing it to any function */
+    sal_uInt32      uStructSize;
+/** Determines which members of the structure contain valid data */
+    sal_uInt32      uValidFields;
+/** The type of the file (file, directory, volume). */
+    oslFileType eType;
+/** File attributes */
+    sal_uInt64  uAttributes;
+/** First creation time in nanoseconds since 1/1/1970. Can be the last modify time depending on
+    platform or file system. */
+    TimeValue   aCreationTime;
+/** Last access time in nanoseconds since 1/1/1970. Can be the last modify time depending on
+    platform or file system. */
+    TimeValue   aAccessTime;
+/** Last modify time in nanoseconds since 1/1/1970. */
+    TimeValue   aModifyTime;
+/** Size in bytes of the file. Zero for directories and volumes. */
+    sal_uInt64  uFileSize;
+/** Case correct name of the file. Should be set to zero before calling osl_getFileStatus
+    and released after usage. */
+    rtl_uString *ustrFileName;
+/** Full URL of the file. Should be set to zero before calling osl_getFileStatus
+    and released after usage. */
+    rtl_uString *ustrFileURL;
+/** Full URL of the target file if the file itself is a link.
+    Should be set to zero before calling osl_getFileStatus
+    and released after usage. */
+    rtl_uString *ustrLinkTargetURL;
+} oslFileStatus;
+```
+
+
+
+
 
