@@ -205,7 +205,7 @@ As with any file system, you can perform a number of logical operations on the f
    oslFileError SAL_CALL osl_closeFile(osFileHandle Handle);
    ```
 
-TODO: document shared file mapping
+TODO: document shared file mapping, and file flush/sync function
 
 # Copy and move files
 
