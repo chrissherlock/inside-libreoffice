@@ -161,6 +161,13 @@ As with any file system, you can perform a number of logical operations on the f
        oslFileHandle Handle,
        usl_uInt64 *pPos);
    ```
+   
+   To test if the end of the file is reached, call:
+   
+   ```cpp
+   oslFileError SAL_CALL osl_isEndOfFile(
+       osFileHandle Handle,
+       sal_Bool *pIsEOF);
 
 3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary.
 
@@ -174,7 +181,21 @@ As with any file system, you can perform a number of logical operations on the f
        sal_uInt64 *pBytesRead);
    ```
     
-   The function again takes a handle to an opened file, `pBuffer` is a pointer to a which recieves the data, `uBytesRequested` specifies the number of bytes to be read. When the file is finished reading, the number of bytes read is returned by `pBytesRead`.   
+   The function again takes a handle to an opened file, `pBuffer` is a pointer to a which recieves the data, `uBytesRequested` specifies the number of bytes to be read. When the file is finished reading, the number of bytes read is returned by `pBytesRead`.
+   
+   The function that writes to a file is:
+    
+   ```cpp
+   osl_FileError SAL_CALL osl_writeFile(
+       oslFileHandle Handle,
+       void *pBuffer,
+       sal_uInt64 uBytesToWrite,
+       sal_uInt64 *pBytesWritten);
+   ```
+
+   Similar to `osl_ReadFile()`, `pBuffer` is a pointer to the data to be written to the file, `uBytesToWrite` specifies how many bytes should be written, and `pBytesWritten` is how many bytes are actually written to the file after the function completes.
+   
+   There are two variants that allow reads and writes from specific positions in the file, they are `osl_readFileAt()` and `osl_writeFileAt()`.
 
 4. When all file processing is finished, then indicate that the process is done with it by **_closing_** the file.
 
