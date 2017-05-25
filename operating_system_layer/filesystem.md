@@ -1,4 +1,4 @@
-************# Filesystem
+# Filesystem
 
 The OSL provides a universal portable and high performance interface that can access file system functionality on any operating systems. The interface has a few main goals:
 
