@@ -122,7 +122,7 @@ As with any file system, you can perform a number of logical operations on the f
   The API function that performs this is:
   
   ```cpp
-  SAL_CALL osl_openFile(
+  oslFileError SAL_CALL osl_openFile(
       rtl_uString* strPath,
       oslFileHandle* pHandle,
       sal_uInt32 uFlags);
@@ -141,7 +141,27 @@ As with any file system, you can perform a number of logical operations on the f
   * `osl_File_OpenFlag_NoExcl`
   * `osl_File_OpenFlag_Private`<p>
   
-2. Move the cursor (current position) to the location in the file where you will be performing an operation (often called **_seeking_**)
+2. Move the cursor (current position) to the location in the file where you will be performing an operation (often called **_seeking_**).
+
+   The API function that sets the position in the file is:
+   
+   ```cpp
+   oslFileError SAL_CALL setFilePos(
+       oslFileHandle Handle,
+       sal_uInt32 uHow,
+       sal_Int64 uPos);
+   ```
+   
+   It takes a handle to a file and sets the file position based on an offset (`uPos`) from either the start of the file, from the current cursor position, or from the end of the file (`uHow` can be `osl_Pos_Absolut`, `osl_Pos_Current` or `os_Pos_End` - if the latter then the offset must be negative).
+   
+   To get the cursor position in the file, you use:
+   
+   ```cpp
+   oslFileError SAL_CALL osl_getFilePos(
+       oslFileHandle Handle,
+       usl_uInt64 *pPos);
+   ```
+   
 
 3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary
 
