@@ -207,7 +207,9 @@ As with any file system, you can perform a number of logical operations on the f
 
 TODO: document shared file mapping
 
+# Copy and move files
 
+# Directory operations
 
 
 
