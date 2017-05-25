@@ -161,9 +161,20 @@ As with any file system, you can perform a number of logical operations on the f
        oslFileHandle Handle,
        usl_uInt64 *pPos);
    ```
-   
 
-3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary
+3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary.
+
+   The function to read the file is:
+    
+   ```cpp
+   osl_FileError SAL_CALL osl_readFile(
+       oslFileHandle Handle,
+       void *pBuffer,
+       sal_uInt64 uBytesRequested,
+       sal_uInt64 *pBytesRead);
+   ```
+    
+   The function again takes a handle to an opened file, `pBuffer` is a pointer to a which recieves the data, `uBytesRequested` specifies the number of bytes to be read. When the file is finished reading, the number of bytes read is returned by `pBytesRead`.   
 
 4. When all file processing is finished, then indicate that the process is done with it by **_closing_** the file.
 
