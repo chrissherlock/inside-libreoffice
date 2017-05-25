@@ -199,6 +199,12 @@ As with any file system, you can perform a number of logical operations on the f
 
 4. When all file processing is finished, then indicate that the process is done with it by **_closing_** the file.
 
+   To close the file you call:
+   
+   ```cpp
+   oslFileError SAL_CALL osl_closeFile(osFileHandle Handle);
+   ```
+
 
 
 
