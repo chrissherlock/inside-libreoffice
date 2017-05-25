@@ -113,7 +113,9 @@ typedef enum {
 } oslFileType;
 ```
 
-# File operations
+TODO: document how to set file attributes (and file time)
+
+## File operations
 
 As with any file system, you can perform a number of logical operations on the files that reside within it via the LibreOffice OSL API. The OSL API follows the Unix file system convention, which uses the following paradigm:
 
@@ -207,9 +209,9 @@ As with any file system, you can perform a number of logical operations on the f
 
 TODO: document `osl_readLine()`, shared file mapping, and file flush/sync function
 
-# Copy and move files
+## Copy and move files
 
-# Directory operations
+## Directory operations
 
 
 
