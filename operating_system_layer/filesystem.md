@@ -170,6 +170,7 @@ As with any file system, you can perform a number of logical operations on the f
    oslFileError SAL_CALL osl_isEndOfFile(
        osFileHandle Handle,
        sal_Bool *pIsEOF);
+   ```
 
 3. **_Read_** or **_write_** to the file at this cursor position, and if necessary move the cursor again; repeat as necessary.
 
