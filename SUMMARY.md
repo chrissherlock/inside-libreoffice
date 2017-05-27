@@ -12,6 +12,7 @@
     * [Threading](operating_system_layer/threading.md)
     * [Filesystem](operating_system_layer/filesystem.md)
     * [Diagnostics](diagnostics.md)
+    * [Modules](operating_system_layer/modules.md)
   * [Runtime Layer](runtime-layer.md)
 * [Universal Network Objects](universal-network-objects.md)
 * [Tools](tools.md)
