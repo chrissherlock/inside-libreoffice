@@ -14,6 +14,7 @@
     * [Filesystem](operating_system_layer/filesystem.md)
     * [Modules](operating_system_layer/modules.md)
     * [Diagnostics](diagnostics.md)
+    * [Further reading](operating_system_layer/further-reading.md)
   * [Runtime Layer](runtime-layer.md)
 * [Universal Network Objects](universal-network-objects.md)
 * [Tools](tools.md)

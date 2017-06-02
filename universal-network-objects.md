@@ -10,5 +10,5 @@ Modules:
 
 * **registry** - wrapper around store to handle binary type database format, the wrapper manipulates and creates the type registry.
 
-* **unoidl** - 
+* **unoidl** - support for UNOIDL registry formats in a unoidl::Manager and unoidl::Provider implementation; also contains helper tools to covert to UNOIDL format, and a few other functions
 
