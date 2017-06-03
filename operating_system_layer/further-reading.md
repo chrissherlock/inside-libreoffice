@@ -4,6 +4,6 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 
 ## Operating system concepts
 
-* ["File Mapping"](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366556\(v=vs\.85\).aspx). _Microsoft Developer Network_
+* ["File Mapping"](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366556\(v=vs\.85\).aspx). _Microsoft Developer Network_.
 * ["Memory-Mapped Files"](https://msdn.microsoft.com/en-us/library/dd997372.aspx). _Microsoft Developer Network_. 
 * Kath, Randy (February 9, 1993). ["Managing Memory-Mapped Files"](https://msdn.microsoft.com/en-us/library/ms810613.aspx). _Microsoft Developer Network Technology Group_
