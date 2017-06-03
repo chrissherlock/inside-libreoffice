@@ -4,6 +4,8 @@ Most modern operating systems have designed processes such that they are protect
 
 Most operating systems implement IPC, albeit with subtle differences, via signals, sockets, message queues, pipes (named and anonymous), shared memory and memory-mapped files. As a cross-platform product, LibreOffice attempts to unify each operating system's IPC functionality via the OSL API. 
 
+## Signals
+
 ## Memory-mapped files
 
 ## Pipes
