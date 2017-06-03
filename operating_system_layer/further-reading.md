@@ -4,7 +4,7 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 
 ## Operating system concepts
 ### Memory management
-* * Wilson, Paul R.; Johnstone, Mark S.; Neely, Michael; Boles, David (September 28–29, 1995), [_Dynamic Storage Allocation: A Survey and Critical Review_ ](http://www.cs.northwestern.edu/~pdinda/icsclass/doc/dsa.pdf)(PDF), Austin, Texas: Department of Computer Sciences University of Texas, retrieved 2017-06-03
+* * Wilson, Paul R.; Johnstone, Mark S.; Neely, Michael; Boles, David (September 28–29, 1995), [_Dynamic Storage Allocation: A Survey and Critical Review_ ](http://www.cs.northwestern.edu/~pdinda/icsclass/doc/dsa.pdf)(PDF), Austin, Texas: Department of Computer Sciences University of Texas
 
 ### Memory mapped files
 * ["File Mapping"](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366556.aspx). _Microsoft Developer Network_.
