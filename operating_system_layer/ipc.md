@@ -9,4 +9,6 @@ Most operating systems implement IPC, albeit with subtle differences, via signal
 ## Memory-mapped files
 
 ## Pipes
+
+## Sockets
   
