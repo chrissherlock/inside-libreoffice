@@ -15,6 +15,7 @@
     * [Modules](operating_system_layer/modules.md)
     * [Diagnostics](diagnostics.md)
   * [Runtime Layer](runtime-layer.md)
+  * [Helper classes](helper-classes.md)
   * [Further reading](operating_system_layer/further-reading.md)
 * [Universal Network Objects](universal-network-objects.md)
 * [Tools](tools.md)
