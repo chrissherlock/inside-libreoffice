@@ -97,5 +97,6 @@ The OSL uses a C API for managing the process lifecycle. The API covers:
 
 * [Process creation and execution](/operating_system_layer/processes/process-creation-and-execution.md)
 * [Process termination](/operating_system_layer/processes/process-termination.md)
+* [Inter-Process Communication](/operating_system_layer/processes/ipc.md)
 
 
