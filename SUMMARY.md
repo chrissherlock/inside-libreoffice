@@ -10,7 +10,7 @@
         * [Windows implementation](operating_system_layer/processes/process-creation-and-execution/windows-implementation.md)
       * [Process termination](operating_system_layer/processes/process-termination.md)
       * [IPC](operating_system_layer/processes/ipc.md)
-      * [Threading](operating_system_layer/threading.md)
+      * [Threading](operating_system_layer/processes/threading.md)
     * [Filesystem](operating_system_layer/filesystem.md)
     * [Modules](operating_system_layer/modules.md)
     * [Diagnostics](operating_system_layer/diagnostics.md)
