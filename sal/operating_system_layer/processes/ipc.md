@@ -161,6 +161,26 @@ It sort of appears that in fact none of this is necessary now...
 }
 ```
 
+The Windows `onInitSignal()` sets the unhandled exception filter handler to `signalHandlerFunction()`. Then it excludes the application from error reporting. Except that `AddERExcludedApplicationW()` is now deprecated, and needs to be changed to `WerAddExcludedApplication()`, as part of the Windows Error Reporting module (WER).
+
+```cpp
+bool onInitSignal()
+{
+    pPreviousHandler = SetUnhandledExceptionFilter(signalHandlerFunction);
+
+    HMODULE hFaultRep = LoadLibrary( "faultrep.dll" );
+    if ( hFaultRep )
+    {
+        pfn_ADDEREXCLUDEDAPPLICATIONW pfn = reinterpret_cast<pfn_ADDEREXCLUDEDAPPLICATIONW>(GetProcAddress( hFaultRep, "AddERExcludedApplicationW" ));
+        if ( pfn )
+            pfn( L"SOFFICE.EXE" );
+        FreeLibrary( hFaultRep );
+    }
+
+    return true;
+}
+```
+
 
 ## Memory-mapped files
 
