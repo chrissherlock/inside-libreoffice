@@ -181,7 +181,6 @@ bool onInitSignal()
 }
 ```
 
-
 ## Memory-mapped files
 
 ## Pipes
