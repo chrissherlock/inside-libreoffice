@@ -21,10 +21,10 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 
 #### Unix
 * Wikipedia contributors, ["Unix signal"](https://en.wikipedia.org/wiki/Unix_signal). _Wikipedia, The Free Encyclopedia_
-* ["SIGNAL(7) man page"](http://man7.org/linux/man-pages/man7/signal.7.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/)
-* ["SIGNAL-SAFETY(7) man page"](http://man7.org/linux/man-pages/man7/signal-safety.7.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/)
-* ["SIGACTION(2) man page"](http://man7.org/linux/man-pages/man2/sigaction.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/)
-* [SIGNAL(2) man page"](http://man7.org/linux/man-pages/man2/signal.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/)
-* [SIGPROCMASK(2) man page"](http://man7.org/linux/man-pages/man2/sigprocmask.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/)
+* ["SIGNAL(7) man page"](http://man7.org/linux/man-pages/man7/signal.7.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
+* ["SIGNAL-SAFETY(7) man page"](http://man7.org/linux/man-pages/man7/signal-safety.7.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
+* ["SIGACTION(2) man page"](http://man7.org/linux/man-pages/man2/sigaction.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
+* [SIGNAL(2) man page"](http://man7.org/linux/man-pages/man2/signal.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
+* [SIGPROCMASK(2) man page"](http://man7.org/linux/man-pages/man2/sigprocmask.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
 
 
