@@ -79,7 +79,9 @@ bool onInitSignal()
 }
 ```
 
-When done with the signal handler, you should remove the signal handler via the function `osl_removeSignalHandler()`. This releases the mutex held on the signal handler, removes the handler from the linked list and frees the memory taken by the handler.
+When done with the signal handler, you should remove the signal handler via the function `osl_removeSignalHandler()`. This acquires a mutex on the signal handler, removes the handler from the linked list, frees the memory taken by the handler and then releases the signal handler mutex.
+
+To raise a signal, call on `osl_raiseSignal()`.
 
 ## Memory-mapped files
 
