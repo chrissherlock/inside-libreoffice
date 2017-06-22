@@ -57,109 +57,7 @@ The wrinkle, as seems to often be the case, is Java. The issue is that Java inte
 
 Interestingly, before the year 2000 it appears there was a Tomcat server in use called `stomcatd` - the code [originally looked for either `stomcatd` or `soffice`](https://cgit.freedesktop.org/libreoffice/core/plain/sal/osl/unx/signal.c?id=9399c662f36c385b0c705eb34e636a9aec450282) which was a "Portal Demo HACK", but this was [later removed](https://cgit.freedesktop.org/libreoffice/core/commit/sal/osl/unx/signal.c?id=0a1cc7826beade023be930ac966a465c11819d55) as it was entirely unclear what this was all about. 
 
-So... we are left with the following:
-
-```cpp
-bool onInitSignal()
-{
-    if (is_soffice_Impl())
-    {
-        bSetSEGVHandler = true;
-        bSetWINCHHandler = true;
-        bSetILLHandler = true;
-    }
-
-#ifdef DBG_UTIL
-    bSetSEGVHandler = bSetWINCHHandler = bSetILLHandler = false;
-#endif
-
-    struct sigaction act;
-    act.sa_sigaction = signalHandlerFunction;
-    act.sa_flags = SA_RESTART | SA_SIGINFO;
-
-    sigfillset(&(act.sa_mask));
-
-    /* Initialize the rest of the signals */
-    for (SignalAction & rSignal : Signals)
-    {
-#if defined HAVE_VALGRIND_HEADERS
-        if (rSignal.Signal == SIGUSR2 && RUNNING_ON_VALGRIND)
-            rSignal.Action = ACT_IGNORE;
-#endif
-
-        /* hack: stomcatd is attaching JavaVM which does not work with an sigaction(SEGV) */
-        if ((bSetSEGVHandler || rSignal.Signal != SIGSEGV)
-        && (bSetWINCHHandler || rSignal.Signal != SIGWINCH)
-        && (bSetILLHandler   || rSignal.Signal != SIGILL))
-        {
-```
-
-It sort of appears that in fact none of this is necessary now...
-
-```cpp
-            if (rSignal.Action != ACT_SYSTEM)
-            {
-                if (rSignal.Action == ACT_HIDE)
-                {
-                    struct sigaction ign;
-
-                    ign.sa_handler = SIG_IGN;
-                    ign.sa_flags   = 0;
-                    sigemptyset(&ign.sa_mask);
-
-                    struct sigaction oact;
-                    if (sigaction(rSignal.Signal, &ign, &oact) == 0) {
-                        rSignal.siginfo = (oact.sa_flags & SA_SIGINFO) != 0;
-                        if (rSignal.siginfo) {
-                            rSignal.Handler = reinterpret_cast<Handler1>(
-                                oact.sa_sigaction);
-                        } else {
-                            rSignal.Handler = oact.sa_handler;
-                        }
-                    } else {
-                        rSignal.Handler = SIG_DFL;
-                        rSignal.siginfo = false;
-                    }
-                }
-                else
-                {
-                    struct sigaction oact;
-                    if (sigaction(rSignal.Signal, &act, &oact) == 0) {
-                        rSignal.siginfo = (oact.sa_flags & SA_SIGINFO) != 0;
-                        if (rSignal.siginfo) {
-                            rSignal.Handler = reinterpret_cast<Handler1>(
-                                oact.sa_sigaction);
-                        } else {
-                            rSignal.Handler = oact.sa_handler;
-                        }
-                    } else {
-                        rSignal.Handler = SIG_DFL;
-                        rSignal.siginfo = false;
-                    }
-                }
-            }
-```
-
-... and it appears that the above could probably be refactored also.
-
-```cpp
-        }
-    }
-
-    /* Clear signal mask inherited from parent process (on Mac OS X, upon a
-       crash soffice re-execs itself from within the signal handler, so the
-       second soffice would have the guilty signal blocked and would freeze upon
-       encountering a similar crash again): */
-    sigset_t unset;
-    if (sigemptyset(&unset) < 0 ||
-        pthread_sigmask(SIG_SETMASK, &unset, nullptr) < 0)
-    {
-        SAL_WARN("sal.osl", "sigemptyset or pthread_sigmask failed");
-    }
-
-    return true;
-}
-```
+The Unix `onInitSignal()` currently checks if the process is `soffice`, if it is then it sets up the crash handler signals, hooking into the segmentation fault (SIGSEGV), window change (SIGWINCH) and illegal instruction (SIGILL) instructions. This is because if a JVM is loaded, then it needs to intercept these signals and it shouldn't be overridden in any other situation. Ideally, this should be moved into soffice specific code. 
 
 The Windows `onInitSignal()` sets the unhandled exception filter handler to `signalHandlerFunction()`. Then it excludes the application from error reporting. Except that `AddERExcludedApplicationW()` is now deprecated, and needs to be changed to `WerAddExcludedApplication()`, as part of the Windows Error Reporting module (WER).
 
@@ -180,6 +78,8 @@ bool onInitSignal()
     return true;
 }
 ```
+
+When done with the signal handler, you should remove the signal handler via the function `osl_removeSignalHandler()`. This releases the mutex held on the signal handler, removes the handler from the linked list and frees the memory taken by the handler.
 
 ## Memory-mapped files
 
