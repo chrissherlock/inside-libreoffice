@@ -85,6 +85,10 @@ To raise a signal, call on `osl_raiseSignal()`.
 
 ## Memory-mapped files
 
+Memory mapped files allow a file to be mapped into a process's virtual address space, and thus be manipulated and read as if reading memory. The benefits of such an approach are mainly that they allow large files to be processed more efficiently - instead of loading the entire file into memory, the file is loaded via the operating system's Virtual Memory Manager (VMM) - which means that the entire file does not need to be loaded into memory, but large portions of the file that are mapped to the virtual address space can be paged to disk. In terms of IPC, however, it also means that multiple processes can map independent portions of the file to a common region in the system's pagefile via the VMM, and thus share data between process boundaries.
+
+  
+
 ## Pipes
 
 ## Sockets
