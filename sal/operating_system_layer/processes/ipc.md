@@ -53,7 +53,7 @@ bool initSignal()
 
 So far, so easy... but the platform specific implementations are where the warts start to show, especially the Unix version. 
 
-The wrinkle, as seems to often be the case, is Java. The issue is that Java intercepts SIGSEGV, but then so does LibreOffice as it also processes SIGSEGV for a "crashguard". So as part of an incredible hack, OSL checks the process name to see if it starts with "soffice", and if it does then it special-cases this process by setting the SEGV, WINCH and ILL handlers to process as normal, and Java can then override these when it starts up. 
+The wrinkle, as seems to often be the case, is Java. The issue is that Java intercepts SIGSEGV, but then so does LibreOffice as it also processes SIGSEGV for a "crashguard". So as part of an incredible hack, OSL checks the process name to see if it starts with "soffice", and if it does then it special-cases this process by setting the SIGSEGV, SIGWINCH and SIGILL handlers to process as normal, and Java can then override these when it starts up - otherwise it ignores these signals. 
 
 Interestingly, before the year 2000 it appears there was a Tomcat server in use called `stomcatd` - the code [originally looked for either `stomcatd` or `soffice`](https://cgit.freedesktop.org/libreoffice/core/plain/sal/osl/unx/signal.c?id=9399c662f36c385b0c705eb34e636a9aec450282) which was a "Portal Demo HACK", but this was [later removed](https://cgit.freedesktop.org/libreoffice/core/commit/sal/osl/unx/signal.c?id=0a1cc7826beade023be930ac966a465c11819d55) as it was entirely unclear what this was all about. 
 
