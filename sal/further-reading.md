@@ -18,7 +18,6 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 ### Signal handling
 
 #### The JVM
-
 * ["How the JVM processes signals"](https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.zos.80.doc/user/signals.html). _IBM SDK, Java Technology Edition_, IBM.
 * ["Signals used by the JVM"](https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.zos.80.doc/user/sighand.html). _IBM SDK, Java Technology Edition_, IBM.
 * ["POSIX Signal Handling in Java"](http://ringlord.com/dl/Signals-in-Java.pdf). Ringlord Technologies.
