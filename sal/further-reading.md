@@ -16,6 +16,14 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 * Kath, Randy (February 9, 1993). ["Managing Memory-Mapped Files"](https://msdn.microsoft.com/en-us/library/ms810613.aspx). _Microsoft Developer Network Technology Group_
 
 ### Signal handling
+
+#### The JVM
+
+* ["How the JVM processes signals"](https://www.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.zos.80.doc/user/signals.html). _IBM SDK, Java Technology Edition_, IBM.
+* ["Signals used by the JVM"](https://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.zos.80.doc/user/sighand.html). _IBM SDK, Java Technology Edition_, IBM.
+* ["POSIX Signal Handling in Java"](http://ringlord.com/dl/Signals-in-Java.pdf). Ringlord Technologies.
+* ["Signal Chaining"](http://docs.oracle.com/javase/7/docs/technotes/guides/vm/signal-chaining.html). _Java SE Documentation Tech Notes_, Oracle Technology Network.
+
 #### Windows
 * ["Structured Exception Handling"](https://msdn.microsoft.com/en-us/library/windows/desktop/ms680657.aspx). _Windows Dev Centre_, Microsoft.
 
