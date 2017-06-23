@@ -1,5 +1,4 @@
-#
-Inter-Process Communication (IPC)
+# Inter-Process Communication (IPC)
 
 Most modern operating systems have designed processes such that they are protected from other operating system processes, a concept called _process isolation_. This is done for stability and security reasons, however it may be necessary for one process to communicate with another process, and a variety of mechanisms have been developed to allow for this. The concept of processes communicating with each other is referred to as _Inter-Process Communication_, or more commonly abbreviated to _IPC_.
 
