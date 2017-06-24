@@ -247,7 +247,106 @@ int munmap(void *addr, size_t length);
 
 A region of memory is unmapped by the `addr` pointer - which must be a multiple of the page size - and the size of the area to unmap is specified by the `length` parameter. `munmap()` returns -1 and populates `errno` on failure, and 0 on success. 
 
-Consequently, to 
+The OSL maps the file through the implementation of `osl_mapFile`. The function first checks the parameters to ensure that the handle, file descriptor, address and length are valid parameters:
+
+```cpp
+oslFileError
+SAL_CALL osl_mapFile (
+    oslFileHandle Handle,
+    void**        ppAddr,
+    sal_uInt64    uLength,
+    sal_uInt64    uOffset,
+    sal_uInt32    uFlags
+)
+{
+    FileHandle_Impl* pImpl = static_cast<FileHandle_Impl*>(Handle);
+
+    if ((pImpl == nullptr) || ((pImpl->m_kind == FileHandle_Impl::KIND_FD) && (pImpl->m_fd == -1)) || (ppAddr == nullptr))
+        return osl_File_E_INVAL;
+    *ppAddr = nullptr;
+
+    if (uLength > SAL_MAX_SIZE)
+        return osl_File_E_OVERFLOW;
+    size_t const nLength = sal::static_int_cast< size_t >(uLength);
+
+    sal_uInt64 const limit_off_t = MAX_OFF_T;
+    if (uOffset > limit_off_t)
+        return osl_File_E_OVERFLOW;
+```
+
+Next, it takes the file handle, checks if the file is pure memory, and if so then it specifies the address of the mapping to be an offset from the file descriptor's currently buffer address and returns of the function (e.g. if the file is part of a tmpfs, then it is in memory already and thus doesn't need to be mapped).
+
+```cpp
+    if (pImpl->m_kind == FileHandle_Impl::KIND_MEM)
+    {
+        *ppAddr = pImpl->m_buffer + uOffset;
+        return osl_File_E_None;
+    }
+```
+
+If the file is not an in-memory file, then is then mmap'ed as a shared, read-only mapping.
+
+```cpp
+    off_t const nOffset = sal::static_int_cast< off_t >(uOffset);
+
+    void* p = mmap(nullptr, nLength, PROT_READ, MAP_SHARED, pImpl->m_fd, nOffset);
+    if (MAP_FAILED == p)
+        return oslTranslateFileError(OSL_FET_ERROR, errno);
+    *ppAddr = p;
+```
+
+As in the Windows file mapping code, the function checks if the file mapping will be access in a random access fashion. It then reads just the first byte of every page in the mapped region, which commits the entire page to memory. Note that for the same reason as in the Windows implementation, to stop the compiler from optimizing away the loop, they have had to set the `c` `sal_uInt8` variable to volatile.
+
+```
+    if (uFlags & osl_File_MapFlag_RandomAccess)
+    {
+        // Determine memory pagesize.
+        size_t const nPageSize = FileHandle_Impl::getpagesize();
+        if (nPageSize != size_t(-1))
+        {
+            /*
+             * Pagein, touching first byte of every memory page.
+             * Note: volatile disables optimizing the loop away.
+             */
+            sal_uInt8 * pData (static_cast<sal_uInt8*>(*ppAddr));
+            size_t      nSize (nLength);
+
+            volatile sal_uInt8 c = 0;
+            while (nSize > nPageSize)
+            {
+                c ^= pData[0];
+                pData += nPageSize;
+                nSize -= nPageSize;
+            }
+            if (nSize > 0)
+            {
+                c^= pData[0];
+            }
+        }
+    }
+```
+
+A further consideration in Unix systems, however, is that the operating system can be given guidance as to how memory is intended to be used via the `madvise()` function. `MADV_WILLNEED` tells the operating system that it wants the data to be paged in as soon as possible. However, this function does _not_ necessarily work in an asynchronous way, and so on Linux, `madvise(..., MADV_WILLNEED)` has the undesirable effect of not returning until the data has actually been paged in so that its net effect would typically be to slow down the process (which could start processing at the beginning of the data while the OS simultaneously pages in the rest). Other platforms other than Linux can use this, and Solaris and Sun operating systems do work more adventageously so on these Unix flavours `madvise` is called.
+
+```
+    if (uFlags & osl_File_MapFlag_WillNeed)
+    {
+#if defined MACOSX || (defined(__sun) && (!defined(__XOPEN_OR_POSIX) || defined(_XPG6) || defined(__EXTENSIONS__)))
+        int e = posix_madvise(p, nLength, POSIX_MADV_WILLNEED);
+        if (e != 0)
+        {
+            SAL_INFO("sal.file", "posix_madvise(..., POSIX_MADV_WILLNEED) failed with " << e);
+        }
+#elif defined __sun
+        if (madvise(static_cast< caddr_t >(p), nLength, MADV_WILLNEED) != 0)
+        {
+            SAL_INFO("sal.file", "madvise(..., MADV_WILLNEED) failed with " << strerror(errno));
+        }
+#endif
+    }
+    return osl_File_E_None;
+}
+```
 
 
 ## Pipes
