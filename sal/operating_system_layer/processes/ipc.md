@@ -213,7 +213,7 @@ A note about why the `volatile` works: it works because on each loop, a new vola
 
 ### Unix implementation
 
-On Unix systems, a file is mapped in the virtual address space of the calling process via the `mmap()` function
+On Unix systems, a file is mapped in the virtual address space of the calling process via the `mmap()` function:
 
 ```c
 void *mmap(void *addr, size_t length, int prot, int flags,
@@ -221,6 +221,17 @@ void *mmap(void *addr, size_t length, int prot, int flags,
 ```
 
 This function takes as the first parameter a hint to the address of where to place the mapping in memory - if this is NULL then the operating system automatically works out where to allocate the memory, otherwise it places it at the nearest page boundary to the address. The function's second paramter takes the size of the file to be mapped, and the third parameter determines the desired memory protection for the mapping  - basically it determines whether the mapping allows pages to be executed, read from or written to (`PROT_EXEC`, `PROT_READ` and `PROT_WRITE`, consecutively. `PROT_NONE` specifies that the page cannot be accessed at all). The function also determines via the fourth parameter if the mapping can be shared (`MAP_SHARED`), or if updates to the mapping are not exposed to other processes (`MAP_PRIVATE`). The file itself is specified by the `fd` parameter, with an offset into the file by the final parameter `offset`.
+
+`mmap()` returns a pointer to the mapped area on success, and on failure it returns `MAP_FAILED` (`(void *) -1`) and sets `errno` to the error code.
+
+To delete the file mappings, you call on the `munmap()` function:
+
+```c
+int munmap(void *addr, size_t length);
+```
+
+A region of memory is unmapped by the `addr` pointer - which must be a multiple of the page size - and the size of the area to unmap is specified by the `length` parameter. `munmap()` returns -1 and populates `errno` on failure, and 0 on success. 
+
 
 ## Pipes
 
