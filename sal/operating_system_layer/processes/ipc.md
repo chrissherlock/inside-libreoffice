@@ -87,6 +87,7 @@ To raise a signal, call on `osl_raiseSignal()`.
 
 Memory mapped files allow a file to be mapped into a process's virtual address space, and thus be manipulated and read as if reading memory. The benefits of such an approach are mainly that they allow large files to be processed more efficiently - instead of loading the entire file into memory, the file is loaded via the operating system's Virtual Memory Manager (VMM) - which means that the entire file does not need to be loaded into memory, but large portions of the file that are mapped to the virtual address space can be paged to disk. In terms of IPC, however, it also means that multiple processes can map independent portions of the file to a common region in the system's pagefile via the VMM, and thus share data between process boundaries.
 
+### Windows implementation
 On Windows, a file is mapped through the following process:
 
 1. First create a file mapping object via `CreateFileMapping()`. This returns a handle to the object, which you use to map the file.
@@ -209,6 +210,17 @@ A note about why the `volatile` works: it works because on each loop, a new vola
     return osl_File_E_None;
 }
 ```
+
+### Unix implementation
+
+On Unix systems, a file is mapped in the virtual address space of the calling process via the `mmap()` function
+
+```c
+void *mmap(void *addr, size_t length, int prot, int flags,
+           int fd, off_t offset);
+```
+
+This function takes as the first parameter a hint to the address of where to place the mapping in memory - if this is NULL then the operating system automatically works out where to allocate the memory, otherwise it places it at the nearest page boundary to the address. The function's second paramter takes the size of the file to be mapped, and the third parameter determines the desired memory protection for the mapping  - basically it determines whether the mapping allows pages to be executed, read from or written to (`PROT_EXEC`, `PROT_READ` and `PROT_WRITE`, consecutively. `PROT_NONE` specifies that the page cannot be accessed at all). The function also determines via the fourth parameter if the mapping can be shared (`MAP_SHARED`), or if updates to the mapping are not exposed to other processes (`MAP_PRIVATE`). The file itself is specified by the `fd` parameter, with an offset into the file by the final parameter `offset`.
 
 ## Pipes
 
