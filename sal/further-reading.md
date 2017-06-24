@@ -14,6 +14,7 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 * ["File Mapping"](https://msdn.microsoft.com/en-us/library/windows/desktop/aa366556.aspx). _Microsoft Developer Network_.
 * ["Memory-Mapped Files"](https://msdn.microsoft.com/en-us/library/dd997372.aspx). _Microsoft Developer Network_. 
 * Kath, Randy (February 9, 1993). ["Managing Memory-Mapped Files"](https://msdn.microsoft.com/en-us/library/ms810613.aspx). _Microsoft Developer Network Technology Group_
+* ["MMAP(2) man page"](http://man7.org/linux/man-pages/man2/mmap.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
 
 ### Signal handling
 #### The JVM
