@@ -348,7 +348,6 @@ A further consideration in Unix systems, however, is that the operating system c
 }
 ```
 
-
 ## Pipes
 
 ## Sockets
