@@ -211,6 +211,21 @@ A note about why the `volatile` works: it works because on each loop, a new vola
 }
 ```
 
+To unmap the file on Windows, it is quite simple - you just call on `UnmapViewOfFile()`:
+
+```cpp
+oslFileError SAL_CALL osl_unmapFile(void* pAddr, sal_uInt64 /* uLength */)
+{
+    if (!pAddr)
+        return osl_File_E_INVAL;
+
+    if (!::UnmapViewOfFile(pAddr))
+        return oslTranslateFileError(GetLastError());
+
+    return osl_File_E_None;
+}
+```
+
 ### Unix implementation
 
 On Unix systems, a file is mapped in the virtual address space of the calling process via the `mmap()` function:
@@ -231,6 +246,8 @@ int munmap(void *addr, size_t length);
 ```
 
 A region of memory is unmapped by the `addr` pointer - which must be a multiple of the page size - and the size of the area to unmap is specified by the `length` parameter. `munmap()` returns -1 and populates `errno` on failure, and 0 on success. 
+
+Consequently, to 
 
 
 ## Pipes
