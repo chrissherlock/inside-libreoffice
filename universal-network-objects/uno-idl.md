@@ -10,7 +10,8 @@
   * `unoidl::detail::UnoidlProvider` - new .rdb format
   * `unoidl::detail::SourceTreeProvider` - directory of .idl files in IDL format
   * `unoidl::detail::SourceFileProvider` - .idl file in IDL format
-  
+
+  ![](/assets/Provider_class_dependency_diagram.svg)  
 * `unoidl::Entity`
 
 ![](/assets/Entity_class_dependency_diagram.svg)
