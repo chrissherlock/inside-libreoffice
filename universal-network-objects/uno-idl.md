@@ -13,5 +13,24 @@
 
   ![](/assets/Provider_class_dependency_diagram.svg)  
 * `unoidl::Entity`
+  * `unoidl::ModuleEntity`
+  * `unoidl::PublishableEntity`
+    * Services:
+      * `unoidl:ServiceBasedSingletonEntity`
+      * `unoidl:SingleInterfaceBasedServiceEntity`
+      * `unoidl::AccumulationBasedServiceEntity`
+    * Interfaces:
+      * `InterfaceBasedSingletonEntity`
+      * `InterfaceTypeEntity`
+    * Exceptions:
+      * `unoidl::ExceptionTypeEntity`
+    * struct:
+      * `unoidl::PlainStructTypeEntity`
+      * `unoidl::PolymorphicStructTypeTemplateEntity`
+    * Enumeration
+      * `unoidl::EnumTypeEntity`
+    * Typedef
+      * `unoidl::TypedefEntity`
+    * `unoidl::ConstantGroupEntity`  
 
 ![](/assets/Entity_class_dependency_diagram.svg)
