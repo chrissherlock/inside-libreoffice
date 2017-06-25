@@ -18,6 +18,8 @@
   * [Helper classes](sal/helper-classes.md)
   * [Further reading](sal/further-reading.md)
 * [Universal Network Objects](universal-network-objects.md)
+  * [Store and Registry](universal-network-objects/store-and-registry.md)
+  * [UNO IDL](universal-network-objects/uno-idl.md)
 * [Tools](tools.md)
 * [VCL](vcl.md)
 * [Miscellaneous odds and ends](miscellaneous-odds-and-ends.md)
