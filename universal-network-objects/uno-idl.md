@@ -245,7 +245,7 @@ interface Example : ::BaseExample
 }
 ```
 
-## Classes
+## UNOIDL classes
 
 * `unoidl::Manager` - factory, creates Providers, Entities and MapCursors
   * `loadProvider(uri)` - `Provider` class - what reads the file format and converts into a type
