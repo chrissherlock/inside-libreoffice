@@ -227,6 +227,24 @@ UNO IDL is a way of specifying, types, services, and other entities used by UNO.
 (73) <constants_decl> := "constants" <identifier> "{" <constant_decl>+ "}"  
 ```
 
+## Examples
+
+Some examples using IDL:
+
+### Defining types
+
+```
+interface Example : ::BaseExample 
+{
+    [readonly, attribute] short exampleArray[10];
+    long exampleVariable;
+    
+    struct ExampleStruct {
+      unsigned hyper member;
+    }
+}
+```
+
 ## Classes
 
 * `unoidl::Manager` - factory, creates Providers, Entities and MapCursors
