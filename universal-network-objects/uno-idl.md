@@ -2,7 +2,9 @@
 
 **ROUGHT DRAFT**
 
-UNO IDL is a way of specifying types, services, and other entities used by UNO via a metalanguage of its own. The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_syntax.html):
+UNOIDL (UNO Interface Definition Language) is a way of specifying types, services, and other entities used by UNO via a metalanguage of its own. UNOIDL should be seen as a specification language, and is the building block used by UNO to create UNO components, which consist of a variety of compiled libraries that interacts are are bound to the UNO infrastructure.
+
+The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_syntax.html):
 
 ```idl
 (1) <idl_specification> := <definition>+
