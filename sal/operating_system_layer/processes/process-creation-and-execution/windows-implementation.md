@@ -1,4 +1,4 @@
-# Windows implementation
+## Windows implementation
 
 `osl_executeProcess(...)` calls on `osl_executeProcess_WithRedirectedIO(...)`, which on the Windows platforms works as follows:
 

@@ -6,8 +6,6 @@
   * [Operating System Layer](sal/operating_system_layer/operating_system_layer.md)
     * [Processes](sal/operating_system_layer/processes/processes.md)
       * [Process creation and execution](sal/operating_system_layer/processes/process-creation-and-execution/process-creation-and-execution.md)
-        * [Unix implementation](sal/operating_system_layer/processes/process-creation-and-execution/unix-implementation.md)
-        * [Windows implementation](sal/operating_system_layer/processes/process-creation-and-execution/windows-implementation.md)
       * [Process termination](sal/operating_system_layer/processes/process-termination.md)
       * [IPC](sal/operating_system_layer/processes/ipc.md)
       * [Threading](sal/operating_system_layer/processes/threading.md)
