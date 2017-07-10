@@ -350,4 +350,7 @@ A further consideration in Unix systems, however, is that the operating system c
 
 ## Pipes
 
+A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. On a Unix system, each end of the pipe is a file descriptor - FD 0 is _stdin_, FD 1 is _stdout_ and FD 2 is _stderr_, and the 
+
+ 
 ## Sockets
