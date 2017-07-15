@@ -407,7 +407,7 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
 
 **Step 2:** create the name of the file to be used for the pipe. In this case, the pipe name will be either `OSL_<username>_pipename` (if a secured pipe) or `OSL_pipename`. 
 
-```
+```cpp
     name[sizeof(name)-1] = '\0';  // ensure the string is NULL-terminated
     nNameLength = strlen(name);
     bNameTooLong = nNameLength > sizeof(name) - 2;
@@ -446,15 +446,17 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
 
 **Step 3:** the pipe needs to be initialized, which is what `createPipeImpl()` does.
 
-```
+```cpp
     /* alloc memory */
     pPipe = createPipeImpl();
 
     if (!pPipe)
         return nullptr;
+```
 
 **Step 4:** now a Unix Domain socket is created. To ensure there are no resource leaks, close-on-exec is set on the socket's file descriptor. This ensures that if the process runs any of the `exec` family of functions then the socket will be closed. 
 
+```cpp
     /* create socket */
     pPipe->m_Socket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (pPipe->m_Socket < 0)
@@ -475,6 +477,9 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
     }
 ```
 
+**Step 5:** Now we setup the "address" of the socket - for a Unix Domain socket, this is the path of the file.
+
+```cpp
     memset(&addr, 0, sizeof(addr));
 
     SAL_INFO("sal.osl.pipe", "new pipe on fd " << pPipe->m_Socket << " '" << name << "'");
@@ -486,7 +491,13 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
 #else
     len = sizeof(addr);
 #endif
+```
 
+**Step 6 (pipe creation):** if the function is instructed to create the pipe (`Options` is set to `osl_Pipe_CREATE`) then first check for an already orphaned socket or FIFO pipe exists (`stat(name, &status)` fills in the status information about the file, and the macros `S_ISSOCK()` and `S_ISFIFO()` check if the file is a socket or a FIO pipe, respectively). If there is an orphaned file, then it connects to the socket, closes the socket and deletes (unlinks) the file.
+
+The socket is then bound to the AF_UNIX address (the filename), starts listening for connections to the socket, and returns the pipe.
+
+```cpp
     if (Options & osl_Pipe_CREATE)
     {
         struct stat status;
@@ -537,7 +548,11 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
 
         return pPipe;
     }
+```
 
+**Step 6 (opening pipe):** if the option is not to create the pipe, but to open it then it merely checks that it can access the file representing the socket, connects to this socket and returns the pipe. 
+
+```cpp
     /* osl_pipe_OPEN */
     if (access(name, F_OK) != -1)
     {
