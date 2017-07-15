@@ -350,7 +350,208 @@ A further consideration in Unix systems, however, is that the operating system c
 
 ## Pipes
 
-A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. On a Unix system, each end of the pipe is a file descriptor - FD 0 is _stdin_, FD 1 is _stdout_ and FD 2 is _stderr_, and the 
+A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. LibreOffice implements named pipes on Unix via Unix domain sockets, which are almost no different to named pipes (FIFOs). On Windows
+
+To create a pipe, you first call on `osl_createPipe()`. On Unix this is implemented as:
+
+```cpp
+oslPipe SAL_CALL osl_createPipe(rtl_uString *ustrPipeName, oslPipeOptions Options, oslSecurity Security)
+{
+    oslPipe pPipe = nullptr;
+    rtl_String* strPipeName = nullptr;
+
+    if (ustrPipeName)
+    {
+        rtl_uString2String(&strPipeName,
+                           rtl_uString_getStr(ustrPipeName),
+                           rtl_uString_getLength(ustrPipeName),
+                           osl_getThreadTextEncoding(),
+                           OUSTRING_TO_OSTRING_CVTFLAGS);
+        sal_Char* pszPipeName = rtl_string_getStr(strPipeName);
+        pPipe = osl_psz_createPipe(pszPipeName, Options, Security);
+
+        if (strPipeName)
+            rtl_string_release(strPipeName);
+    }
+
+    return pPipe;
+
+}
+```
+
+Really, what we need to look at is `osl_psz_createPipe()`... it works as follows:
+
+**Step 1:** first check to ensure that you have write access to the pipe's path.
+
+```cpp
+oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions Options,
+                                    oslSecurity Security)
+{
+    int Flags;
+    size_t len;
+    struct sockaddr_un addr;
+
+    sal_Char name[PATH_MAX+1];
+    size_t nNameLength = 0;
+    bool bNameTooLong = false;
+    oslPipe pPipe;
+
+    if (access(PIPEDEFAULTPATH, W_OK) == 0)
+        strncpy(name, PIPEDEFAULTPATH, sizeof(name));
+    else if (access(PIPEALTERNATEPATH, W_OK) == 0)
+        strncpy(name, PIPEALTERNATEPATH, sizeof(name));
+    else if (!cpyBootstrapSocketPath (name, sizeof (name)))
+        return nullptr
+
+```
+
+**Step 2:** create the name of the file to be used for the pipe. In this case, the pipe name will be either `OSL_<username>_pipename` (if a secured pipe) or `OSL_pipename`. 
+
+```
+    name[sizeof(name)-1] = '\0';  // ensure the string is NULL-terminated
+    nNameLength = strlen(name);
+    bNameTooLong = nNameLength > sizeof(name) - 2;
+
+    if (!bNameTooLong)
+    {
+        size_t nRealLength = 0;
+
+        strcat(name, "/");
+        ++nNameLength;
+
+        if (Security)
+        {
+            sal_Char Ident[256];
+
+            Ident[0] = '\0';
+
+            OSL_VERIFY(osl_psz_getUserIdent(Security, Ident, sizeof(Ident)));
+
+            nRealLength = snprintf(&name[nNameLength], sizeof(name) - nNameLength, SECPIPENAMEMASK, Ident, pszPipeName);
+        }
+        else
+        {
+            nRealLength = snprintf(&name[nNameLength], sizeof(name) - nNameLength, PIPENAMEMASK, pszPipeName);
+        }
+
+        bNameTooLong = nRealLength > sizeof(name) - nNameLength - 1;
+    }
+
+    if (bNameTooLong)
+    {
+        SAL_WARN("sal.osl.pipe", "osl_createPipe: pipe name too long");
+        return nullptr;
+    }
+```
+
+**Step 3:** the pipe needs to be initialized, which is what `createPipeImpl()` does.
+
+```
+    /* alloc memory */
+    pPipe = createPipeImpl();
+
+    if (!pPipe)
+        return nullptr;
+
+**Step 4:** now a Unix Domain socket is created. To ensure there are no resource leaks, close-on-exec is set on the socket's file descriptor. This ensures that if the process runs any of the `exec` family of functions then the socket will be closed. 
+
+    /* create socket */
+    pPipe->m_Socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (pPipe->m_Socket < 0)
+    {
+        SAL_WARN("sal.osl.pipe", "socket() failed: " << strerror(errno));
+        destroyPipeImpl(pPipe);
+        return nullptr;
+    }
+
+    /* set close-on-exec flag */
+    if ((Flags = fcntl(pPipe->m_Socket, F_GETFD, 0)) != -1)
+    {
+        Flags |= FD_CLOEXEC;
+        if (fcntl(pPipe->m_Socket, F_SETFD, Flags) == -1)
+        {
+            SAL_WARN("sal.osl.pipe", "fcntl() failed: " << strerror(errno));
+        }
+    }
+```
+
+    memset(&addr, 0, sizeof(addr));
+
+    SAL_INFO("sal.osl.pipe", "new pipe on fd " << pPipe->m_Socket << " '" << name << "'");
+
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, name, sizeof(addr.sun_path) - 1);
+#if defined(FREEBSD)
+    len = SUN_LEN(&addr);
+#else
+    len = sizeof(addr);
+#endif
+
+    if (Options & osl_Pipe_CREATE)
+    {
+        struct stat status;
+
+        /* check if there exists an orphan filesystem entry */
+        if ((stat(name, &status) == 0) &&
+            (S_ISSOCK(status.st_mode) || S_ISFIFO(status.st_mode)))
+        {
+            if (connect(pPipe->m_Socket, reinterpret_cast< sockaddr* >(&addr), len) >= 0)
+            {
+                close (pPipe->m_Socket);
+                destroyPipeImpl(pPipe);
+                return nullptr;
+            }
+
+            unlink(name);
+        }
+
+        /* ok, fs clean */
+        if (bind(pPipe->m_Socket, reinterpret_cast< sockaddr* >(&addr), len) < 0)
+        {
+            SAL_WARN("sal.osl.pipe", "bind() failed: " << strerror(errno));
+            close(pPipe->m_Socket);
+            destroyPipeImpl(pPipe);
+            return nullptr;
+        }
+
+        /*  Only give access to all if no security handle was specified, otherwise security
+            depends on umask */
+
+        if (!Security)
+            chmod(name,S_IRWXU | S_IRWXG |S_IRWXO);
+
+        strncpy(pPipe->m_Name, name, sizeof(pPipe->m_Name) - 1);
+
+        if (listen(pPipe->m_Socket, 5) < 0)
+        {
+            SAL_WARN("sal.osl.pipe", "listen() failed: " << strerror(errno));
+            // coverity[toctou] cid#1255391 warns about unlink(name) after
+            // stat(name, &status) above, but the intervening call to bind makes
+            // those two clearly unrelated, as it would fail if name existed at
+            // that point in time:
+            unlink(name);   /* remove filesystem entry */
+            close(pPipe->m_Socket);
+            destroyPipeImpl(pPipe);
+            return nullptr;
+        }
+
+        return pPipe;
+    }
+
+    /* osl_pipe_OPEN */
+    if (access(name, F_OK) != -1)
+    {
+        if (connect(pPipe->m_Socket, reinterpret_cast< sockaddr* >(&addr), len) >= 0)
+            return pPipe;
+
+        SAL_WARN("sal.osl.pipe", "connect() failed: " << strerror(errno));
+    }
+
+    close (pPipe->m_Socket);
+    destroyPipeImpl(pPipe);
+    return nullptr;
+}
+```
 
  
 ## Sockets
