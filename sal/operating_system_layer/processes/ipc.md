@@ -352,7 +352,15 @@ A further consideration in Unix systems, however, is that the operating system c
 
 A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. LibreOffice implements named pipes on Unix via Unix domain sockets, which are almost no different to named pipes (FIFOs). On Windows
 
-To create a pipe, you first call on `osl_createPipe()`. On Unix this is implemented as:
+To use a pipe, you do the following:
+
+ 1. Call on `osl_createPipe("pipename", osl_Pipe_CREATE, NULL)` (or if the pipe has already been created, then call on `osl_createPipe("pipename", osl_Pipe_OPEN, NULL)`)
+ 2. You can either call on `osl_readPipe()` (which is actually a thin wrapper over `osl_receivePipe()`) to read data coming from the other side of the pipe; alternatively you call on `osl_writePipe()` (which is actually also a thin wrapper over `osl_sendPipe()`) to send data to other end of the pipe. 
+ 3. When done, call on `osl_closePipe()`
+ 
+### Unix implementation
+
+On Unix the `osl_createPipe()` function is implemented as:
 
 ```cpp
 oslPipe SAL_CALL osl_createPipe(rtl_uString *ustrPipeName, oslPipeOptions Options, oslSecurity Security)
@@ -568,5 +576,58 @@ The socket is then bound to the AF_UNIX address (the filename), starts listening
 }
 ```
 
+To receive data, the function is:
+
+```cpp
+sal_Int32 SAL_CALL osl_receivePipe(oslPipe pPipe,
+                        void* pBuffer,
+                        sal_Int32 BytesToRead)
+{
+    int nRet = 0;
+
+    OSL_ASSERT(pPipe);
+
+    if (!pPipe)
+    {
+        SAL_WARN("sal.osl.pipe", "osl_receivePipe: Invalid socket");
+        errno=EINVAL;
+        return -1;
+    }
+
+    nRet = recv(pPipe->m_Socket, pBuffer, BytesToRead, 0);
+
+    if (nRet < 0)
+        SAL_WARN("sal.osl.pipe", "recv() failed: " << strerror(errno));
+
+    return nRet;
+}
+```
+
+To send data, the function is:
+
+```cpp
+sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
+                       const void* pBuffer,
+                       sal_Int32 BytesToSend)
+{
+    int nRet=0;
+
+    OSL_ASSERT(pPipe);
+
+    if (!pPipe)
+    {
+        SAL_WARN("sal.osl.pipe", "osl_sendPipe: Invalid socket");
+        errno=EINVAL;
+        return -1;
+    }
+
+    nRet = send(pPipe->m_Socket, pBuffer, BytesToSend, 0);
+
+    if (nRet <= 0)
+        SAL_WARN("sal.osl.pipe", "send() failed: " << strerror(errno));
+
+     return nRet;
+}
+```
  
 ## Sockets
