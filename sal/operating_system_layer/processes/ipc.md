@@ -801,5 +801,77 @@ Once created, we return the pipe.
     return nullptr;
 }
 ```
-    
+
+To receive data, the function is `osl_recievePipe()`. This reads from the pipe, and returns the number of bytes that were read.
+        
+```cpp
+sal_Int32 SAL_CALL osl_receivePipe(oslPipe pPipe,
+                        void* pBuffer,
+                        sal_Int32 BytesToRead)
+{
+    DWORD nBytes;
+    OVERLAPPED os;
+
+    memset(&os, 0, sizeof(OVERLAPPED));
+    os.hEvent = pPipe->m_ReadEvent;
+
+    ResetEvent(pPipe->m_ReadEvent);
+
+    if (!ReadFile(pPipe->m_File, pBuffer, BytesToRead, &nBytes, &os) &&
+        ((GetLastError() != ERROR_IO_PENDING) ||
+         !GetOverlappedResult(pPipe->m_File, &os, &nBytes, TRUE)))
+    {
+        DWORD lastError = GetLastError();
+
+        if (lastError == ERROR_MORE_DATA)
+        {
+            nBytes = BytesToRead;
+        }
+        else
+        {
+            if (lastError == ERROR_PIPE_NOT_CONNECTED)
+                nBytes = 0;
+            else
+                nBytes = (DWORD) -1;
+
+            pPipe->m_Error = osl_Pipe_E_ConnectionAbort;
+        }
+    }
+
+    return nBytes;
+}
+```
+
+To receive data, the function is `osl_recievePipe()`. This reads from the pipe, and returns the number of bytes that were sent.
+
+```cpp
+sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
+                       const void* pBuffer,
+                       sal_Int32 BytesToSend)
+{
+    DWORD nBytes;
+    OVERLAPPED os;
+
+    OSL_ASSERT(pPipe);
+
+    memset(&os, 0, sizeof(OVERLAPPED));
+    os.hEvent = pPipe->m_WriteEvent;
+    ResetEvent(pPipe->m_WriteEvent);
+
+    if (!WriteFile(pPipe->m_File, pBuffer, BytesToSend, &nBytes, &os) &&
+        ((GetLastError() != ERROR_IO_PENDING) ||
+          !GetOverlappedResult(pPipe->m_File, &os, &nBytes, TRUE)))
+    {
+        if (GetLastError() == ERROR_PIPE_NOT_CONNECTED)
+            nBytes = 0;
+        else
+            nBytes = (DWORD) -1;
+
+         pPipe->m_Error = osl_Pipe_E_ConnectionAbort;
+    }
+
+    return nBytes;
+}
+```
+
 ## Sockets
