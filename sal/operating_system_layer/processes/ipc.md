@@ -706,7 +706,9 @@ oslPipe SAL_CALL osl_createPipe(rtl_uString *strPipeName, oslPipeOptions Options
 ```
 **Step 4:** create the pipe. The pipe must be protected with a mutex, and the pipe security descriptor and name is set, after which the pipe is created. 
 
-This is done via the `CreateNamedPipeW()` API function. This takes the pipe name, sets the mode of the pipe to full-duplex (can be read and written to on both ends of the pipe) and switches on overlapped mode (functions performing read, write, and connect operations that may take a significant time to be completed can return immediately, and enables the thread that started the operation to perform other operations while the time-consuming operation executes in the background) via the flag `PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED`. It further sets the mode of the pipe to blocking message mode `PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE`. For our purposes we set the number of instances to unlimited (`PIPE_UNLIMITED_INSTANCES`), and we wait indefinitely for the pipe operations to complete (`NMPWAIT_WAIT_FOREVER`);
+This is done via the `CreateNamedPipeW()` API function. This takes the pipe name, sets the mode of the pipe to full-duplex (can be read and written to on both ends of the pipe) and switches on overlapped mode (functions performing read, write, and connect operations that may take a significant time to be completed can return immediately, and enables the thread that started the operation to perform other operations while the time-consuming operation executes in the background) via the flag `PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED`. It further sets the mode of the pipe to blocking message mode `PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE`. For our purposes we set the number of instances to unlimited (`PIPE_UNLIMITED_INSTANCES`), and we wait indefinitely for the pipe operations to complete (`NMPWAIT_WAIT_FOREVER`).
+
+Once created, we return the pipe. 
 
 ```cpp
     if (Options & osl_Pipe_CREATE)
@@ -749,7 +751,8 @@ This is done via the `CreateNamedPipeW()` API function. This takes the pipe name
     }
 ```
 
-**Step 5:** if we want to open the pipe, then need to wait for an instance to be free (`WaitNamedPipeW()`), then we create the file backing the pipe via `CreateFileW()`.
+**Step 5:** if we want to open the pipe, then need to wait for an instance to be free (`WaitNamedPipeW()`), then we create the file backing the pipe via `CreateFileW()`. Once created, we return the pipe. 
+
 ```cpp
     else
     {
@@ -787,7 +790,11 @@ This is done via the `CreateNamedPipeW()` API function. This takes the pipe name
             }
         } while (bPipeAvailable);
     }
+```
 
+**Step 6:** If the pipe could not be created (this really shouldn't ever occur) the we destroy the pipe and return a `nullptr`.
+
+```cpp
     /* if we reach here something went wrong */
     osl_destroyPipeImpl(pPipe);
 
