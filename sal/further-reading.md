@@ -34,4 +34,9 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 * [SIGNAL(2) man page"](http://man7.org/linux/man-pages/man2/signal.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
 * [SIGPROCMASK(2) man page"](http://man7.org/linux/man-pages/man2/sigprocmask.2.html). [_Linux man-pages project_](https://www.kernel.org/doc/man-pages/), The Linux Kernel Archives.
 
+### Pipes
+
+#### Windows
+* ["NULL and empty DACLs"](https://blogs.technet.microsoft.com/askds/2009/06/01/null-and-empty-dacls/). _Ask the Directory Services Team_, Microsoft.
+
 
