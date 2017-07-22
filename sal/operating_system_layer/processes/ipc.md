@@ -629,5 +629,170 @@ sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
      return nRet;
 }
 ```
- 
+
+### Windows implementation
+
+On Windows, a pipe is created via `osl_createPipe()`. This is implemented via the following:
+
+**Step 1:** first create the pipe name. This is formed from the path (`PIPESYSTEM`) and name (`PIPEPREFIX`). If `Security` is set, then get the user identity and prepend it as `_username_`, otherwise if the pipe is being created then a NULL discretionary access control list is set on the security descriptor. What this means is that anyone can access the object associated with the security descriptor (don't confuse this with an _empty_ security descriptor, which denies everyone access).
+
+```cpp
+oslPipe SAL_CALL osl_createPipe(rtl_uString *strPipeName, oslPipeOptions Options,
+                       oslSecurity Security)
+{
+    rtl_uString* name = nullptr;
+    rtl_uString* path = nullptr;
+    rtl_uString* temp = nullptr;
+    oslPipe pPipe;
+
+    PSECURITY_ATTRIBUTES pSecAttr = nullptr;
+
+    rtl_uString_newFromAscii(&path, PIPESYSTEM);
+    rtl_uString_newFromAscii(&name, PIPEPREFIX);
+
+    if (Security)
+    {
+        rtl_uString *Ident = nullptr;
+        rtl_uString *Delim = nullptr;
+
+        OSL_VERIFY(osl_getUserIdent(Security, &Ident));
+        rtl_uString_newFromAscii(&Delim, "_");
+
+        rtl_uString_newConcat(&temp, name, Ident);
+        rtl_uString_newConcat(&name, temp, Delim);
+
+        rtl_uString_release(Ident);
+        rtl_uString_release(Delim);
+    }
+    else
+    {
+        if (Options & osl_Pipe_CREATE)
+        {
+            PSECURITY_DESCRIPTOR pSecDesc;
+
+            pSecDesc = static_cast< PSECURITY_DESCRIPTOR >(rtl_allocateMemory(SECURITY_DESCRIPTOR_MIN_LENGTH));
+
+            /* add a NULL disc. ACL to the security descriptor */
+            OSL_VERIFY(InitializeSecurityDescriptor(pSecDesc, SECURITY_DESCRIPTOR_REVISION));
+            OSL_VERIFY(SetSecurityDescriptorDacl(pSecDesc, TRUE, nullptr, FALSE));
+
+            pSecAttr = static_cast< PSECURITY_ATTRIBUTES >(rtl_allocateMemory(sizeof(SECURITY_ATTRIBUTES)));
+            pSecAttr->nLength = sizeof(SECURITY_ATTRIBUTES);
+            pSecAttr->lpSecurityDescriptor = pSecDesc;
+            pSecAttr->bInheritHandle = TRUE;
+        }
+    }
+
+    rtl_uString_assign(&temp, name);
+    rtl_uString_newConcat(&name, temp, strPipeName);
+```
+
+**Step 2:** the pipe needs to be initialized, which is what `createPipeImpl()` does.
+
+```cpp
+    /* alloc memory */
+    pPipe = osl_createPipeImpl();
+    osl_atomic_increment(&(pPipe->m_Reference));
+```
+
+**Step 3:** finish building the system pipe name
+
+```cpp
+    /* build system pipe name */
+    rtl_uString_assign(&temp, path);
+    rtl_uString_newConcat(&path, temp, name);
+    rtl_uString_release(temp);
+    temp = nullptr;
+```
+**Step 4:** create the pipe. The pipe must be protected with a mutex, and the pipe security descriptor and name is set, after which the pipe is created. 
+
+This is done via the `CreateNamedPipeW()` API function. This takes the pipe name, sets the mode of the pipe to full-duplex (can be read and written to on both ends of the pipe) and switches on overlapped mode (functions performing read, write, and connect operations that may take a significant time to be completed can return immediately, and enables the thread that started the operation to perform other operations while the time-consuming operation executes in the background) via the flag `PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED`. It further sets the mode of the pipe to blocking message mode `PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE`. For our purposes we set the number of instances to unlimited (`PIPE_UNLIMITED_INSTANCES`), and we wait indefinitely for the pipe operations to complete (`NMPWAIT_WAIT_FOREVER`);
+
+```cpp
+    if (Options & osl_Pipe_CREATE)
+    {
+        SetLastError(ERROR_SUCCESS);
+
+        pPipe->m_NamedObject = CreateMutexW(nullptr, FALSE, SAL_W(name->buffer));
+
+        if (pPipe->m_NamedObject)
+        {
+            if (GetLastError() != ERROR_ALREADY_EXISTS)
+            {
+                pPipe->m_Security = pSecAttr;
+                rtl_uString_assign(&pPipe->m_Name, name);
+
+                /* try to open system pipe */
+                pPipe->m_File = CreateNamedPipeW(
+                    SAL_W(path->buffer),
+                    PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                    PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE,
+                    PIPE_UNLIMITED_INSTANCES,
+                    4096, 4096,
+                    NMPWAIT_WAIT_FOREVER,
+                    pPipe->m_Security);
+
+                if (pPipe->m_File != INVALID_HANDLE_VALUE)
+                {
+                    rtl_uString_release( name );
+                    rtl_uString_release( path );
+
+                    return pPipe;
+                }
+            }
+            else
+            {
+                CloseHandle(pPipe->m_NamedObject);
+                pPipe->m_NamedObject = nullptr;
+            }
+        }
+    }
+```
+
+**Step 5:** if we want to open the pipe, then need to wait for an instance to be free (`WaitNamedPipeW()`), then we create the file backing the pipe via `CreateFileW()`.
+```cpp
+    else
+    {
+        BOOL bPipeAvailable;
+
+        do
+        {
+            /* free instance should be available first */
+            bPipeAvailable = WaitNamedPipeW(SAL_W(path->buffer), NMPWAIT_WAIT_FOREVER);
+
+            /* first try to open system pipe */
+            if (bPipeAvailable)
+            {
+                pPipe->m_File = CreateFileW(
+                    SAL_W(path->buffer),
+                    GENERIC_READ|GENERIC_WRITE,
+                    FILE_SHARE_READ | FILE_SHARE_WRITE,
+                    nullptr,
+                    OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED,
+                    nullptr);
+
+                if (pPipe->m_File != INVALID_HANDLE_VALUE)
+                {
+                    // We got it !
+                    rtl_uString_release(name);
+                    rtl_uString_release(path);
+
+                    return pPipe;
+                }
+                else
+                {
+                    // Pipe instance maybe caught by another client -> try again
+                }
+            }
+        } while (bPipeAvailable);
+    }
+
+    /* if we reach here something went wrong */
+    osl_destroyPipeImpl(pPipe);
+
+    return nullptr;
+}
+```
+    
 ## Sockets
