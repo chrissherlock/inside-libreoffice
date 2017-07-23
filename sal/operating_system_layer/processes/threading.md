@@ -372,5 +372,94 @@ In C++11 thread support was added to the Standard Template Library. The support 
 | **Notify:**<br>`notify_one()` - notify only one specific thread<br>`notify_all()` - notify _all_ waiting threads | **Notify:** `set()` - notifies thread waiting on condition variable that it can start execution again |
 | **Waiting:** <ul><li>`wait(std::unique_lock<std::mutex>)` - blocks the current thread until the conditional variable is woken up<br><li>`wait_for(std::unique_lock<std::mutex>, std::chrono_duration, Predicate)` - blocks the current thread until the conditional variable is woken up, or till a particular time<br><li>`wait_until(std::unique_lock<std::mutex>, const std::chrono::duration& rel_time, Duration)` - blocks the current thread until the conditional variable is woken up, or the timer runs out | **Waiting:** `wait(Timer&)` - blocks the current thread until the conditional variable. Optionally takes a timer as a time out value |
 
+## C API
+
+Threads are created via the `osl_createThread()` or `osl_createSuspendedThread()` functions (`osl_createSuspendedThread()` calls `osl_createThread(pWorker, pThreadData, CREATE_SUSPENDED)`). Each takes an `oslWorkerFunction` function pointer and a thread data parameter. The Unix implementation works by calling on `osl_thread_create_Impl()`:
+
+**Step 1:** initialize the thread. The thread structure initializes and unlocks a mutex via `pthread_mutex_init`, initializes a condition variable via `pthread_cond_destroy`; the mutex is then locked and the stack size is set.
+
+```cpp
+static oslThread osl_thread_create_Impl (
+    oslWorkerFunction pWorker,
+    void*             pThreadData,
+    short             nFlags)
+{
+    Thread_Impl* pImpl;
+#if defined OPENBSD || ((defined MACOSX || defined LINUX) && !ENABLE_RUNTIME_OPTIMIZATIONS)
+    pthread_attr_t attr;
+    size_t stacksize;
+#endif
+    int nRet=0;
+
+    pImpl = osl_thread_construct_Impl();
+    if (!pImpl)
+        return nullptr; /* ENOMEM */
+
+    pImpl->m_WorkerFunction = pWorker;
+    pImpl->m_pData = pThreadData;
+    pImpl->m_Flags = nFlags | THREADIMPL_FLAGS_STARTUP;
+
+    pthread_mutex_lock (&(pImpl->m_Lock));
+
+#if defined OPENBSD || ((defined MACOSX || defined LINUX) && !ENABLE_RUNTIME_OPTIMIZATIONS)
+    if (pthread_attr_init(&attr) != 0)
+        return nullptr;
+
+#if defined OPENBSD
+    stacksize = 262144;
+#else
+    stacksize = 12 * 1024 * 1024; // 8MB is not enough for ASAN on x86-64
+#endif
+    if (pthread_attr_setstacksize(&attr, stacksize) != 0) {
+        pthread_attr_destroy(&attr);
+        return nullptr;
+    }
+#endif
+```
+
+**Step 2:** the thread is created with default thread attributes, and calls upon `osl_thread_start_Impl()`, which takes a pointer to a `Thread_Impl` variable. If the thread fails then the mutex is unlocked, the thread destroyed and a `nullptr` returned.
+
+```cpp
+    if ((nRet = pthread_create (
+        &(pImpl->m_hThread),
+#if defined OPENBSD || ((defined MACOSX || defined LINUX) && !ENABLE_RUNTIME_OPTIMIZATIONS)
+        &attr,
+#else
+        PTHREAD_ATTR_DEFAULT,
+#endif
+        osl_thread_start_Impl,
+        static_cast<void*>(pImpl))) != 0)
+    {
+        SAL_WARN(
+            "sal.osl",
+            "pthread_create failed with " << nRet << " \"" << strerror(nRet)
+                << "\"");
+
+        pthread_mutex_unlock (&(pImpl->m_Lock));
+        osl_thread_destruct_Impl (&pImpl);
+
+        return nullptr;
+    }
+```
+
+**Step 3:** Once the new thread has been created, wait for a change of state from STARTUP to ACTIVE, after which the thread mutex is unlocked and the thread is returned.
+
+```cpp
+#if defined OPENBSD || ((defined MACOSX || defined LINUX) && !ENABLE_RUNTIME_OPTIMIZATIONS)
+    pthread_attr_destroy(&attr);
+#endif
+
+    /* wait for change from STARTUP to ACTIVE state */
+    while (pImpl->m_Flags & THREADIMPL_FLAGS_STARTUP)
+    {
+        /* wait until STARTUP flag is cleared */
+        pthread_cond_wait (&(pImpl->m_Cond), &(pImpl->m_Lock));
+    }
+
+    pthread_mutex_unlock (&(pImpl->m_Lock));
+
+    return static_cast<oslThread>(pImpl);
+}
+``` 
 
 
