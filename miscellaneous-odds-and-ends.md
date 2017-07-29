@@ -1,4 +1,4 @@
-#Miscellaneous tips
+# Miscellaneous tips
 ## vim
 
 * My `.vimrc`:
