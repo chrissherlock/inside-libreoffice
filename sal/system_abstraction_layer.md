@@ -118,23 +118,23 @@ A number of macros have also been defined to get the maximum values of int types
 
 There are also a number of function attributes macros that have been defined, in order to be cross platform and utilize compiler features when they are available:
 
-| Name | Function attribute | Compiler |
-| --- | --- | --- |
-| `SAL_DLLPUBLIC_EXPORT` | `__declspec(dllexport)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_EXPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C, Clang |
-|  |  |  |
-| `SAL_JNI_EXPORT` | `__declspec(dllexport)` | Microsoft C <br> MinGW |
-| `SAL_JNI_EXPORT` | `__attribute__((visibility("default")))` | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_IMPORT` | `__declspec(dllimport)` | Microsoft C <br> MinGW |
-| `SAL_DLLPUBLIC_IMPORT` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` ††| GNU C <br> Clang  |
-| `SAL_DLLPRIVATE` | `__attribute__((visibility("hidden")))` | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_TEMPLATE` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang |
-| `SAL_DLLPUBLIC_RTTI` | `__attribute__((type_visibility("default")))` | Clang |
-| `SAL_DLLPUBLIC_RTTI` | `__attribute__((visibility("default)))` | GNU C |
-| `SAL_CALL` | `__cdecl` | Microsoft C <br> MinGW |
-| `SAL_CALL_ELLIPSE` | `__cdecl` | Microsoft C <br> MinGW |
-| `SAL_WARN_UNUSED` | `__attribute__((warn_unused_result))` | GNU C &gt;= 4.1 <br> Clang |
-| `SAL_NO_VTABLE` | `__declspec(novtable)` | Microsoft C |
+| Name                     | Function attribute                               | Compiler                      |
+| ------------------------ | -------------------------------------------------| ----------------------------- |
+| `SAL_DLLPUBLIC_EXPORT`   | `__declspec(dllexport)`                          | Microsoft C                   |
+| `SAL_DLLPUBLIC_EXPORT`   | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang              |
+|                          |                                                  |                               |
+| `SAL_JNI_EXPORT`         | `__declspec(dllexport)`                          | Microsoft C                   |
+| `SAL_JNI_EXPORT`         | `__attribute__((visibility("default")))`         | GNU C <br> Clang              |
+| `SAL_DLLPUBLIC_IMPORT`   | `__declspec(dllimport)`                          | Microsoft C                   |
+| `SAL_DLLPUBLIC_IMPORT`   | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang              |
+| `SAL_DLLPRIVATE`         | `__attribute__((visibility("hidden")))`          | GNU C <br> Clang              |
+| `SAL_DLLPUBLIC_TEMPLATE` | `__attribute__((visibility("hidden")))` † <br> `__attribute__((visibility("default")))` †† | GNU C <br> Clang              |
+| `SAL_DLLPUBLIC_RTTI`     | `__attribute__((type_visibility("default")))`    | Clang                         |
+| `SAL_DLLPUBLIC_RTTI`     | `__attribute__((visibility("default)))`          | GNU C                         |
+| `SAL_CALL`               | `__cdecl`                                        | Microsoft C                   |
+| `SAL_CALL_ELLIPSE`       | `__cdecl`                                        | Microsoft C                   |
+| `SAL_WARN_UNUSED`        | `__attribute__((warn_unused_result))`            | GNU C &gt;= 4.1 <br> Clang    |
+| `SAL_NO_VTABLE`          | `__declspec(novtable)`                           | Microsoft C                   |
 
 † if dynamic library loading is disabled
 
@@ -142,8 +142,8 @@ There are also a number of function attributes macros that have been defined, in
 
 Function attributes for exception handling on GCC \(but not MinGW\) are:
 
-| Name | Function attribute |
-| --- | --- |
+| Name                             | Function attribute                                                        |
+| -------------------------------- | ------------------------------------------------------------------------- |
 | `SAL_EXCEPTION_DLLPUBLIC_EXPORT` | `__attribute__((visibility("default")))` † <br> `SAL_DLLPUBLIC_EXPORT` †† |
 
 † if dynamic library loading is disabled
@@ -157,4 +157,14 @@ The `alloca()` function allocates \(as its name suggests\) temporary memory in t
 The `alloca()` function, however, resides in a variety of locations on different operating systems - on Linux and Solaris, the function is stored in `alloca.h`; in OS X, BSD and iOS systems it is in `sys/types.h` and on Windows it is in `malloc.h`. Due to this quirk, LibreOffice defines its own `alloca.h` in `include/sal/alloca.h`
 
 _Note:_ `alloca()` is considered dangerous because it returns a pointer to the beginning of the space that it allocates when it is called. If you pass this `void*` pointer to the calling function you may cause a stack overflow - in which case the behaviour is _undefined_. On Linux, there is also no indication if the stack frame cannot be extended.
+
+## Seeing it in action
+
+I have written some programs you can take from the branch `private/tbsdy/workbench`. To get them, do the following:
+
+`git checkout private/tbsdy/workbench`
+
+From the `core` directory, you can run each of the programs via `bin/run <programname>`. 
+
+| Program | 
 
