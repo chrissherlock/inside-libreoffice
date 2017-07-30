@@ -166,5 +166,10 @@ I have written some programs you can take from the branch `private/tbsdy/workben
 
 From the `core` directory, you can run each of the programs via `bin/run <programname>`. 
 
-| Program | 
-
+| Program     | Description                            | Source files                  | How to invoke         |
+| ----------- | -------------------------------------- | ----------------------------- | --------------------- |
+| salmain     | Cross platform `main()`                | `sal/workben/salmain.cxx`     | `bin/run salmain`     |
+| salmainargs | Cross platform `main()` with arguments | `sal/workben/salmainargs.cxx` | `bin/run salmainargs` |
+| config      | Shows platform specific quirks         | `sal/workben/config.cxx`      | `bin/run config`      |
+| macro       | A variety of useful sal macros         | `sal/workben/macro.cxx`       | `bin/run macro`       |
+| alloca      | Show how `alloca()` function works     | `sal/workben/alloca.cxx`      | `bin/run alloca`      |
