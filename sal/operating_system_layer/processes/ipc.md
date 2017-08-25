@@ -1,18 +1,18 @@
-# Inter-Process Communication (IPC)
+# Inter-Process Communication \(IPC\)
 
 Most modern operating systems have designed processes such that they are protected from other operating system processes, a concept called _process isolation_. This is done for stability and security reasons, however it may be necessary for one process to communicate with another process, and a variety of mechanisms have been developed to allow for this. The concept of processes communicating with each other is referred to as _Inter-Process Communication_, or more commonly abbreviated to _IPC_.
 
-Most operating systems implement IPC, albeit with subtle differences, via signals, sockets, message queues, pipes (named and anonymous), shared memory and memory-mapped files. As a cross-platform product, LibreOffice attempts to unify each operating system's IPC functionality via the OSL API.
+Most operating systems implement IPC, albeit with subtle differences, via signals, sockets, message queues, pipes \(named and anonymous\), shared memory and memory-mapped files. As a cross-platform product, LibreOffice attempts to unify each operating system's IPC functionality via the OSL API.
 
 ## Signals
 
-A signal sends an asynchronous notification to a process to notify it that an event has occurred. Under Unix and Unix-like systems a process registers a signal handler to process the signal via the `signal()` or `sigaction()` system call. Usage of `signal()` is not encouraged, instead it is recommended that `sigaction()` be used. If a signal is not register, the default handler processes the signal. Processes can handle signals without creating a specific signal handler by either ignoring the signal (`SIG_IGN`) or by passing it to the default signal handler (`SIG_DFL`). The only signals that cannot be intercepted and handled are `SIGKILL` and `SIGSTOP`. Signals can be blocked via `sigprocmask()`, which means that these signals are not delivered to the process until they are unblocked.
+A signal sends an asynchronous notification to a process to notify it that an event has occurred. Under Unix and Unix-like systems a process registers a signal handler to process the signal via the `signal()` or `sigaction()` system call. Usage of `signal()` is not encouraged, instead it is recommended that `sigaction()` be used. If a signal is not register, the default handler processes the signal. Processes can handle signals without creating a specific signal handler by either ignoring the signal \(`SIG_IGN`\) or by passing it to the default signal handler \(`SIG_DFL`\). The only signals that cannot be intercepted and handled are `SIGKILL` and `SIGSTOP`. Signals can be blocked via `sigprocmask()`, which means that these signals are not delivered to the process until they are unblocked.
 
 The OSL uses Windows structured exception handling as a means to emulate signals. Exceptions in Windows are much the same as signals are in Unix - and can be initiated by hardware or software. In Windows, however, exceptions can be classified as _continuable_ or _noncontinuable_ where it makes sense - a noncontinuable exception will terminate the application. Windows also allows for nested exceptions, which are exceptions held in a linked-list.
 
-The OSL uses frame-based exception handling. Each process has what is known as a call stack, which consists of (as the name suggests) a _stack_ of _frames_. A _frame_ is a set of data that is pushed onto the stack, the data being varied but always consists of a return address. When a subroutine is called, it _pushes_ a frame onto the stack - the frame holding the return address of the routine that pushed the frame. When the new subroutine finishes, it _pops_ its frame from the stack and returns execution to the return address of the calling routine. In Windows, each stack frame stores an exception handler. When an exception is thrown, Windows examines each stack frame until it finds a suitable exception handler. If no exception handler can be found, then it looks for a top level exception handler, which is registered via `SetUnhandledExceptionFilter()` - this can be considered the equivalent of a default signal handler in Unix. 
+The OSL uses frame-based exception handling. Each process has what is known as a call stack, which consists of \(as the name suggests\) a _stack_ of _frames_. A _frame_ is a set of data that is pushed onto the stack, the data being varied but always consists of a return address. When a subroutine is called, it _pushes_ a frame onto the stack - the frame holding the return address of the routine that pushed the frame. When the new subroutine finishes, it _pops_ its frame from the stack and returns execution to the return address of the calling routine. In Windows, each stack frame stores an exception handler. When an exception is thrown, Windows examines each stack frame until it finds a suitable exception handler. If no exception handler can be found, then it looks for a top level exception handler, which is registered via `SetUnhandledExceptionFilter()` - this can be considered the equivalent of a default signal handler in Unix.
 
-To add a signal handler in OSL, you call on the `osl_addSignalHandler()` function. The function works across all platforms (it is located in [`core/sal/osl/all/signalshared.cxx`](http://opengrok.libreoffice.org/xref/core/sal/osl/all/signalshared.cxx#osl_addSignalHandler)), and calls on the platform specific `onInitSignal()` function. Once the signal has been initialized, it sets up the signal handler by allocating the `oslSignalHandlerFunction` function pointer and associated signal handling data to a `oslSignalHandler` function, which it safely appends onto the end of a linked list of signal handlers (safely, because it acquires a mutex during this operation).
+To add a signal handler in OSL, you call on the `osl_addSignalHandler()` function. The function works across all platforms \(it is located in [`core/sal/osl/all/signalshared.cxx`](http://opengrok.libreoffice.org/xref/core/sal/osl/all/signalshared.cxx#osl_addSignalHandler)\), and calls on the platform specific `onInitSignal()` function. Once the signal has been initialized, it sets up the signal handler by allocating the `oslSignalHandlerFunction` function pointer and associated signal handling data to a `oslSignalHandler` function, which it safely appends onto the end of a linked list of signal handlers \(safely, because it acquires a mutex during this operation\).
 
 ```cpp
 oslSignalHandler SAL_CALL osl_addSignalHandler(oslSignalHandlerFunction handler, void* pData)
@@ -57,9 +57,9 @@ The wrinkle, as seems to often be the case, is Java. The issue is that Java inte
 
 Interestingly, before the year 2000 it appears there was a Tomcat server in use called `stomcatd` - the code [originally looked for either `stomcatd` or `soffice`](https://cgit.freedesktop.org/libreoffice/core/plain/sal/osl/unx/signal.c?id=9399c662f36c385b0c705eb34e636a9aec450282) which was a "Portal Demo HACK", but this was [later removed](https://cgit.freedesktop.org/libreoffice/core/commit/sal/osl/unx/signal.c?id=0a1cc7826beade023be930ac966a465c11819d55) as it was entirely unclear what this was all about.
 
-The Unix `onInitSignal()` currently checks if the process is `soffice`, if it is then it sets up the crash handler signals, hooking into the segmentation fault (SIGSEGV), window change (SIGWINCH) and illegal instruction (SIGILL) instructions. This is because if a JVM is loaded, then it needs to intercept these signals and it shouldn't be overridden in any other situation. Ideally, this should be moved into soffice specific code.
+The Unix `onInitSignal()` currently checks if the process is `soffice`, if it is then it sets up the crash handler signals, hooking into the segmentation fault \(SIGSEGV\), window change \(SIGWINCH\) and illegal instruction \(SIGILL\) instructions. This is because if a JVM is loaded, then it needs to intercept these signals and it shouldn't be overridden in any other situation. Ideally, this should be moved into soffice specific code.
 
-The Windows `onInitSignal()` sets the unhandled exception filter handler to `signalHandlerFunction()`. Then it excludes the application from error reporting. Except that `AddERExcludedApplicationW()` is now deprecated, and needs to be changed to `WerAddExcludedApplication()`, as part of the Windows Error Reporting module (WER).
+The Windows `onInitSignal()` sets the unhandled exception filter handler to `signalHandlerFunction()`. Then it excludes the application from error reporting. Except that `AddERExcludedApplicationW()` is now deprecated, and needs to be changed to `WerAddExcludedApplication()`, as part of the Windows Error Reporting module \(WER\).
 
 ```cpp
 bool onInitSignal()
@@ -85,9 +85,10 @@ To raise a signal, call on `osl_raiseSignal()`.
 
 ## Memory-mapped files
 
-Memory mapped files allow a file to be mapped into a process's virtual address space, and thus be manipulated and read as if reading memory. The benefits of such an approach are mainly that they allow large files to be processed more efficiently - instead of loading the entire file into memory, the file is loaded via the operating system's Virtual Memory Manager (VMM) - which means that the entire file does not need to be loaded into memory, but large portions of the file that are mapped to the virtual address space can be paged to disk. In terms of IPC, however, it also means that multiple processes can map independent portions of the file to a common region in the system's pagefile via the VMM, and thus share data between process boundaries.
+Memory mapped files allow a file to be mapped into a process's virtual address space, and thus be manipulated and read as if reading memory. The benefits of such an approach are mainly that they allow large files to be processed more efficiently - instead of loading the entire file into memory, the file is loaded via the operating system's Virtual Memory Manager \(VMM\) - which means that the entire file does not need to be loaded into memory, but large portions of the file that are mapped to the virtual address space can be paged to disk. In terms of IPC, however, it also means that multiple processes can map independent portions of the file to a common region in the system's pagefile via the VMM, and thus share data between process boundaries.
 
 ### Windows implementation
+
 On Windows, a file is mapped through the following process:
 
 1. First create a file mapping object via `CreateFileMapping()`. This returns a handle to the object, which you use to map the file.
@@ -106,7 +107,7 @@ oslFileError SAL_CALL osl_mapFile(
 {
 ```
 
-An internal file mapping structure is used as an RAII object. RAII stands for "Resource acquisition is initialization", or in other words once you create the object ("acquire" the object via the constructor) then the object is initialized, and similarly when the object is deleted it releases all its resources. In this case, the FileMapping struct assigns a handle in the constructor and when the FileMapping instance is finished with it closes the handle in the destructor.
+An internal file mapping structure is used as an RAII object. RAII stands for "Resource acquisition is initialization", or in other words once you create the object \("acquire" the object via the constructor\) then the object is initialized, and similarly when the object is deleted it releases all its resources. In this case, the FileMapping struct assigns a handle in the constructor and when the FileMapping instance is finished with it closes the handle in the destructor.
 
 ```cpp
     struct FileMapping
@@ -124,7 +125,7 @@ An internal file mapping structure is used as an RAII object. RAII stands for "R
     };
 ```
 
-The function passes the file handle to the function, which then casts it to a Windows-specific FileHandle_Impl instance.
+The function passes the file handle to the function, which then casts it to a Windows-specific FileHandle\_Impl instance.
 
 ```cpp
     FileHandle_Impl * pImpl = static_cast<FileHandle_Impl*>(Handle);
@@ -176,6 +177,7 @@ The file's view is then mapped to the process address space via the `MapViewOfFi
     if (nullptr == *ppAddr)
         return oslTranslateFileError( GetLastError() );
 ```
+
 The final piece of the puzzle is to check if the file mapping will be access in a random access fashion. If so, then because the file mapping specified `SEC_COMMIT`, if you read just the first byte of the page then it will commit the entire page to memory rather than just reserve the memory and commit it later. Note that to stop the compiler from optimizing away the loop, they have had to set the `c` `BYTE` variable to volatile.
 
 A note about why the `volatile` works: it works because on each loop, a new volatile BYTE is created. The [rules for volatile variables](http://en.cppreference.com/w/cpp/language/cv) are that "volatile accesses cannot be optimized out or reordered with another visible side effect that is sequenced-before or sequenced-after the volatile access." Thus the loop cannot be optimized away by the compiler.
@@ -235,9 +237,9 @@ void *mmap(void *addr, size_t length, int prot, int flags,
            int fd, off_t offset);
 ```
 
-This function takes as the first parameter a hint to the address of where to place the mapping in memory - if this is NULL then the operating system automatically works out where to allocate the memory, otherwise it places it at the nearest page boundary to the address. The function's second paramter takes the size of the file to be mapped, and the third parameter determines the desired memory protection for the mapping  - basically it determines whether the mapping allows pages to be executed, read from or written to (`PROT_EXEC`, `PROT_READ` and `PROT_WRITE`, consecutively. `PROT_NONE` specifies that the page cannot be accessed at all). The function also determines via the fourth parameter if the mapping can be shared (`MAP_SHARED`), or if updates to the mapping are not exposed to other processes (`MAP_PRIVATE`). The file itself is specified by the `fd` parameter, with an offset into the file by the final parameter `offset`.
+This function takes as the first parameter a hint to the address of where to place the mapping in memory - if this is NULL then the operating system automatically works out where to allocate the memory, otherwise it places it at the nearest page boundary to the address. The function's second paramter takes the size of the file to be mapped, and the third parameter determines the desired memory protection for the mapping  - basically it determines whether the mapping allows pages to be executed, read from or written to \(`PROT_EXEC`, `PROT_READ` and `PROT_WRITE`, consecutively. `PROT_NONE` specifies that the page cannot be accessed at all\). The function also determines via the fourth parameter if the mapping can be shared \(`MAP_SHARED`\), or if updates to the mapping are not exposed to other processes \(`MAP_PRIVATE`\). The file itself is specified by the `fd` parameter, with an offset into the file by the final parameter `offset`.
 
-`mmap()` returns a pointer to the mapped area on success, and on failure it returns `MAP_FAILED` (`(void *) -1`) and sets `errno` to the error code.
+`mmap()` returns a pointer to the mapped area on success, and on failure it returns `MAP_FAILED` \(`(void *) -1`\) and sets `errno` to the error code.
 
 To delete the file mappings, you call on the `munmap()` function:
 
@@ -245,7 +247,7 @@ To delete the file mappings, you call on the `munmap()` function:
 int munmap(void *addr, size_t length);
 ```
 
-A region of memory is unmapped by the `addr` pointer - which must be a multiple of the page size - and the size of the area to unmap is specified by the `length` parameter. `munmap()` returns -1 and populates `errno` on failure, and 0 on success. 
+A region of memory is unmapped by the `addr` pointer - which must be a multiple of the page size - and the size of the area to unmap is specified by the `length` parameter. `munmap()` returns -1 and populates `errno` on failure, and 0 on success.
 
 The OSL maps the file through the implementation of `osl_mapFile`. The function first checks the parameters to ensure that the handle, file descriptor, address and length are valid parameters:
 
@@ -274,7 +276,7 @@ SAL_CALL osl_mapFile (
         return osl_File_E_OVERFLOW;
 ```
 
-Next, it takes the file handle, checks if the file is pure memory, and if so then it specifies the address of the mapping to be an offset from the file descriptor's currently buffer address and returns of the function (e.g. if the file is part of a tmpfs, then it is in memory already and thus doesn't need to be mapped).
+Next, it takes the file handle, checks if the file is pure memory, and if so then it specifies the address of the mapping to be an offset from the file descriptor's currently buffer address and returns of the function \(e.g. if the file is part of a tmpfs, then it is in memory already and thus doesn't need to be mapped\).
 
 ```cpp
     if (pImpl->m_kind == FileHandle_Impl::KIND_MEM)
@@ -326,7 +328,7 @@ As in the Windows file mapping code, the function checks if the file mapping wil
     }
 ```
 
-A further consideration in Unix systems, however, is that the operating system can be given guidance as to how memory is intended to be used via the `madvise()` function. `MADV_WILLNEED` tells the operating system that it wants the data to be paged in as soon as possible. However, this function does _not_ necessarily work in an asynchronous way, and so on Linux, `madvise(..., MADV_WILLNEED)` has the undesirable effect of not returning until the data has actually been paged in so that its net effect would typically be to slow down the process (which could start processing at the beginning of the data while the OS simultaneously pages in the rest). Other platforms other than Linux can use this, and Solaris and Sun operating systems do work more adventageously so on these Unix flavours `madvise` is called.
+A further consideration in Unix systems, however, is that the operating system can be given guidance as to how memory is intended to be used via the `madvise()` function. `MADV_WILLNEED` tells the operating system that it wants the data to be paged in as soon as possible. However, this function does _not_ necessarily work in an asynchronous way, and so on Linux, `madvise(..., MADV_WILLNEED)` has the undesirable effect of not returning until the data has actually been paged in so that its net effect would typically be to slow down the process \(which could start processing at the beginning of the data while the OS simultaneously pages in the rest\). Other platforms other than Linux can use this, and Solaris and Sun operating systems do work more adventageously so on these Unix flavours `madvise` is called.
 
 ```
     if (uFlags & osl_File_MapFlag_WillNeed)
@@ -350,14 +352,14 @@ A further consideration in Unix systems, however, is that the operating system c
 
 ## Pipes
 
-A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. LibreOffice implements named pipes on Unix via Unix domain sockets, which are almost no different to named pipes (FIFOs). On Windows
+A pipe is a means of communicating between processes whereby the output on each process feeds directly into the input of the next process. It really is the simplest form of IPC available, and pretty much works the same way on Unix and Windows. LibreOffice implements named pipes on Unix via Unix domain sockets, which are almost no different to named pipes \(FIFOs\). On Windows, pipes are named pipes using a native operating system mechanism.
 
 To use a pipe, you do the following:
 
- 1. Call on `osl_createPipe("pipename", osl_Pipe_CREATE, NULL)` (or if the pipe has already been created, then call on `osl_createPipe("pipename", osl_Pipe_OPEN, NULL)`)
- 2. You can either call on `osl_readPipe()` (which is actually a thin wrapper over `osl_receivePipe()`) to read data coming from the other side of the pipe; alternatively you call on `osl_writePipe()` (which is actually also a thin wrapper over `osl_sendPipe()`) to send data to other end of the pipe. 
- 3. When done, call on `osl_closePipe()`
- 
+1. Call on `osl_createPipe("pipename", osl_Pipe_CREATE, NULL)` \(or if the pipe has already been created, then call on `osl_createPipe("pipename", osl_Pipe_OPEN, NULL)`\)
+2. You can either call on `osl_readPipe()` \(which is actually a thin wrapper over `osl_receivePipe()`\) to read data coming from the other side of the pipe; alternatively you call on `osl_writePipe()` \(which is actually also a thin wrapper over `osl_sendPipe()`\) to send data to other end of the pipe. 
+3. When done, call on `osl_closePipe()`
+
 ### Unix implementation
 
 On Unix the `osl_createPipe()` function is implemented as:
@@ -410,10 +412,9 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
         strncpy(name, PIPEALTERNATEPATH, sizeof(name));
     else if (!cpyBootstrapSocketPath (name, sizeof (name)))
         return nullptr
-
 ```
 
-**Step 2:** create the name of the file to be used for the pipe. In this case, the pipe name will be either `OSL_<username>_pipename` (if a secured pipe) or `OSL_pipename`. 
+**Step 2:** create the name of the file to be used for the pipe. In this case, the pipe name will be either `OSL_<username>_pipename` \(if a secured pipe\) or `OSL_pipename`.
 
 ```cpp
     name[sizeof(name)-1] = '\0';  // ensure the string is NULL-terminated
@@ -462,7 +463,7 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
         return nullptr;
 ```
 
-**Step 4:** now a Unix Domain socket is created. To ensure there are no resource leaks, close-on-exec is set on the socket's file descriptor. This ensures that if the process runs any of the `exec` family of functions then the socket will be closed. 
+**Step 4:** now a Unix Domain socket is created. To ensure there are no resource leaks, close-on-exec is set on the socket's file descriptor. This ensures that if the process runs any of the `exec` family of functions then the socket will be closed.
 
 ```cpp
     /* create socket */
@@ -501,9 +502,9 @@ oslPipe SAL_CALL osl_psz_createPipe(const sal_Char *pszPipeName, oslPipeOptions 
 #endif
 ```
 
-**Step 6 (pipe creation):** if the function is instructed to create the pipe (`Options` is set to `osl_Pipe_CREATE`) then first check for an already orphaned socket or FIFO pipe exists (`stat(name, &status)` fills in the status information about the file, and the macros `S_ISSOCK()` and `S_ISFIFO()` check if the file is a socket or a FIO pipe, respectively). If there is an orphaned file, then it connects to the socket, closes the socket and deletes (unlinks) the file.
+**Step 6 \(pipe creation\):** if the function is instructed to create the pipe \(`Options` is set to `osl_Pipe_CREATE`\) then first check for an already orphaned socket or FIFO pipe exists \(`stat(name, &status)` fills in the status information about the file, and the macros `S_ISSOCK()` and `S_ISFIFO()` check if the file is a socket or a FIO pipe, respectively\). If there is an orphaned file, then it connects to the socket, closes the socket and deletes \(unlinks\) the file.
 
-The socket is then bound to the AF_UNIX address (the filename), starts listening for connections to the socket, and returns the pipe.
+The socket is then bound to the AF\_UNIX address \(the filename\), starts listening for connections to the socket, and returns the pipe.
 
 ```cpp
     if (Options & osl_Pipe_CREATE)
@@ -558,7 +559,7 @@ The socket is then bound to the AF_UNIX address (the filename), starts listening
     }
 ```
 
-**Step 6 (opening pipe):** if the option is not to create the pipe, but to open it then it merely checks that it can access the file representing the socket, connects to this socket and returns the pipe. 
+**Step 6 \(opening pipe\):** if the option is not to create the pipe, but to open it then it merely checks that it can access the file representing the socket, connects to this socket and returns the pipe.
 
 ```cpp
     /* osl_pipe_OPEN */
@@ -634,7 +635,7 @@ sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
 
 On Windows, a pipe is created via `osl_createPipe()`. This is implemented via the following:
 
-**Step 1:** first create the pipe name. This is formed from the path (`PIPESYSTEM`) and name (`PIPEPREFIX`). If `Security` is set, then get the user identity and prepend it as `_username_`, otherwise if the pipe is being created then a NULL discretionary access control list is set on the security descriptor. What this means is that anyone can access the object associated with the security descriptor (don't confuse this with an _empty_ security descriptor, which denies everyone access).
+**Step 1:** first create the pipe name. This is formed from the path \(`PIPESYSTEM`\) and name \(`PIPEPREFIX`\). If `Security` is set, then get the user identity and prepend it as `_username_`, otherwise if the pipe is being created then a NULL discretionary access control list is set on the security descriptor. What this means is that anyone can access the object associated with the security descriptor \(don't confuse this with an _empty_ security descriptor, which denies everyone access\).
 
 ```cpp
 oslPipe SAL_CALL osl_createPipe(rtl_uString *strPipeName, oslPipeOptions Options,
@@ -704,11 +705,12 @@ oslPipe SAL_CALL osl_createPipe(rtl_uString *strPipeName, oslPipeOptions Options
     rtl_uString_release(temp);
     temp = nullptr;
 ```
-**Step 4:** create the pipe. The pipe must be protected with a mutex, and the pipe security descriptor and name is set, after which the pipe is created. 
 
-This is done via the `CreateNamedPipeW()` API function. This takes the pipe name, sets the mode of the pipe to full-duplex (can be read and written to on both ends of the pipe) and switches on overlapped mode (functions performing read, write, and connect operations that may take a significant time to be completed can return immediately, and enables the thread that started the operation to perform other operations while the time-consuming operation executes in the background) via the flag `PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED`. It further sets the mode of the pipe to blocking message mode `PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE`. For our purposes we set the number of instances to unlimited (`PIPE_UNLIMITED_INSTANCES`), and we wait indefinitely for the pipe operations to complete (`NMPWAIT_WAIT_FOREVER`).
+**Step 4:** create the pipe. The pipe must be protected with a mutex, and the pipe security descriptor and name is set, after which the pipe is created.
 
-Once created, we return the pipe. 
+This is done via the `CreateNamedPipeW()` API function. This takes the pipe name, sets the mode of the pipe to full-duplex \(can be read and written to on both ends of the pipe\) and switches on overlapped mode \(functions performing read, write, and connect operations that may take a significant time to be completed can return immediately, and enables the thread that started the operation to perform other operations while the time-consuming operation executes in the background\) via the flag `PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED`. It further sets the mode of the pipe to blocking message mode `PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE`. For our purposes we set the number of instances to unlimited \(`PIPE_UNLIMITED_INSTANCES`\), and we wait indefinitely for the pipe operations to complete \(`NMPWAIT_WAIT_FOREVER`\).
+
+Once created, we return the pipe.
 
 ```cpp
     if (Options & osl_Pipe_CREATE)
@@ -751,7 +753,7 @@ Once created, we return the pipe.
     }
 ```
 
-**Step 5:** if we want to open the pipe, then need to wait for an instance to be free (`WaitNamedPipeW()`), then we create the file backing the pipe via `CreateFileW()`. Once created, we return the pipe. 
+**Step 5:** if we want to open the pipe, then need to wait for an instance to be free \(`WaitNamedPipeW()`\), then we create the file backing the pipe via `CreateFileW()`. Once created, we return the pipe.
 
 ```cpp
     else
@@ -792,7 +794,7 @@ Once created, we return the pipe.
     }
 ```
 
-**Step 6:** If the pipe could not be created (this really shouldn't ever occur) the we destroy the pipe and return a `nullptr`.
+**Step 6:** If the pipe could not be created \(this really shouldn't ever occur\) the we destroy the pipe and return a `nullptr`.
 
 ```cpp
     /* if we reach here something went wrong */
@@ -803,7 +805,7 @@ Once created, we return the pipe.
 ```
 
 To receive data, the function is `osl_recievePipe()`. This reads from the pipe, and returns the number of bytes that were read.
-        
+
 ```cpp
 sal_Int32 SAL_CALL osl_receivePipe(oslPipe pPipe,
                         void* pBuffer,
@@ -875,3 +877,6 @@ sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
 ```
 
 ## Sockets
+
+
+
