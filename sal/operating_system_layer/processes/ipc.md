@@ -182,7 +182,7 @@ The final piece of the puzzle is to check if the file mapping will be access in 
 
 A note about why the `volatile` works: it works because on each loop, a new volatile BYTE is created. The [rules for volatile variables](http://en.cppreference.com/w/cpp/language/cv) are that "volatile accesses cannot be optimized out or reordered with another visible side effect that is sequenced-before or sequenced-after the volatile access." Thus the loop cannot be optimized away by the compiler.
 
-```
+```cpp
     if (uFlags & osl_File_MapFlag_RandomAccess)
     {
         // Determine memory pagesize.
@@ -252,8 +252,7 @@ A region of memory is unmapped by the `addr` pointer - which must be a multiple 
 The OSL maps the file through the implementation of `osl_mapFile`. The function first checks the parameters to ensure that the handle, file descriptor, address and length are valid parameters:
 
 ```cpp
-oslFileError
-SAL_CALL osl_mapFile (
+oslFileError SAL_CALL osl_mapFile (
     oslFileHandle Handle,
     void**        ppAddr,
     sal_uInt64    uLength,
@@ -330,7 +329,7 @@ As in the Windows file mapping code, the function checks if the file mapping wil
 
 A further consideration in Unix systems, however, is that the operating system can be given guidance as to how memory is intended to be used via the `madvise()` function. `MADV_WILLNEED` tells the operating system that it wants the data to be paged in as soon as possible. However, this function does _not_ necessarily work in an asynchronous way, and so on Linux, `madvise(..., MADV_WILLNEED)` has the undesirable effect of not returning until the data has actually been paged in so that its net effect would typically be to slow down the process \(which could start processing at the beginning of the data while the OS simultaneously pages in the rest\). Other platforms other than Linux can use this, and Solaris and Sun operating systems do work more adventageously so on these Unix flavours `madvise` is called.
 
-```
+```cpp
     if (uFlags & osl_File_MapFlag_WillNeed)
     {
 #if defined MACOSX || (defined(__sun) && (!defined(__XOPEN_OR_POSIX) || defined(_XPG6) || defined(__EXTENSIONS__)))
