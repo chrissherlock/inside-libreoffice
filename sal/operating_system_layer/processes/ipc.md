@@ -299,7 +299,7 @@ If the file is not an in-memory file, then is then mmap'ed as a shared, read-onl
 
 As in the Windows file mapping code, the function checks if the file mapping will be access in a random access fashion. It then reads just the first byte of every page in the mapped region, which commits the entire page to memory. Note that for the same reason as in the Windows implementation, to stop the compiler from optimizing away the loop, they have had to set the `c` `sal_uInt8` variable to volatile.
 
-```
+```cpp
     if (uFlags & osl_File_MapFlag_RandomAccess)
     {
         // Determine memory pagesize.
