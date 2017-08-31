@@ -8,6 +8,7 @@
       * [Process creation and execution](sal/operating_system_layer/processes/process-creation-and-execution/process-creation-and-execution.md)
       * [Process termination](sal/operating_system_layer/processes/process-termination.md)
       * [IPC](sal/operating_system_layer/processes/ipc.md)
+      * [Sockets](sal/operating_system_layer/processes/process-creation-and-execution/sockets.md)
       * [Threading](sal/operating_system_layer/processes/threading.md)
     * [Filesystem](sal/operating_system_layer/filesystem.md)
     * [Modules](sal/operating_system_layer/modules.md)
