@@ -20,7 +20,7 @@ The other way that a process can terminate is abnormally, via the `abort()` syst
 
 ### Unix termination function
 
-The termination function is implemented in `osl_terminateProcess()` - it is quite simple in that it merely calls on the POSIX `kill()` function, and sends the `SIGKILL` signal to the process. If the signal is processed, then `osl_Process_E_None` is returned, if not then it checks what the error is and advises that the process cannot be found \(errno is `ESRCH`, returning `osl_Process_E_NotFound`\), permissions were denied to terminate the process \(`errno `is `EPERM`, returned `osl_Process_E_No_Permission`\), or the termination process failure reason is unknown \(returns `osl_ProcessE_Unknown`\).
+The termination function is implemented in `osl_terminateProcess()` - it is quite simple in that it merely calls on the POSIX `kill()` function, and sends the `SIGKILL` signal to the process. If the signal is processed, then `osl_Process_E_None` is returned, if not then it checks what the error is and advises that the process cannot be found \(errno is `ESRCH`, returning `osl_Process_E_NotFound`\), permissions were denied to terminate the process \(`errno`is `EPERM`, returned `osl_Process_E_No_Permission`\), or the termination process failure reason is unknown \(returns `osl_ProcessE_Unknown`\).
 
 > **Sidenote:** I am a bit opinionated on this one. I don't think we should call on `SIGKILL`, I think we should use `SIGTERM` so that we can handle the signal. We don't seem to have any code that needs this though, so it remains `SIGKILL`.
 
@@ -55,7 +55,7 @@ On Windows a process is terminated after either `TerminateProcess()` or `ExitPro
 
 ### Windows termination function
 
-The Windows termination function is somewhat more involved than the Unix version. Like in Unix version, the termination function is implemented in `osl_terminate_Process()`_ , _however we want to avoid the use of `TerminateProcess()` so that we can ensure an orderly process shutdown._ _
+The Windows termination function is somewhat more involved than the Unix version. Like in Unix version, the termination function is implemented in `osl_terminate_Process()`_ , \_however we want to avoid the use of _`TerminateProcess()`_ so that we can ensure an orderly process shutdown._ \_
 
 **Step 1:** validate process identity is correct
 
@@ -148,6 +148,88 @@ oslProcessError SAL_CALL osl_terminateProcess(oslProcess Process)
     return (TerminateProcess(hProcess, 0) == FALSE) ? osl_Process_E_Unknown : osl_Process_E_None;
 }
 ```
+
+### Example
+
+The following example can be found on [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LO git repository:
+
+[.../sal/workben/osl/process/terminateprocess.cxx](https://cgit.freedesktop.org/libreoffice/core/tree/sal/workben/osl/process/terminateprocess.cxx?h=private/tbsdy/workbench)
+
+```cpp
+#include <sal/config.h>
+#include <sal/main.h>
+#include <sal/log.hxx>
+#include <rtl/ustring.hxx>
+#include <rtl/alloc.h>
+#include <osl/thread.h>
+#include <osl/file.h>
+
+#include <osl/process.h>
+
+#include <cstdio>
+
+SAL_IMPLEMENT_MAIN()
+{
+    oslProcess aProcess;
+
+    fprintf(stdout, "Execute process.\n");
+
+    rtl_uString *pustrExePath = nullptr;
+    osl_getExecutableFile(&pustrExePath);
+
+    rtl_uString *pTempExePath = nullptr;
+    sal_uInt32 nLastChar;
+
+    nLastChar = rtl_ustr_lastIndexOfChar(rtl_uString_getStr(pustrExePath), SAL_PATHDELIMITER);
+    rtl_uString_newReplaceStrAt(&pTempExePath, pustrExePath, nLastChar, rtl_ustr_getLength(rtl_uString_getStr(pustrExePath)), nullptr);
+    rtl_freeMemory(pustrExePath);
+    pustrExePath = pTempExePath;
+
+#if defined(_WIN32)
+#  define BATCHFILE "\\..\\sal\\workben\\osl\\batchwait.bat"
+#  define BATCHFILE_LENGTH 39
+#else
+#  define BATCHFILE "/../../../sal/workben/osl/batchwait.sh"
+#  define BATCHFILE_LENGTH 38
+#endif
+
+    rtl_uString_newConcatAsciiL(&pustrExePath, pustrExePath, BATCHFILE, BATCHFILE_LENGTH);
+
+    oslProcessError osl_error = osl_executeProcess(
+        pustrExePath,           // process to execute
+        nullptr,                // no arguments
+        0,                      // no arguments
+        osl_Process_NORMAL,     // process execution mode
+        nullptr,                // security context is current user
+        nullptr,                // current working directory inherited from parent process
+        nullptr,                // no environment variables
+        0,                      // no environment variables
+        &aProcess);              // process handle
+
+    rtl_freeMemory(pustrExePath);
+
+    if (osl_error != osl_Process_E_None)
+        fprintf(stderr, "Process failed\n");
+
+    fprintf(stdout, "    Process running...\n");
+    osl_error = osl_terminateProcess(aProcess);
+    if (osl_error == osl_Process_E_None)
+    {
+        fprintf(stdout, "    ...process terminated.\n");
+    }
+    else
+    {
+        fprintf(stderr, "    ... process could not be terminated.\n");
+        osl_joinProcess(aProcess);
+    }
+
+    osl_freeProcessHandle(aProcess);
+
+    return 0;
+}
+```
+
+
 
 
 
