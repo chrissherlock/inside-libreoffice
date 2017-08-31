@@ -342,6 +342,131 @@ The `ThreadHelper` class does as it suggests, it just makes the thread sleep for
 isRunning = true
 ```
 
+## Example 2: a monitor
+
+The following example can be found in [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) of the LibreOffice git repository. It implements a [monitor](https://en.wikipedia.org/wiki/Monitor_%28synchronization%29) using the low level C threading API to solve the [producer-consumer problem](https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem#Using_monitors).
+
+[.../sal/workben/osl/thread/monitor.cxx](https://cgit.freedesktop.org/libreoffice/core/tree/sal/workben/osl/thread/monitor.cxx?h=private/tbsdy/workbench)
+
+```cpp
+#include <sal/main.h>
+#include <osl/mutex.h>
+#include <osl/conditn.h>
+#include <osl/thread.h>
+
+#include <cstdio>
+#include <cassert>
+
+#define BUFFER_SIZE 10
+
+bool queue[9];
+sal_uInt32 nItemCount = 0;
+
+oslCondition fullOrEmpty;
+oslMutex queueMutex;
+oslThread producer, consumer;
+
+void add();
+void remove();
+
+void produce(void*);
+void consume(void*);
+
+SAL_IMPLEMENT_MAIN()
+{
+    fprintf(stdout, "Producer/consumer problem - demonstrates mutex, condition variables and threads.\n");
+
+    queueMutex = osl_createMutex();
+    fullOrEmpty = osl_createCondition();
+
+    producer = osl_createThread(produce, nullptr);
+    consumer = osl_createThread(consume, nullptr);
+
+    osl_joinWithThread(consumer);
+
+    return 0;
+}
+
+void produce(void* /* pData */)
+{
+    osl_setThreadName("producer");
+
+    while(true)
+    {
+        /* producer monitor - first acquire exclusive access to
+           the queue, if the queue is full then wait till there
+           is space made available. Once the queue is no longer
+           full, then notify that this is the case.
+         */
+        osl_acquireMutex(queueMutex);
+
+        while (nItemCount == BUFFER_SIZE-1)
+            osl_waitCondition(fullOrEmpty, nullptr);
+
+        fprintf(stdout, "produce()\n");
+
+        add();
+
+        osl_setCondition(fullOrEmpty);
+        osl_releaseMutex(queueMutex);
+
+        osl_yieldThread();
+    }
+
+    fprintf(stderr, "exit produce()!\n");
+}
+
+void consume(void* /* pData */)
+{
+    osl_setThreadName("consumer");
+
+    while(true)
+    {
+        /* consumer monitor - first acquire exclusive access to the
+           queue, if the queue is empty then wait till something is
+           produced. Once the queue is no longer empty, then notify
+           that this is the case.
+         */
+        osl_acquireMutex(queueMutex);
+
+        while (nItemCount == 0)
+            osl_waitCondition(fullOrEmpty, nullptr);
+
+        fprintf(stdout, "consume()\n");
+
+        remove();
+
+        osl_setCondition(fullOrEmpty);
+        osl_releaseMutex(queueMutex);
+
+        osl_yieldThread();
+    }
+
+    fprintf(stderr, "exit consume()!\n");
+}
+
+void add()
+{
+    queue[nItemCount] = true;
+
+    fprintf(stdout, "Adding to queue - item %d added.\n", nItemCount);
+
+    nItemCount++;
+    assert(nItemCount <= BUFFER_SIZE-1);
+}
+
+void remove()
+{
+    queue[nItemCount] = false;
+
+    fprintf(stdout, "Removing from queue - item %d removed.\n", nItemCount);
+
+    nItemCount--;
+    assert(nItemCount >= 0);
+}
+```
+
+
 ## Comparison with the C++11 thread support library
 
 In C++11 thread support was added to the Standard Template Library. The support is more extensive than what is in the OSL, and it covers everything that is handled in the OSL module. A comparison of the two libraries is interesting, and in fact I personally feel that it would be better if we gradually moved all the thread functionality to the STL and make C++11 a hard prerequisite.
@@ -461,5 +586,6 @@ static oslThread osl_thread_create_Impl (
     return static_cast<oslThread>(pImpl);
 }
 ``` 
+
 
 
