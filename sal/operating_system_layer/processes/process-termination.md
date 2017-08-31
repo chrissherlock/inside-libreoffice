@@ -229,7 +229,27 @@ SAL_IMPLEMENT_MAIN()
 }
 ```
 
+[.../sal/workben/osl/batchwait.bat](https://cgit.freedesktop.org/libreoffice/core/tree/sal/workben/osl/batchwait.bat?h=private/tbsdy/workbench)
 
+```batch
+@echo off
+cls
+:start
+echo "Hello world"
+pause
+goto start
+```
+
+[.../sal/workben/osl/batchwait.sh](https://cgit.freedesktop.org/libreoffice/core/tree/sal/workben/osl/batchwait.sh?h=private/tbsdy/workbench)
+
+```bash
+#!/bin/sh
+while true
+do
+    echo "Hello world"
+    sleep 1
+done
+```
 
 
 

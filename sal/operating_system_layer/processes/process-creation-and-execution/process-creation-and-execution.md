@@ -42,7 +42,7 @@ On both Windows and Unix platforms, this is a wrapper to `osl_executeProcess_Wit
 
 The following example can be found in my [private examples branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench).
 
-[.../sal/workben/osl/process/executeprocess.cxx](/.../sal/workben/osl/process/executeprocess.cxx) 
+[.../sal/workben/osl/process/executeprocess.cxx](/.../sal/workben/osl/process/executeprocess.cxx)
 
 ```cpp
 #include <sal/config.h>
