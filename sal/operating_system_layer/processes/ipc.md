@@ -875,7 +875,5 @@ sal_Int32 SAL_CALL osl_sendPipe(oslPipe pPipe,
 }
 ```
 
-## Sockets
-
 
 
