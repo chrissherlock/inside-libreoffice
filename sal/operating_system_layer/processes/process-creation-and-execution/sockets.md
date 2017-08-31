@@ -4,7 +4,9 @@ A socket is a mean for two programs to communicate with each other via file desc
 
 ### Example
 
-The following example is from [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LibreOffice git repository. It basically runs on two threads: the main thread which runs the client, and a second background threat that runs the server that the client connects to. Basically, the program first opens a socket, binds this to the localhost address 127.0.0.1 on port 30000 \(a high port\), and then listens for connections. The client is run after this server thread which opens its own socket, then connects to the remote server and sends a single character to it, which the server receives and echos to the screen. A condition variable is used to ensure that the client doesn't try to connect to the server before it has started listening.
+The following example is from [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LibreOffice git repository. 
+
+This example basically runs on two threads: the main thread which runs the client, and a second background threat that runs the server that the client connects to. Essentially, the program first opens a socket, binds this to the localhost address 127.0.0.1 on port 30,000 \(a high port\), and then listens for connections. The client is run after this server thread which opens its own socket, then connects to the remote server and sends a single character to it, which the server receives and echos to the screen. A condition variable is used to ensure that the client doesn't try to connect to the server before it has started listening.
 
 [.../sal/workben/osl/socket/socket.cxx](https://cgit.freedesktop.org/libreoffice/core/tree/sal/workben/osl/socket/socket.cxx?h=private/tbsdy/workbench)
 
