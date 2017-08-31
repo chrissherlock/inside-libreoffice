@@ -83,6 +83,101 @@ When done with the signal handler, you should remove the signal handler via the 
 
 To raise a signal, call on `osl_raiseSignal()`.
 
+### Example
+
+```cpp
+#include <sal/main.h>
+#include <osl/signal.h>
+
+#include <cstdio>
+
+#define OSL_SIGNAL_USER_TEST1   (OSL_SIGNAL_USER_RESERVED - 64)
+
+typedef struct
+{
+    sal_uInt32 nData;
+} SignalData;
+
+oslSignalAction SignalHandlerFunc1(void *pData, oslSignalInfo* pInfo);
+oslSignalAction SignalHandlerFunc2(void *pData, oslSignalInfo* pInfo);
+
+SAL_IMPLEMENT_MAIN()
+{
+    fprintf(stdout, "Signal handling example.\n");
+    fprintf(stdout, "    Before the signal nData == 0, after the signal nData == 1\n");
+
+    oslSignalHandler hHandler1, hHandler2;
+    SignalData aSigData;
+    aSigData.nData = 0;
+
+    fprintf(stdout, "        Adding signal handler 1\n");
+    hHandler1 = osl_addSignalHandler(SignalHandlerFunc1, &aSigData);
+
+    fprintf(stdout, "        Signal data set to %d.\n", aSigData.nData);
+
+    SignalData aSetSigData;
+    aSetSigData.nData = 1;
+    osl_raiseSignal(OSL_SIGNAL_USER_TEST1, &aSetSigData);
+
+    fprintf(stdout, "    Before the signal nData == 0, after the signal nData == 2\n");
+    fprintf(stdout, "        Signal data set to %d.\n", aSigData.nData);
+
+    // add a second signal handler that increments the counter...
+    fprintf(stdout, "        Adding signal handler 2\n");
+    hHandler2 = osl_addSignalHandler(SignalHandlerFunc2, &aSigData);
+
+    aSigData.nData = 0;
+    fprintf(stdout, "        Signal data set to %d.\n", aSigData.nData);
+
+    osl_raiseSignal(OSL_SIGNAL_USER_TEST1, &aSetSigData);
+
+    fprintf(stdout, "        Signal data set to %d.\n", aSigData.nData);
+
+    fprintf(stdout, "    Remove signal handlers.\n");
+    osl_removeSignalHandler(hHandler1);
+    osl_removeSignalHandler(hHandler2);
+
+    return 0;
+}
+
+oslSignalAction SignalHandlerFunc1(void *pData, oslSignalInfo* pInfo)
+{
+    SignalData *pSignalData = reinterpret_cast< SignalData* >(pData);
+    SignalData *pPassedData = reinterpret_cast< SignalData* >(pInfo->UserData);
+
+    if (pInfo->Signal == osl_Signal_User)
+    {
+       switch (pInfo->UserSignal)
+       {
+           case OSL_SIGNAL_USER_TEST1:
+               fprintf(stdout, "        Signal handler 1 called...\n");
+               pSignalData->nData = pPassedData->nData;
+               break;
+       }
+    }
+
+    return osl_Signal_ActCallNextHdl;
+}
+
+oslSignalAction SignalHandlerFunc2(void* /* pData */, oslSignalInfo* pInfo)
+{
+    SignalData *pSignalData = reinterpret_cast< SignalData* >(pInfo->UserData);
+
+    if (pInfo->Signal == osl_Signal_User)
+    {
+       switch (pInfo->UserSignal)
+       {
+           case OSL_SIGNAL_USER_TEST1:
+               fprintf(stdout, "        Signal handler 2 called...\n");
+               pSignalData->nData++;
+               break;
+       }
+    }
+
+    return osl_Signal_ActCallNextHdl;
+}
+```
+
 ## Memory-mapped files
 
 Memory mapped files allow a file to be mapped into a process's virtual address space, and thus be manipulated and read as if reading memory. The benefits of such an approach are mainly that they allow large files to be processed more efficiently - instead of loading the entire file into memory, the file is loaded via the operating system's Virtual Memory Manager \(VMM\) - which means that the entire file does not need to be loaded into memory, but large portions of the file that are mapped to the virtual address space can be paged to disk. In terms of IPC, however, it also means that multiple processes can map independent portions of the file to a common region in the system's pagefile via the VMM, and thus share data between process boundaries.
