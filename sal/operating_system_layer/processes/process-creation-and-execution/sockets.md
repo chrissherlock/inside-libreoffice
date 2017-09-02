@@ -120,6 +120,43 @@ oslSocket SAL_CALL osl_createSocket(
 
 The main difference is in the way that it reports an error - Win32 doesn't really like `strerr()` and has it's own function for extracting the error message. Also, the whole concept of file descriptors doesn't really exist in Windows \(not to mention Windows handles children process differently to Unix\) so there is no need to set a close-on-exec option, as in the Unix version.
 
+## Socket addressing
+
+A server must bind an address to its socket. The following functions deal with host addressing:
+
+```cpp
+SAL_DLLPUBLIC oslHostAddr SAL_CALL osl_createHostAddr(rtl_uString *strHostname, const oslSocketAddr Addr);
+
+SAL_DLLPUBLIC oslHostAddr SAL_CALL osl_createHostAddrByName(rtl_uString *strHostname);
+
+SAL_DLLPUBLIC oslHostAddr SAL_CALL osl_createHostAddrByAddr(const oslSocketAddr Addr);
+
+SAL_DLLPUBLIC oslHostAddr SAL_CALL osl_copyHostAddr(const oslHostAddr Addr);
+
+SAL_DLLPUBLIC void SAL_CALL osl_destroyHostAddr(oslHostAddr Addr);
+
+SAL_DLLPUBLIC void SAL_CALL osl_getHostnameOfHostAddr(const oslHostAddr Addr, rtl_uString **strHostname);
+
+SAL_DLLPUBLIC oslSocketAddr SAL_CALL osl_getSocketAddrOfHostAddr(const oslHostAddr Addr);
+
+SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getLocalHostname(rtl_uString **strLocalHostname);
+
+SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getHostnameOfSocketAddr(oslSocketAddr Addr, rtl_uString **strHostname);
+
+SAL_DLLPUBLIC sal_Int32 SAL_CALL osl_getInetPortOfSocketAddr(oslSocketAddr Addr);
+
+SAL_DLLPUBLIC sal_Bool SAL_CALL osl_setInetPortOfSocketAddr(oslSocketAddr Addr, sal_Int32 Port);
+
+SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getDottedInetAddrOfSocketAddr(
+        oslSocketAddr Addr, rtl_uString **strDottedInetAddr);
+        
+SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_setAddrOfSocketAddr(oslSocketAddr Addr, sal_Sequence *pByteSeq);
+
+SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getAddrOfSocketAddr(oslSocketAddr Addr, sal_Sequence **ppByteSeq);
+```
+
+
+
 ## Example
 
 The following example is from [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LibreOffice git repository.
