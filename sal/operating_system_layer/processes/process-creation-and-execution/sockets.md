@@ -20,7 +20,7 @@ Once the remote server accepts the connection a channel between the server and c
 
 ## Socket creation
 
-A socket is created via the API function `osl_createSocket()` . A socket consists of a _family_, _type_ and _protocol. _The OSL supports the IP and IPX/SPX families \(though to be frank, IPX/SPX is obsolete\). The type of socket can be stream \(a connection-oriented, sequenced and unique flow of data\), datagram \(a connection-less point for data packets with well defined boundaries\), raw \(socket users aren't aware of encapsulating headers, so can process them directly\), RDM and sequenced packet. Each family has one or more protocols - currently OSL sockets support the IPv4 protocol.
+A socket is created via the API function `osl_createSocket()` . A socket consists of a _family_, _type_ and \_protocol. \_The OSL supports the IP and IPX/SPX families \(though to be frank, IPX/SPX is obsolete\). The type of socket can be stream \(a connection-oriented, sequenced and unique flow of data\), datagram \(a connection-less point for data packets with well defined boundaries\), raw \(socket users aren't aware of encapsulating headers, so can process them directly\), RDM and sequenced packet. Each family has one or more protocols - currently OSL sockets support the IPv4 protocol.
 
 Sockets are very similar between Unix and Windows, however sockets were introduced late in the Windows world, whilst sockets were invented on Unix. The Unix socket creation function is as follows:
 
@@ -73,9 +73,9 @@ oslSocket SAL_CALL osl_createSocket(
 }
 ```
 
-`createSocketImpl()` is actually just an initialization of the internal `oslSocket` structure. The creation of the actual socket is done via calling the `socket()` function, which returns the socket file descriptor. In the Unix version of creating a socket, we also set the close-on-exec flag via `fcntl()`. What this means is that if any forked children call on an exec function, then the socket file descriptor will be closed automatically, which prevents FD leaks from occurring. 
+`createSocketImpl()` is actually just an initialization of the internal `oslSocket` structure. The creation of the actual socket is done via calling the `socket()` function, which returns the socket file descriptor. In the Unix version of creating a socket, we also set the close-on-exec flag via `fcntl()`. What this means is that if any forked children call on an exec function, then the socket file descriptor will be closed automatically, which prevents FD leaks from occurring.
 
-The Windows version of osl\_createSocket\(\) is as follows:
+The Windows version of `osl_createSocket()` is as follows:
 
 ```cpp
 oslSocket SAL_CALL osl_createSocket(
@@ -118,7 +118,7 @@ oslSocket SAL_CALL osl_createSocket(
 }
 ```
 
-The main difference is in the way that it reports an error - Win32 doesn't really like `strerr()` and has it's own function for extracting the error message. Also, the whole concept of file descriptors doesn't really exist in Windows \(not to mention Windows handles children process differently to Unix\) so there is no need to set a close-on-exec option, as in the Unix version. 
+The main difference is in the way that it reports an error - Win32 doesn't really like `strerr()` and has it's own function for extracting the error message. Also, the whole concept of file descriptors doesn't really exist in Windows \(not to mention Windows handles children process differently to Unix\) so there is no need to set a close-on-exec option, as in the Unix version.
 
 ## Example
 
