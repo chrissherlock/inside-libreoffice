@@ -18,7 +18,109 @@ A client works as follows:
 
 Once the remote server accepts the connection a channel between the server and client is formed, and the client can similarly read and write data on this channel.
 
-### Example
+## Socket creation
+
+A socket is created via the API function `osl_createSocket()` . A socket consists of a _family_, _type_ and _protocol. _The OSL supports the IP and IPX/SPX families \(though to be frank, IPX/SPX is obsolete\). The type of socket can be stream \(a connection-oriented, sequenced and unique flow of data\), datagram \(a connection-less point for data packets with well defined boundaries\), raw \(socket users aren't aware of encapsulating headers, so can process them directly\), RDM and sequenced packet. Each family has one or more protocols - currently OSL sockets support the IPv4 protocol.
+
+Sockets are very similar between Unix and Windows, however sockets were introduced late in the Windows world, whilst sockets were invented on Unix. The Unix socket creation function is as follows:
+
+```cpp
+oslSocket SAL_CALL osl_createSocket(
+    oslAddrFamily Family,
+    oslSocketType Type,
+    oslProtocol Protocol)
+{
+    oslSocket pSocket;
+
+    /* alloc memory */
+    pSocket= createSocketImpl(OSL_INVALID_SOCKET);
+
+    /* create socket */
+    pSocket->m_Socket= socket(FAMILY_TO_NATIVE(Family),
+                                TYPE_TO_NATIVE(Type),
+                                PROTOCOL_TO_NATIVE(Protocol));
+
+    /* creation failed => free memory */
+    if(pSocket->m_Socket == OSL_INVALID_SOCKET)
+    {
+        int nErrno = errno;
+        SAL_WARN( "sal.osl", "socket creation failed: (" << nErrno << ") " << strerror(nErrno) );
+
+        destroySocketImpl(pSocket);
+        pSocket= nullptr;
+    }
+    else
+    {
+        sal_Int32 nFlags=0;
+        /* set close-on-exec flag */
+        if ((nFlags = fcntl(pSocket->m_Socket, F_GETFD, 0)) != -1)
+        {
+            nFlags |= FD_CLOEXEC;
+            if (fcntl(pSocket->m_Socket, F_SETFD, nFlags) == -1)
+            {
+                pSocket->m_nLastError=errno;
+                int nErrno = errno;
+                SAL_WARN( "sal.osl", "failed changing socket flags: (" << nErrno << ") " << strerror(nErrno) );
+            }
+        }
+        else
+        {
+            pSocket->m_nLastError=errno;
+        }
+    }
+
+    return pSocket;
+}
+```
+
+`createSocketImpl()` is actually just an initialization of the internal `oslSocket` structure. The creation of the actual socket is done via calling the `socket()` function, which returns the socket file descriptor. In the Unix version of creating a socket, we also set the close-on-exec flag via `fcntl()`. What this means is that if any forked children call on an exec function, then the socket file descriptor will be closed automatically, which prevents FD leaks from occurring. 
+
+The Windows version of osl\_createSocket\(\) is as follows:
+
+```cpp
+oslSocket SAL_CALL osl_createSocket(
+    oslAddrFamily Family,
+    oslSocketType Type,
+    oslProtocol Protocol)
+{
+    /* alloc memory */
+    oslSocket pSocket = createSocketImpl(0);
+
+    if (pSocket == nullptr)
+        return nullptr;
+
+    /* create socket */
+    pSocket->m_Socket = socket(FAMILY_TO_NATIVE(Family),
+                               TYPE_TO_NATIVE(Type),
+                               PROTOCOL_TO_NATIVE(Protocol));
+
+    /* creation failed => free memory */
+    if(pSocket->m_Socket == OSL_INVALID_SOCKET)
+    {
+        int nErrno = WSAGetLastError();
+        wchar_t *sErr = nullptr;
+        FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       nullptr, nErrno,
+                       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       reinterpret_cast<LPWSTR>(&sErr), 0, nullptr);
+        SAL_WARN("sal.osl", "socket creation failed: (" << nErrno << ") " << sErr);
+        LocalFree(sErr);
+
+        destroySocketImpl(pSocket);
+        pSocket = nullptr;
+    }
+    else
+    {
+        pSocket->m_Flags = 0;
+    }
+
+    return pSocket;
+}
+```
+
+The main difference is in the way that it reports an error - Win32 doesn't really like `strerr()` and has it's own function for extracting the error message. Also, the whole concept of file descriptors doesn't really exist in Windows \(not to mention Windows handles children process differently to Unix\) so there is no need to set a close-on-exec option, as in the Unix version. 
+
+## Example
 
 The following example is from [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LibreOffice git repository.
 
