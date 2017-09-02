@@ -149,13 +149,15 @@ SAL_DLLPUBLIC sal_Bool SAL_CALL osl_setInetPortOfSocketAddr(oslSocketAddr Addr, 
 
 SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getDottedInetAddrOfSocketAddr(
         oslSocketAddr Addr, rtl_uString **strDottedInetAddr);
-        
+
 SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_setAddrOfSocketAddr(oslSocketAddr Addr, sal_Sequence *pByteSeq);
 
 SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getAddrOfSocketAddr(oslSocketAddr Addr, sal_Sequence **ppByteSeq);
 ```
 
+## Binding, listening and connecting
 
+Once a socket address has been setup, it is then associated - or _bound_ - to the socket. 
 
 ## Example
 
