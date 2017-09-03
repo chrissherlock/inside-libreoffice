@@ -299,6 +299,139 @@ A few notes about this function: the way it works is the same as the `accept()` 
 
 Thus, the function loops while `accept()` errors out \(returns -1\) and `errno` is set to `EINTR`.
 
+From the client side, you connect to the server's listening socket. The OSL API function that does this is `osl_connectSocketTo()`. The Unix version is:
+
+```cpp
+oslSocketResult SAL_CALL osl_connectSocketTo(
+    oslSocket pSocket,
+    oslSocketAddr pAddr,
+    const TimeValue* pTimeout)
+{
+    SAL_WARN_IF(!pSocket, "sal.osl", "undefined socket");
+
+    if (!pSocket || !pAddr)
+        return osl_Socket_Error;
+
+    pSocket->m_nLastError=0;
+
+    if (osl_isNonBlockingMode(pSocket))
+    {
+        if (connect(pSocket->m_Socket,
+                    &(pAddr->m_sockaddr),
+                    sizeof(struct sockaddr)) != OSL_SOCKET_ERROR)
+        {
+            return osl_Socket_Ok;
+        }
+
+        if (errno == EWOULDBLOCK || errno == EINPROGRESS)
+        {
+            pSocket->m_nLastError = EINPROGRESS;
+            return osl_Socket_InProgress;
+        }
+
+        pSocket->m_nLastError = errno;
+        int nErrno = errno;
+        SAL_WARN("sal.osl", "connection failed: (" << nErrno << ") " << strerror(nErrno));
+        return osl_Socket_Error;
+    }
+
+    /* set socket temporarily to non-blocking */
+    if( !osl_enableNonBlockingMode(pSocket, true) )
+        SAL_WARN( "sal.osl", "failed to enable non-blocking mode" );
+
+    /* initiate connect */
+    if(connect(pSocket->m_Socket,
+               &(pAddr->m_sockaddr),
+               sizeof(struct sockaddr)) != OSL_SOCKET_ERROR)
+    {
+       /* immediate connection */
+        osl_enableNonBlockingMode(pSocket, false);
+
+        return osl_Socket_Ok;
+    }
+
+    /* really an error or just delayed? */
+    if (errno != EINPROGRESS)
+    {
+        pSocket->m_nLastError = errno;
+        int nErrno = errno;
+        SAL_WARN( "sal.osl", "connection failed: (" << nErrno << ") " << strerror(nErrno) );
+
+        osl_enableNonBlockingMode(pSocket, false);
+        return osl_Socket_Error;
+    }
+
+    /* prepare select set for socket  */
+    fd_set WriteSet;
+    fd_set ExcptSet;
+
+    FD_ZERO(&WriteSet);
+    FD_ZERO(&ExcptSet);
+    FD_SET(pSocket->m_Socket, &WriteSet);
+    FD_SET(pSocket->m_Socket, &ExcptSet);
+
+    /* prepare timeout */
+    struct timeval tv;
+
+    if (pTimeout)
+    {
+        /* divide milliseconds into seconds and microseconds */
+        tv.tv_sec=  pTimeout->Seconds;
+        tv.tv_usec= pTimeout->Nanosec / 1000L;
+    }
+
+    /* select */
+    oslSocketResult Result = osl_Socket_Ok;
+
+    int ReadyHandles = select(pSocket->m_Socket+1,
+                         nullptr,
+                         PTR_FD_SET(WriteSet),
+                         PTR_FD_SET(ExcptSet),
+                         (pTimeout) ? &tv : nullptr);
+
+    if (ReadyHandles > 0) /* connected */
+    {
+        if (FD_ISSET(pSocket->m_Socket, &WriteSet))
+        {
+            int nErrorCode = 0;
+            socklen_t nErrorSize = sizeof( nErrorCode );
+
+            int nSockOpt = getsockopt(pSocket->m_Socket, SOL_SOCKET, SO_ERROR,
+                                  &nErrorCode, &nErrorSize);
+
+            if (nSockOpt == 0 && nErrorCode == 0)
+                Result = osl_Socket_Ok;
+            else
+                Result = osl_Socket_Error;
+        }
+        else
+        {
+            Result= osl_Socket_Error;
+        }
+    }
+    else if (ReadyHandles < 0)  /* error */
+    {
+        if (errno == EBADF) /* most probably interrupted by close() */
+        {
+            /* do not access pSockImpl because it is about to be or */
+            /* already destroyed */
+            return osl_Socket_Interrupted;
+        }
+        pSocket->m_nLastError=errno;
+        Result= osl_Socket_Error;
+    }
+    else /* timeout */
+    {
+        pSocket->m_nLastError=errno;
+        Result= osl_Socket_TimedOut;
+    }
+
+    osl_enableNonBlockingMode(pSocket, false);
+
+    return Result;
+}
+```
+
 ## Example
 
 The following example is from [my private branch](https://cgit.freedesktop.org/libreoffice/core/log/?h=private/tbsdy/workbench) in the LibreOffice git repository.
