@@ -209,7 +209,6 @@ sal_Bool SAL_CALL osl_listenOnSocket(oslSocket pSocket, sal_Int32 MaxPendingConn
 Listen is nothing without accept\(\) however - `listen()` basically is a passive socket that waits for incoming connections, and `accept()` makes the listening socket _accept_ the next connection and returns a socket file descriptor for this connection. The function that accepts connections is `osl_acceptConnectionOnSocket()`theUnix version is:
 
 ```cpp
-
 oslSocket SAL_CALL osl_acceptConnectionOnSocket(oslSocket pSocket, oslSocketAddr* ppAddr)
 {
     struct sockaddr Addr;
@@ -298,7 +297,7 @@ A few notes about this function: the way it works is the same as the `accept()` 
 
 > On Linux, even in the absence of signal handlers, certain blocking interfaces can fail with the error EINTR after the process is stopped by one of the stop signals and then resumed via SIGCONT. This behavior is not sanctioned by POSIX.1, and doesn't occur on other systems.
 
-Thus, the function loops while accept errors out \(returns -1\) and `errno` is set to `EINTR`.
+Thus, the function loops while `accept()` errors out \(returns -1\) and `errno` is set to `EINTR`.
 
 ## Example
 
