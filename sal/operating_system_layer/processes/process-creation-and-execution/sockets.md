@@ -206,7 +206,7 @@ sal_Bool SAL_CALL osl_listenOnSocket(oslSocket pSocket, sal_Int32 MaxPendingConn
 }
 ```
 
-Listen is nothing without accept\(\) however - `listen()` basically is a passive socket that waits for incoming connections, and `accept()` makes the listening socket _accept_ the next connection and returns a socket file descriptor for this connection. The function that accepts connections is `osl_acceptConnectionOnSocket()`theUnix version is:
+Listen is nothing without accept\(\) however - `listen()` basically is a passive socket that waits for incoming connections, and `accept()` makes the listening socket _accept_ the next connection and returns a socket file descriptor for this connection. The function that accepts connections is `osl_acceptConnectionOnSocket()`the Unix version is:
 
 ```cpp
 oslSocket SAL_CALL osl_acceptConnectionOnSocket(oslSocket pSocket, oslSocketAddr* ppAddr)
