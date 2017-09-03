@@ -406,7 +406,7 @@ oslSocketResult SAL_CALL osl_connectSocketTo(
         }
         else
         {
-            Result= osl_Socket_Error;
+            Result = osl_Socket_Error;
         }
     }
     else if (ReadyHandles < 0)  /* error */
