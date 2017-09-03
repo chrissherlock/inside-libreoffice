@@ -157,7 +157,7 @@ SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getAddrOfSocketAddr(oslSocketAddr Add
 
 ## Binding, listening and connecting
 
-Once a socket address has been setup, it is then associated - or _bound_ - to the socket. The OSL function that does this is `osl_bindAddrToSocket()`which just wraps around a the `bind` function call. The Unix version is virtually the same as the Win32 version, which is implemented as so: 
+Once a socket address has been setup, it is then associated - or _bound_ - to the socket. The OSL function that does this is `osl_bindAddrToSocket()`which just wraps around a the `bind` function call. The Unix version is virtually the same as the Win32 version, which is implemented as so:
 
 ```cpp
 sal_Bool SAL_CALL osl_bindAddrToSocket(oslSocket pSocket, oslSocketAddr pAddr)
@@ -182,6 +182,123 @@ sal_Bool SAL_CALL osl_bindAddrToSocket(oslSocket pSocket, oslSocketAddr pAddr)
     return true;
 }
 ```
+
+A server _listens_ on its socket for incoming connections. The function that handles this is `osl_listenOnSocket()` \(also virtually the same between Unix and Win32\):
+
+```cpp
+sal_Bool SAL_CALL osl_listenOnSocket(oslSocket pSocket, sal_Int32 MaxPendingConnections)
+{
+    SAL_WARN_IF(!pSocket, "sal.osl", "undefined socket");
+    if (!pSocket)
+        return false;
+
+    pSocket->m_nLastError=0;
+
+    int nRet = listen(pSocket->m_Socket,
+                  MaxPendingConnections == -1 ? SOMAXCONN : MaxPendingConnections);
+    if (nRet == OSL_SOCKET_ERROR)
+    {
+        pSocket->m_nLastError=errno;
+        return false;
+    }
+
+    return true;
+}
+```
+
+Listen is nothing without accept\(\) however - `listen()` basically is a passive socket that waits for incoming connections, and `accept()` makes the listening socket _accept_ the next connection and returns a socket file descriptor for this connection. The function that accepts connections is `osl_acceptConnectionOnSocket()`theUnix version is:
+
+```cpp
+
+oslSocket SAL_CALL osl_acceptConnectionOnSocket(oslSocket pSocket, oslSocketAddr* ppAddr)
+{
+    struct sockaddr Addr;
+    int Connection;
+    oslSocket pConnectionSockImpl;
+
+    SAL_WARN_IF(!pSocket, "sal.osl", "undefined socket");
+    if (!pSocket)
+        return nullptr;
+
+    pSocket->m_nLastError = 0;
+#if defined(CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT)
+    pSocket->m_bIsAccepting = true;
+#endif /* CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT */
+
+    if (ppAddr && *ppAddr)
+    {
+        osl_destroySocketAddr(*ppAddr);
+        *ppAddr = nullptr;
+    }
+
+    /* prevent Linux EINTR behaviour */
+    socklen_t AddrLen = sizeof(struct sockaddr);
+
+    do
+    {
+        Connection = accept(pSocket->m_Socket, &Addr, &AddrLen);
+    } while (Connection == -1 && errno == EINTR);
+
+    /* accept failed? */
+    if (Connection == OSL_SOCKET_ERROR)
+    {
+        pSocket->m_nLastError=errno;
+        int nErrno = errno;
+        SAL_WARN( "sal.osl", "accept connection failed: (" << nErrno << ") " << strerror(nErrno) );
+
+#if defined(CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT)
+        pSocket->m_bIsAccepting = false;
+#endif /* CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT */
+        return nullptr;
+    }
+
+    assert(AddrLen == sizeof(struct sockaddr));
+
+#if defined(CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT)
+    if (pSocket->m_bIsInShutdown)
+    {
+        close(Connection);
+        SAL_WARN( "sal.osl", "close while accept" );
+        return nullptr;
+    }
+#endif /* CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT */
+
+    if (ppAddr)
+        *ppAddr = createSocketAddrFromSystem(&Addr);
+
+    /* alloc memory */
+    pConnectionSockImpl = createSocketImpl(OSL_INVALID_SOCKET);
+
+    /* set close-on-exec flag */
+    int Flags = fcntl(Connection, F_GETFD, 0);
+    if (Flags != -1)
+    {
+        Flags |= FD_CLOEXEC;
+        if (fcntl(Connection, F_SETFD, Flags) == -1)
+        {
+            pSocket->m_nLastError=errno;
+            int nErrno = errno;
+            SAL_WARN( "sal.osl", "failed changing socket flags: (" << nErrno << ") " << strerror(nErrno) );
+        }
+
+    }
+
+    pConnectionSockImpl->m_Socket = Connection;
+    pConnectionSockImpl->m_nLastError = 0;
+#if defined(CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT)
+    pConnectionSockImpl->m_bIsAccepting = false;
+
+    pSocket->m_bIsAccepting = false;
+#endif /* CLOSESOCKET_DOESNT_WAKE_UP_ACCEPT */
+    return pConnectionSockImpl;
+}
+```
+
+A few notes about this function: the way it works is the same as the `accept()` function - you pass the listening socket to the function and the new connecting address is populated into the `ppAddr` output parameter if the address is not null. The Unix version also sets close-on-exec on the socket. However, a special consideration needs to be made for Linux - [as the man page states](https://linux.die.net/man/7/signal):
+
+> On Linux, even in the absence of signal handlers, certain blocking interfaces can fail with the error EINTR after the process is stopped by one of the stop signals and then resumed via SIGCONT. This behavior is not sanctioned by POSIX.1, and doesn't occur on other systems.
+
+Thus, the function loops while accept errors out \(returns -1\) and `errno` is set to `EINTR`.
 
 ## Example
 
