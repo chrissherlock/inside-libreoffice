@@ -157,7 +157,31 @@ SAL_DLLPUBLIC oslSocketResult SAL_CALL osl_getAddrOfSocketAddr(oslSocketAddr Add
 
 ## Binding, listening and connecting
 
-Once a socket address has been setup, it is then associated - or _bound_ - to the socket. 
+Once a socket address has been setup, it is then associated - or _bound_ - to the socket. The OSL function that does this is `osl_bindAddrToSocket()`which just wraps around a the `bind` function call. The Unix version is virtually the same as the Win32 version, which is implemented as so: 
+
+```cpp
+sal_Bool SAL_CALL osl_bindAddrToSocket(oslSocket pSocket, oslSocketAddr pAddr)
+{
+    SAL_WARN_IF(!pSocket, "sal.osl", "undefined socket");
+    SAL_WARN_IF(!pAddr, "sal.osl", "undefined address");
+    if (!pSocket || pAddr )
+    {
+        return false;
+    }
+
+    pSocket->m_nLastError=0;
+
+    int nRet = bind(pSocket->m_Socket, &(pAddr->m_sockaddr), sizeof(struct sockaddr));
+
+    if (nRet == OSL_SOCKET_ERROR)
+    {
+        pSocket->m_nLastError=errno;
+        return false;
+    }
+
+    return true;
+}
+```
 
 ## Example
 
