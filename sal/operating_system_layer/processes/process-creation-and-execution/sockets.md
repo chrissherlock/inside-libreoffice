@@ -394,7 +394,7 @@ oslSocketResult SAL_CALL osl_connectSocketTo(
         if (FD_ISSET(pSocket->m_Socket, &WriteSet))
         {
             int nErrorCode = 0;
-            socklen_t nErrorSize = sizeof( nErrorCode );
+            socklen_t nErrorSize = sizeof(nErrorCode);
 
             int nSockOpt = getsockopt(pSocket->m_Socket, SOL_SOCKET, SO_ERROR,
                                   &nErrorCode, &nErrorSize);
