@@ -21,5 +21,7 @@ Modules:
 
 * **cppu** - stands for C++ UNO, and contains the definitions and implementations for binary UNO.
 
+* **cppuhelper** - helpers for using cppu in C++, e.g. templates for implementing UNO components, bootstrapping
+
 
 
