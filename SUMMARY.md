@@ -23,6 +23,7 @@
   * Universal Content Broker
 * [Graphics](graphics.md)
   * [Tools](tools.md)
+  * basegfx
 * [VCL](vcl.md)
 * [Miscellaneous odds and ends](miscellaneous-odds-and-ends.md)
 
