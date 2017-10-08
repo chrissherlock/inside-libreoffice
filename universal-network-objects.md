@@ -23,5 +23,7 @@ Modules:
 
 * **cppuhelper** - helpers for using cppu in C++, e.g. templates for implementing UNO components, bootstrapping
 
+* **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](http://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale (Language, Country, Variant) and MS-LangIDs.
+
 
 
