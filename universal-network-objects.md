@@ -7,7 +7,7 @@ UNO is a component model that allows LibreOffice to create objects that can comm
 
 
 
-Modules:
+## Modules
 
 * **store** - legacy .rdb (resource database) format, handled services and types but service definitions are now replaced with XML files, and types replaced with unoidl format
 
@@ -25,5 +25,6 @@ Modules:
 
 * **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](http://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale (Language, Country, Variant) and MS-LangIDs.
 
+* **jvmfwk** - Wrappers so you can use all the Java Runtime Environments with their slightly incompatible APIs with more ease
 
 
