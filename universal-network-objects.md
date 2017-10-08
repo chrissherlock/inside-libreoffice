@@ -2,7 +2,7 @@
 
 UNO is a component model that allows LibreOffice to create objects that can communicate between processes, and across network boundaries. It is similar in many ways to COM+, Corba and Mozilla's XPCOM technologies. Each object that is created is operated on via _interfaces_ from a _service_. An interface describes one aspect of an object, however each object might have a variety of aspects to its functionality. Thus the concept of a service must be introduced - basically it specifies the object's functionality via multiple services. The object then inherits the service, which it must then concretely implement. 
 
-<span style="align: center">
+<span style="text-align: center">
 ![Services](/assets/RelationshipSpecImpl.png)<br>**Figure: Services in LibreOffice** <br>Source: [OpenOffice](https://wiki.openoffice.org/wiki/File:RelationshipSpecImpl.png), License: ALv2</span>
 
 
