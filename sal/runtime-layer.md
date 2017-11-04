@@ -15,7 +15,7 @@ The location of the bootstrap files is:
 
 Once the bootstrap filename is set, you must open the file via `rtlbootstrapargsopen()` and to close it you use `rtlbootstrapargsclose()` The open function returns a handle to the bootstrap settings file. To get the ini file you call on `rtl_bootstrap_get_iniNamefrom_handle()`
 
-To get the value of a setting, you call `rtl`_`bootstrap`_`get()` and to set a value, you call `rtl_bootstrap_set()`
+To get the value of a setting, you call `rtl_bootstrap_get()`and to set a value, you call `rtl_bootstrap_set()`
 
 ## Process and library management
 
