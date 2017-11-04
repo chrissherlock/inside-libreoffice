@@ -1,10 +1,21 @@
 # Runtime Layer
 
-TODO: intro
+The runtime layer \(RTL\) provides a interface for platform independent functionality. The library implements memory management, handles strings, locales, processes and object lifecycle management, amongst other things. 
 
 ## Bootstrapping
 
-TODO: bootstrap.h, bootstrap.hxx
+When LibreOffice loads, it must read a config file. RTL contains code that bootstraps the configuration from a config file. The ini file is set via the function `rtl`_`bootstrapset`_`InitFileName()` This function must be called before getting individual bootstrap settings. 
+
+The location of the bootstrap files is:
+
+* `%APPDATA%\libreoffice\4\user` \(Windows\)
+* `/home/<user name>/.config/libreoffice/4/user` \(Linux\)
+* `~/Library/Application Support/LibreOffice/4/user` \(macOS\)
+* `/assets/rc` \(Android, in the app's .apk archive\)
+
+Once the bootstrap filename is set, you must open the file via `rtl`_`bootstrap`_`args`_`open()`_ and to close it you use _`rtlbootstrapargsclose()`_ The open function returns a handle to the bootstrap settings file. To get the ini file you call on _`rtl_bootstrap_get_iniName`_`from_handle()` 
+
+To get the value of a setting, you call `rtl`_`bootstrap`_`get()` and to set a value, you call `rtl`_`bootstrap_`_`set()`  
 
 ## Process and library management
 
@@ -37,3 +48,4 @@ TODO: uri.h, uri.hxx
 ## UUIDs, Ciphers, digests, CRCs and random generator
 
 TODO: uuid.h, cipher.h, crc.h, digest.h, random.h
+
