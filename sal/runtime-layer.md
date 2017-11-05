@@ -15,7 +15,31 @@ The location of the bootstrap files is:
 
 Once the bootstrap filename is set, you must open the file via `rtl_bootstrap_args_open()` and to close it you use `rtl_bootstrap_args_close()`  The open function returns a handle to the bootstrap settings file. To get the ini file you call on `rtl_bootstrap_get_iniNamefrom_handle()`
 
-To get the value of a setting, you call `rtl_bootstrap_get()`and to set a value, you call `rtl_bootstrap_set()`
+To get the value of a setting, you call `rtl_bootstrap_get()`and to set a value you call `rtl_bootstrap_set().`
+
+Note that the bootstrap code allows for macro expansion. Basically, the value can contain a macro that will be expanded - the syntax is `${file:key}`, where file is the ini file, and key is the value to be looked up in the ini file. In fact, it also handles nested macros, so you can have `${file:${file:key}}` or `${${file:key}:${file:key}}` or even \(if you are insane\) `${${file:${file:key}}:${file:${file:${file:key}}}}`. 
+
+When the key is looked up via `Bootstrap_Impl::getValue()`, there are some special hardcoded values. They are:
+
+* `_OS`
+* `_ARCH`
+* `CPPU_ENV`
+* `APP_DATA_DIR` \(for both Android and iOS\)
+* `ORIGIN` \(gets the path to the ini file\)
+
+There is also a few system defined variables that can be overridden by an environment variable or from the command line \(the function name is rather confusingly called `getAmbienceValue()`...\). These are:
+
+* `SYSUSERCONFIG`
+* `SYSUSERHOME`
+* `SYSBINDIR`
+
+_All_ of these values can be overriden, however, by using the syntax `${.override:file:value}`
+
+There is a final macro expansion that falls back to an `osl::Profile` lookup - the syntax for this is `${key}`. However, this does _not_ allow for expanding macros, so you can't do something like `${${file:key}}`. A [comment in the code](https://opengrok.libreoffice.org/xref/core/sal/rtl/bootstrap.cxx#991-994) actually states that it:
+
+> ..erroneously does not recursively expand macros in the resulting replacement text \(and if it did, it would fail to detect cycles that pass through here\)
+
+Finally, if no value can be found, the `Bootstrap_Impl::getValue()` allows for a default value to be optionally specified. 
 
 ## Process and library management
 
