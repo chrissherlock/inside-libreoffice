@@ -13,7 +13,7 @@ The location of the bootstrap files is:
 * `~/Library/Application Support/LibreOffice/4/user` \(macOS\)
 * `/assets/rc` \(Android, in the app's .apk archive\)
 
-Once the bootstrap filename is set, you must open the file via `rtl_bootstrap`_`args`_`open()` and to close it you use `rtlbootstrapargsclose()` The open function returns a handle to the bootstrap settings file. To get the ini file you call on `rtl_bootstrap_get_iniNamefrom_handle()`
+Once the bootstrap filename is set, you must open the file via `rtl_bootstrap_args_open()` and to close it you use `rtl_bootstrap_args_close()`  The open function returns a handle to the bootstrap settings file. To get the ini file you call on `rtl_bootstrap_get_iniNamefrom_handle()`
 
 To get the value of a setting, you call `rtl_bootstrap_get()`and to set a value, you call `rtl_bootstrap_set()`
 
