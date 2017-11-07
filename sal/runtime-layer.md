@@ -4,7 +4,7 @@ The runtime layer \(RTL\) provides a interface for platform independent function
 
 ## Bootstrapping
 
-When LibreOffice loads, it must read a config file. RTL contains code that bootstraps the configuration from a config file. The ini file is set via the function `rtlbootstrapsetInitFileName()` This function must be called before getting individual bootstrap settings.
+When LibreOffice loads, it must read a config file. RTL contains code that bootstraps the configuration from a config file. This code is found in [sal/rtl/bootstrap.cxx](https://opengrok.libreoffice.org/xref/core/sal/rtl/bootstrap.cxx) The ini file is set via the function `rtl_bootstrap_set_InitFileName()` This function must be called before getting individual bootstrap settings.
 
 The location of the bootstrap files is:
 
@@ -17,7 +17,7 @@ Once the bootstrap filename is set, you must open the file via `rtl_bootstrap_ar
 
 To get the value of a setting, you call `rtl_bootstrap_get()`and to set a value you call `rtl_bootstrap_set().`
 
-Note that the bootstrap code allows for macro expansion. Basically, the value can contain a macro that will be expanded - the syntax is `${file:key}`, where file is the ini file, and key is the value to be looked up in the ini file. In fact, it also handles nested macros, so you can have `${file:${file:key}}` or `${${file:key}:${file:key}}` or even \(if you are insane\) `${${file:${file:key}}:${file:${file:${file:key}}}}`. 
+Note that the bootstrap code allows for macro expansion \(in `Bootstrap_Impl::expandValue()` and `Bootstrap_Impl::expandMacros()`\). Basically, the key and/or value can contain a macro that will be expanded - the syntax is `${file:key}`, where file is the ini file, and key is the value to be looked up in the ini file. In fact, it also handles nested macros, so you can have `${file:${file:key}}` or `${${file:key}:${file:key}}` or even \(if you are insane\) `${${file:${file:key}}:${file:${file:${file:key}}}}`.
 
 When the key is looked up via `Bootstrap_Impl::getValue()`, there are some special hardcoded values. They are:
 
@@ -39,7 +39,7 @@ There is a final macro expansion that falls back to an `osl::Profile` lookup - t
 
 > ..erroneously does not recursively expand macros in the resulting replacement text \(and if it did, it would fail to detect cycles that pass through here\)
 
-Finally, if no value can be found, the `Bootstrap_Impl::getValue()` allows for a default value to be optionally specified. 
+Finally, if no value can be found, the `Bootstrap_Impl::getValue()` allows for a default value to be optionally specified.
 
 ## Process and library management
 
