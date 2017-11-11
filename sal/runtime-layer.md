@@ -41,6 +41,8 @@ There is a final macro expansion that falls back to an `osl::Profile` lookup - t
 
 Finally, if no value can be found, the `Bootstrap_Impl::getValue()` allows for a default value to be optionally specified.
 
+Note that the unit tests for this were never converted, and removed in the [following commit](https://cgit.freedesktop.org/libreoffice/core/commit/?id=18cc5cb2fdb8bca18a6c55d0a165b749f6730420).
+
 ## Process and library management
 
 TODO: process.h - how this difference from process management in OSL, why it is needed, etc; unload.h
