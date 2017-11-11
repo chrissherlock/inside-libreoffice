@@ -27,7 +27,7 @@ When the key is looked up via `Bootstrap_Impl::getValue()`, there are some speci
 * `APP_DATA_DIR` \(for both Android and iOS\)
 * `ORIGIN` \(gets the path to the ini file\)
 
-There is also a few system defined variables that can be overridden by an environment variable or from the command line \(the function name is rather confusingly called `getAmbienceValue()`...\). These are:
+There is also a few system defined variables that can be overridden by an environment variable or from the command line via the `-env:` switch \(the function name is rather confusingly called `getAmbienceValue()`...\). These are:
 
 * `SYSUSERCONFIG`
 * `SYSUSERHOME`
