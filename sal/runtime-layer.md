@@ -45,7 +45,7 @@ Note that the unit tests for this were never converted, and removed in the [foll
 
 ## Process and library management
 
-TODO: process.h - how this difference from process management in OSL, why it is needed, etc; unload.h
+The RTL functions for processes get the process ID and command line arguments. They differ subtly from the OSL functions. `rtl_getProcessID()`_ _gets a UUID that represents the process ID, but does not use the Ethernet address. `rtl_getAppCommandArg()` and `rtl_getAppCommandArgCount()`_ _gets the command line arguments, but ignores the ones set by -env. 
 
 ## Object lifecycle management
 
