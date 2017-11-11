@@ -37,7 +37,7 @@ _All_ of these values can be overriden, however, by using the syntax `${.overrid
 
 There is a final macro expansion that falls back to an `osl::Profile` lookup - the syntax for this is `${key}`. However, this does _not_ allow for expanding macros, so you can't do something like `${${file:key}}`. A [comment in the code](https://opengrok.libreoffice.org/xref/core/sal/rtl/bootstrap.cxx#991-994) actually states that it:
 
-> ..erroneously does not recursively expand macros in the resulting replacement text \(and if it did, it would fail to detect cycles that pass through here\)
+> ...erroneously does not recursively expand macros in the resulting replacement text \(and if it did, it would fail to detect cycles that pass through here\)
 
 Finally, if no value can be found, the `Bootstrap_Impl::getValue()` allows for a default value to be optionally specified.
 
