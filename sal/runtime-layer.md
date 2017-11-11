@@ -45,9 +45,26 @@ Note that the unit tests for this were never converted, and removed in the [foll
 
 ## Process and library management
 
-The RTL functions for processes get the process ID and command line arguments. They differ subtly from the OSL functions. `rtl_getProcessID()`_ _gets a UUID that represents the process ID,_ _but does not use the Ethernet address. `rtl_getAppCommandArg()` and `rtl_getAppCommandArgCount()` gets the command line arguments, but ignores the ones set by `-env:`
+The RTL functions for processes get the process ID and command line arguments. They differ subtly from the OSL functions. `rtl_getProcessID()`_ \_gets a UUID that represents the process ID,_ \_but does not use the Ethernet address. `rtl_getAppCommandArg()` and `rtl_getAppCommandArgCount()` gets the command line arguments, but ignores the ones set by `-env:`
 
 ## Object lifecycle management
+
+RTL implements its own shared pointer via the `Reference` class. It is largely equivalent to `std::shared_ptr`, using reference counting to own a pointer, but is less fully featured. The functions are defined in `include/rtl/ref.hxx`
+
+| rtl::Reference | std::shared\_ptr |
+| :--- | :--- |
+| template &lt;class reference\_type&gt; Reference\(reference\_type\*\); | shared\_ptr &lt;class U&gt; shared\_ptr\(U\*\); |
+| Reference&lt;reference\_type&gt; operator= &\(reference\_type\*\); | shared\_ptr& operator= \(const shared\_ptr&\) noexcept; |
+| Reference&lt;reference\_type&gt;& set\(reference\_type\*\); | shared\_ptr& operator= \(const shared\_ptr&\) noexcept; |
+| reference\_type\* get\(\) const; | element\_type\* get\(\) const noexcept; |
+| reference\_type& operator\* \(\) const; | element\_type& operator\* \(\) const noexcept; |
+| reference\_type\* operator-&gt; \(\) const; | element\_type\* operator-&gt; \(\) const noexcept; |
+| Reference&lt;reference\_type&gt;& clear\(\); | template&lt;class U&gt; void reset\(U\*\); |
+| same relational operators | same relational operators |
+| bool is\(\) const; | operator bool\(\) const noexcept; |
+| no equivalent swap\(\) function | void swap\(shared\_ptr&\) noexcept; |
+| no equivalent use\_count\(\) function | long int use\_count\(\) const noexcept; |
+| no equivalent unique\(\) function | bool unique\(\) const noexcept; |
 
 TODO: ref.hxx, instance.hxx
 
