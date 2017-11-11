@@ -66,7 +66,7 @@ RTL implements its own shared pointer via the `Reference` class. It is largely e
 | no equivalent use\_count\(\) function | long int use\_count\(\) const noexcept; |
 | no equivalent unique\(\) function | bool unique\(\) const noexcept; |
 
-TODO: ref.hxx, instance.hxx
+For a singleton class that uses [double-checked locking](http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html). the class `rtl::Instance` can be used. 
 
 ## Memory management
 
