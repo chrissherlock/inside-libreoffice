@@ -57,5 +57,10 @@ The SAL module obviously covers a lot of ground. It is very useful to know where
 
 * [Bartlomiej Filipek](https://www.gitbook.com/book/chrissherlock1/inside-libreoffice/edit#), ["Custom deleters for c++ smart pointers"](http://www.bfilipek.com/2016/04/custom-deleters-for-c-smart-pointers.html). _Bartek's coding blog_.
 
+## Double-checked locking
+
+* Wikipedia contributors, ["Double-checked locking"](https://en.wikipedia.org/wiki/Double-checked_locking). _Wikipedia, The Free Encyclopedia_ 
+* David Bacon, Joshua Bloch, Jeff Bogda, Cliff Click, Paul Haahr, Doug Lea, Tom May, Jan-Willem Maessen, Jeremy Manson, John D. Mitchell, Kelvin Nilsen, Bill Pugh, Emin Gun Sirer, ["The "Double-Checked Locking is Broken" Declaration"](http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html), _University of Maryland_.
+
 
 
