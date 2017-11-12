@@ -61,7 +61,7 @@ RTL implements its own shared pointer via the `Reference` class. It is largely e
 | ```reference_type* operator-> () const;``` | ```element_type* operator-> () const noexcept;``` |
 | ```Reference<reference_type>& clear();``` | ```template<class U> void reset(U*);``` |
 | same relational operators | same relational operators |
-| ```bool is() const;``` | ```operator bool() const noexcept;``` |
+| ```operator bool is() const;``` | ```operator bool() const noexcept;``` |
 | no equivalent ```swap()``` function | ```void swap(shared_ptr&) noexcept;``` |
 | no equivalent ```use_count()``` function | ```long int use_count() const noexcept;``` |
 | no equivalent ```unique()``` function | ```bool unique() const noexcept;``` |
