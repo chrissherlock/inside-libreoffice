@@ -1,6 +1,9 @@
 # System Abstraction Layer
 
+
 The System Abstraction Layer \(SAL\) contains all the modules that contain code that is platform specific and necessary to run LibreOffice. There are really a number of modules that fall into this layer - the Runtime Library \(RTL\) and the Operating System Layer \(OSL\) are wholly included in the SAL, whilst the Visual Components Library has parts that fall into the SAL. However, it also includes a grabbag of other classes and code that don't easily fit into these modules, and includes a lightweight debug logging framework, a macro to allow for a cross-platform program entry point, some floating point support routines and macros, a cross platform type system and a number of macros that provide a way in which to support a variety of compilers, including ones that only really support C++03.
+
+![](/assets/sal.svg)
 
 The header files for the SAL module are distributed amongst the following directories:
 
