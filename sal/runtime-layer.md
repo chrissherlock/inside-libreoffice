@@ -51,20 +51,20 @@ The RTL functions for processes get the process ID and command line arguments. T
 
 RTL implements its own shared pointer via the `Reference` class. It is largely equivalent to `std::shared_ptr`, using reference counting to own a pointer, but is less fully featured. The functions are defined in `include/rtl/ref.hxx`
 
-| ```rtl::Reference``` | ```std::shared_ptr``` |
+| `rtl::Reference` | `std::shared_ptr` |
 | :--- | :--- |
-| ```template <class reference_type> Reference(reference_type*);``` | ```shared_ptr <class U> shared_ptr(U*);``` |
-| ```Reference<reference_type> operator= &(reference_type*);``` | ```shared_ptr& operator= (const shared_ptr&) noexcept;``` |
-| ```Reference<reference_type>& set(reference_type*);``` | ```shared_ptr& operator= (const shared_ptr&) noexcept;``` |
-| ```reference_type* get() const;``` | ```element_type* get() const noexcept;``` |
-| ```reference_type& operator* () const;``` | ```element_type& operator* () const noexcept;``` |
-| ```reference_type* operator-> () const;``` | ```element_type* operator-> () const noexcept;``` |
-| ```Reference<reference_type>& clear();``` | ```template<class U> void reset(U*);``` |
+| `template <class reference_type> Reference(reference_type*);` | `shared_ptr <class U> shared_ptr(U*);` |
+| `Reference<reference_type> operator= &(reference_type*);` | `shared_ptr& operator= (const shared_ptr&) noexcept;` |
+| `Reference<reference_type>& set(reference_type*);` | `shared_ptr& operator= (const shared_ptr&) noexcept;` |
+| `reference_type* get() const;` | `element_type* get() const noexcept;` |
+| `reference_type& operator* () const;` | `element_type& operator* () const noexcept;` |
+| `reference_type* operator-> () const;` | `element_type* operator-> () const noexcept;` |
+| `Reference<reference_type>& clear();` | `template<class U> void reset(U*);` |
 | same relational operators | same relational operators |
-| ```operator bool is() const;``` | ```operator bool() const noexcept;``` |
-| no equivalent ```swap()``` function | ```void swap(shared_ptr&) noexcept;``` |
-| no equivalent ```use_count()``` function | ```long int use_count() const noexcept;``` |
-| no equivalent ```unique()``` function | ```bool unique() const noexcept;``` |
+| `bool is() const;` | `operator bool() const noexcept;` |
+| no equivalent `swap()` function | `void swap(shared_ptr&) noexcept;` |
+| no equivalent `use_count()` function | `long int use_count() const noexcept;` |
+| no equivalent `unique()` function | `bool unique() const noexcept;` |
 
 For a singleton class that uses [double-checked locking](http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html), the class `rtl::Instance` can be used.
 
