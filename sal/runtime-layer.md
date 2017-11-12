@@ -51,7 +51,7 @@ The RTL functions for processes get the process ID and command line arguments. T
 
 RTL implements its own shared pointer via the `Reference` class. It is largely equivalent to `std::shared_ptr`, using reference counting to own a pointer, but is less fully featured. The functions are defined in `include/rtl/ref.hxx`
 
-| **`rtl::Reference`** | **`std::shared_ptr`** |
+| **rtl::Reference** | **std::shared_ptr** |
 | :--- | :--- |
 | `template <class reference_type> Reference(reference_type*);` | `shared_ptr <class U> shared_ptr(U*);` |
 | `Reference<reference_type> operator= &(reference_type*);` | `shared_ptr& operator= (const shared_ptr&) noexcept;` |
