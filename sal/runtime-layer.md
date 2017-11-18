@@ -70,17 +70,17 @@ For a singleton class that uses [double-checked locking](http://www.cs.umd.edu/~
 
 ## Memory management
 
-RTl handles memory allocation. There are two memory allocators - one that uses the standard malloc-based allocator of the system, and a custom allocator that is based around [memory arenas](https://en.wikipedia.org/wiki/Region-based_memory_management). 
+RTl handles memory allocation. There are two memory allocators - one that uses the standard malloc-based allocator of the system, and a custom allocator that is based around [memory arenas](https://en.wikipedia.org/wiki/Region-based_memory_management).
 
 The standard, malloc-based allocator uses the following functions:
 
 | Function name | Allocator |
 | :--- | :--- |
-| rtl\_allocateMemory\(sal\_Size Bytes\) | malloc\(size\_t bytes\) |
-| rtl\_reallocateMemory\(void \*p, sal\_Size Bytes\) | realloc\(void \*p, size\_t bytes\) |
-| rtl\_freeMemory\(void \*p\) | free\(void \*p\) |
+| `rtl_allocateMemory(sal_Size Bytes)` | `malloc(size_t bytes)` |
+| `rtl_reallocateMemory(void *p, sal_Size Bytes)` | `realloc(void *p, size_t bytes)` |
+| `rtl_freeMemory(void *p)` | `free(void *p)` |
 
-There are a few additional functions that build on these. rtl\_allocateZeroMemory allocates memory, but uses memset to zero out that memory via memset. rtl\_secureZeroMemory fills a block of memory with zeroes in a way that is guaranteed to be secure \(for Unix it is implemented casting the pointer to a volatile char pointer, then it zeroes out each byte in a loop - the volatile pointer ensures that the compiler will not optimize this away. rtl\_secureZeroMemory and rtl\_freeZeroMemory do similar things. 
+There are a few additional functions that build on these. `rtl_allocateZeroMemory` allocates memory, but uses `memset` to zero out that memory via `memset`. `rtl_secureZeroMemory` fills a block of memory with zeroes in a way that is guaranteed to be secure \(for Unix it is implemented casting the pointer to a volatile char pointer, then it zeroes out each byte in a loop - the volatile pointer ensures that the compiler will not optimize this away. `rtl_secureZeroMemory` and `rtl_freeZeroMemory` do similar things.
 
 ## Byte sequences
 
