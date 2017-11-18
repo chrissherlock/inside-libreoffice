@@ -51,7 +51,7 @@ The RTL functions for processes get the process ID and command line arguments. T
 
 RTL implements its own shared pointer via the `Reference` class. It is largely equivalent to `std::shared_ptr`, using reference counting to own a pointer, but is less fully featured. The functions are defined in `include/rtl/ref.hxx`
 
-| **rtl::Reference** | **std::shared_ptr** |
+| **rtl::Reference** | **std::shared\_ptr** |
 | :--- | :--- |
 | `template <class reference_type> Reference(reference_type*);` | `shared_ptr <class U> shared_ptr(U*);` |
 | `Reference<reference_type> operator= &(reference_type*);` | `shared_ptr& operator= (const shared_ptr&) noexcept;` |
@@ -70,7 +70,17 @@ For a singleton class that uses [double-checked locking](http://www.cs.umd.edu/~
 
 ## Memory management
 
-TODO: alloc.h
+RTl handles memory allocation. There are two memory allocators - one that uses the standard malloc-based allocator of the system, and a custom allocator that is based around [memory arenas](https://en.wikipedia.org/wiki/Region-based_memory_management). 
+
+The standard, malloc-based allocator uses the following functions:
+
+| Function name | Allocator |
+| :--- | :--- |
+| rtl\_allocateMemory\(sal\_Size Bytes\) | malloc\(size\_t bytes\) |
+| rtl\_reallocateMemory\(void \*p, sal\_Size Bytes\) | realloc\(void \*p, size\_t bytes\) |
+| rtl\_freeMemory\(void \*p\) | free\(void \*p\) |
+
+There are a few additional functions that build on these. rtl\_allocateZeroMemory allocates memory, but uses memset to zero out that memory via memset. rtl\_secureZeroMemory fills a block of memory with zeroes in a way that is guaranteed to be secure \(for Unix it is implemented casting the pointer to a volatile char pointer, then it zeroes out each byte in a loop - the volatile pointer ensures that the compiler will not optimize this away. rtl\_secureZeroMemory and rtl\_freeZeroMemory do similar things. 
 
 ## Byte sequences
 
