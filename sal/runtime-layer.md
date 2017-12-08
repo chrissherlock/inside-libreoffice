@@ -70,7 +70,7 @@ For a singleton class that uses [double-checked locking](http://www.cs.umd.edu/~
 
 ## Memory management
 
-RTl handles memory allocation. There are two memory allocators - one that uses the standard malloc-based allocator of the system, and a custom allocator that is based around [memory arenas](https://en.wikipedia.org/wiki/Region-based_memory_management).
+RTl handles memory allocation. There are two memory allocators - one that uses the standard malloc-based allocator of the system, and a custom allocator that is based around [memory arenas](https://en.wikipedia.org/wiki/Region-based_memory_management). This, however, has [now been disabled](https://cgit.freedesktop.org/libreoffice/core/commit/sal?id=bc6a5d8e79e7d0e7d75ac107aa8e6aa275e434e9).
 
 The standard, malloc-based allocator uses the following functions:
 
