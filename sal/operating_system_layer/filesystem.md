@@ -208,7 +208,9 @@ As with any file system, you can perform a number of logical operations on the f
    oslFileError SAL_CALL osl_closeFile(osFileHandle Handle);
    ```
 
-TODO: document `osl_readLine()`, shared file mapping, and file flush/sync function
+Another function that is quite useful is `osl_readLine()`, which reads from a file descriptor until it either hits a carriage-return (CR), carriage-return/line-feed (CRLF), or just a line-feed (LF).
+
+TODO: shared file mapping, and file flush/sync function
 
 ## Copy and move files
 
