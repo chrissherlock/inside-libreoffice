@@ -210,9 +210,11 @@ As with any file system, you can perform a number of logical operations on the f
 
 Another function that is quite useful is `osl_readLine()`, which reads from a file descriptor until it either hits a carriage-return (CR), carriage-return/line-feed (CRLF), or just a line-feed (LF).
 
-TODO: shared file mapping, and file flush/sync function
+Shared file mapping is explained further in the IPC chapter, as it can be used as inter-process communication, as well as for other functions that map the file to memory.
 
-## Copy and move files
+## Copy, move and delete files
+
+To delete a file, call on `osl_removeFile(filename)`. This only works on regular files, if a directory is specified then it returns `osl_File_E_ISDIR`. To copy a file (not a directory) then call on `osl_copyFile(sourcefile, destfile)`, and to move a file call on `osl_moveFile(sourcefile, destfile)`. When moving a file, file time and attributes are preserved, but no assumptions can be made about files that are copied. 
 
 ## Directory operations
 
