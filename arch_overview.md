@@ -1,4 +1,4 @@
 # Architectural Overview
 
-![](/assets/lo.png)
+![](.gitbook/assets/lo.png)
 

@@ -2,11 +2,11 @@
 
 **ROUGHT DRAFT**
 
-UNOIDL (UNO Interface Definition Language) is a way of specifying types, services, and other entities used by UNO via a metalanguage of its own. UNOIDL should be seen as a specification language, and is the building block used by UNO to create UNO components, which consist of a variety of compiled libraries that interacts are are bound to the UNO infrastructure.
+UNOIDL \(UNO Interface Definition Language\) is a way of specifying types, services, and other entities used by UNO via a metalanguage of its own. UNOIDL should be seen as a specification language, and is the building block used by UNO to create UNO components, which consist of a variety of compiled libraries that interacts are are bound to the UNO infrastructure.
 
 The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_syntax.html):
 
-```idl
+```text
 (1) <idl_specification> := <definition>+
 
 (2) <definition> := <type_decl> ";"
@@ -116,16 +116,16 @@ The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_s
 (36) <struct_type> := "struct" <identifier> [ <struct_inheritance> ] "{" <member>+ "}"
 
 (37) <struct_inheritance> := ":" <scoped_name>
- 
+
 (38) <member> := <type_spec> <declarator> { "," <declarator> }*
 
 (39) enum_type> := enum <identifier> "{" <enumerator> { "," <enumerator> }* "}"
 
 (40) <enumerator> := <identifier> [ "=" <positive_int> ]
- 
+
 (41) <union_type> := "union" <identifier> "switch" "(" <switch_type_spec> ")"
                        "{" <switch_body> "}"    
-  
+
 (42) <switch_type_spec> := <integer_type>
                            | <enum_type>
                            | <scoped_name> 
@@ -142,7 +142,7 @@ The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_s
 (47) <exception_decl> := "exception" <identifier> [ <exception_inheritance> ] "{" <member>* "}"
 
 (48) <exception_inheritance> := ":" <scoped_name>
- 
+
 (49) <module_decl> := "module" <identifier> "{" <definition>+ "}"
 
 (50) <constant_decl> := "const" <const_type> <identifier> "=" <const_expr>
@@ -219,16 +219,16 @@ The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl_s
                         | "optional"
                         | "removable"
                         | "transient"
- 
+
 (69) <support_decl> := "interface" <declarator> { "," <declarator> }*
 
 (70) <export_decl> := "service" <declarator> { "," <declarator> }*
- 
+
 (71) <observe_decl> := "observe" <declarator> { "," <declarator> }*
 
 (72) <needs_decl> := "needs" <declarator> { "," <declarator> }*
 
-(73) <constants_decl> := "constants" <identifier> "{" <constant_decl>+ "}"  
+(73) <constants_decl> := "constants" <identifier> "{" <constant_decl>+ "}"
 ```
 
 ## Examples
@@ -237,12 +237,12 @@ Some examples using IDL:
 
 ### Defining types
 
-```
+```text
 interface Example : ::BaseExample 
 {
     [readonly, attribute] short exampleArray[10];
     long exampleVariable;
-    
+
     struct ExampleStruct {
       unsigned hyper member;
     }
@@ -253,16 +253,17 @@ interface Example : ::BaseExample
 
 * `unoidl::Manager` - factory, creates Providers, Entities and MapCursors
   * `loadProvider(uri)` - `Provider` class - what reads the file format and converts into a type
-  * `findEntity(name)` - `Entity` class - can be a module or publishable entity (struct, polymorphic struct, interface, typedef or service
+  * `findEntity(name)` - `Entity` class - can be a module or publishable entity \(struct, polymorphic struct, interface, typedef or service
   * `createCursor(name)` - `Cursor` class - iterator over the IDL file ???
-
 * `unoidl::Provider` - factory interface, creates the root cursor, and also can find an entity, implemented by:
+
   * `unoidl::detail::LegacyProvider` - old store based types.rdb format
   * `unoidl::detail::UnoidlProvider` - newer, binary types.rdb format
   * `unoidl::detail::SourceTreeProvider` - directory of .idl files in IDL format
   * `unoidl::detail::SourceFileProvider` - .idl file in IDL format
 
-  ![](/assets/Provider_class_dependency_diagram.svg)  
+  ![](../.gitbook/assets/Provider_class_dependency_diagram.svg)
+
 * `unoidl::Entity`
   * `unoidl::ModuleEntity`
   * `unoidl::PublishableEntity`
@@ -284,4 +285,5 @@ interface Example : ::BaseExample
       * `unoidl::TypedefEntity`
     * `unoidl::ConstantGroupEntity`  
 
-![](/assets/Entity_class_dependency_diagram.svg)
+![](../.gitbook/assets/Entity_class_dependency_diagram.svg)
+
