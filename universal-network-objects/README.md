@@ -51,6 +51,8 @@ typelib_typedescriptionreference_acquire(pType);
 typelib_typedescriptionreference_release(pType);
 ```
 
+#### Enums
+
 To create an enum, the typelib requires an array of `rtl_uString`s to the enumerator names, and an array of integers to define the enumerator name indices. The following is a basic unit test that creates and then releases an enumerator:
 
 ```cpp
@@ -96,7 +98,49 @@ void Test::testNewEnum()
 
 This is reasonably self explanatory, however note that you must register enum types before they can be accessed.
 
-The type library is wrapped by the C++ `Type` class, which wraps a `typelib_TypeDescriptionReference` pointer. To construct a new Type, you pass it a TypeClass enum \(translates to `typelib_TypeClass`\) and a type description string; alternatively you can pass a `typelib_TypeDescriptionReference` pointer.
+#### Structs
+
+Structs are classsed as a compound type. This means that a struct is composed of one or more UNO types. A basic struct is actually a created via the `typelib_CompoundTypeDescription` struct in the C type library. Whilst the struct is meant to be opaque, it is still interesting to see how it has been implemented by the LibreOffice developers:
+
+```cpp
+typedef struct _typelib_CompoundTypeDescription
+{
+    /** inherits all members of typelib_TypeDescription
+    */
+    typelib_TypeDescription             aBase;
+
+    /** pointer to base type description, else 0
+    */
+    struct _typelib_CompoundTypeDescription * pBaseTypeDescription;
+
+    /** number of members
+    */
+    sal_Int32                           nMembers;
+    /** byte offsets of each member including the size the base type
+    */
+    sal_Int32 *                         pMemberOffsets;
+    /** members of the struct or exception
+    */
+    typelib_TypeDescriptionReference ** ppTypeRefs;
+    /** member names of the struct or exception
+    */
+    rtl_uString **                      ppMemberNames;
+} typelib_CompoundTypeDescription;
+```
+
+As you can see, the first element in the structure is a `typelib_TypeDescription` called `aBase`., which describes the actual struct type \(which will be the base type other types can inherit from\). UNO structs support single-inheritence, and this points to the parent struct, which is `pBaseTypeDescription`. If this is a nullptr, then it means that the struct is the root class in the heirachy. 
+
+The struct members are defined by an array of member types, `ppTypeRefs`, and names of each member, `ppMemberNames`. To get to each member, you need to know the memory offset of each member so an offset table, `pMemberOffsets`, is used. 
+
+It is interesting to note, however, that there are two types of structs - a plain struct, and a parameterized struct which uses the format struct `ParameterizedStruct<T, B>`.The plain struct is defined by `typelib_CompoundTypeDescription` and parameterized structs are defined by `typelib_StructTypeDescription`.
+
+#### Types in C++
+
+The type library is wrapped by the C++ `Type` class, which wraps a `typelib_TypeDescriptionReference` pointer. To construct a new Type, you pass it a `TypeClass` enum \(translates to `typelib_TypeClass`\) and a type description string; alternatively you can pass a `typelib_TypeDescriptionReference` pointer.
+
+### Services
+
+A service is an object that supports given interfaces. There are two forms of services. The older  style definition of a service \(otherwise called an accumulation-based service\) defines a service like a struct - it is composed of other services, interfaces and properties. The newer, preferred styles of service, is a service that implements a single interface. 
 
 ### Service Manager
 
