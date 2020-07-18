@@ -136,11 +136,36 @@ It is interesting to note, however, that there are two types of structs - a plai
 
 #### Types in C++
 
-The type library is wrapped by the C++ `Type` class, which wraps a `typelib_TypeDescriptionReference` pointer. To construct a new Type, you pass it a `TypeClass` enum \(translates to `typelib_TypeClass`\) and a type description string; alternatively you can pass a `typelib_TypeDescriptionReference` pointer.
+The type library is wrapped by the C++ `Type` class, which wraps a `typelib_TypeDescriptionReference` pointer. To construct a new Type, you pass it a `TypeClass` enum \(translates to `typelib_TypeClass`\) and a type description string; alternatively you can pass a `typelib_TypeDescriptionReference` pointer. To create a type, you just call on the `Type` constructor.
+
+```cpp
+css::uno::Type aTypeVoid; // css::uno::TypeClass::TypeClass_VOID
+css::uno::Type aTypeChar(css::uno::TypeClass_CHAR, "char");
+css::uno::Type aTypeBool(css::uno::TypeClass_BOOLEAN, "boolean");
+css::uno::Type aTypeByte(css::uno::TypeClass_BYTE, "byte");
+css::uno::Type aTypeShort(css::uno::TypeClass_SHORT, "short");
+css::uno::Type aTypeUnsignedShort(css::uno::TypeClass_UNSIGNED_SHORT, 
+                                  "unsigned short");
+css::uno::Type aTypeLong(css::uno::TypeClass_LONG, "long");
+css::uno::Type aTypeUnsignedLong(css::uno::TypeClass_UNSIGNED_LONG, 
+                                 "unsigned long");
+css::uno::Type aTypeHyper(css::uno::TypeClass_HYPER, "hyper");
+css::uno::Type aTypeUnsignedHyper(css::uno::TypeClass_UNSIGNED_HYPER, 
+                                  "unsigned hyper");
+css::uno::Type aTypeFloat(css::uno::TypeClass_FLOAT, "float");
+css::uno::Type aTypeDouble(css::uno::TypeClass_DOUBLE, "double");
+css::uno::Type aTypeString(css::uno::TypeClass_STRING, "string");
+css::uno::Type aType(css::uno::TypeClass_TYPE, "type");
+css::uno::Type aTypeAny(css::uno::TypeClass_ANY, "any");
+css::uno::Type aTypeInterface(css::uno::TypeClass_INTERFACE, 
+                              "com.sun.star.uno.XInterface");
+```
 
 ### Services
 
-A service is an object that supports given interfaces. There are two forms of services. The older  style definition of a service \(otherwise called an accumulation-based service\) defines a service like a struct - it is composed of other services, interfaces and properties. The newer, preferred styles of service, is a service that implements a single interface. 
+A service is an object that supports given interfaces. There are two forms of services. The older  style definition of a service \(otherwise called an accumulation-based service\) defines a service like a struct - it is composed of other services, interfaces and properties. The newer, preferred styles of service, is a service that implements a single interface, which can itself be derived from multiple other interfaces. 
+
+So what is an interface? An interface specifies a set of attributes and methods that together define one single aspect of an object. Interfaces can inherit one or more other interfaces. By defining interfaces, you clearly define the purpose of the object and allows programming logic to be based around the interface functionality, rather than the implementation details. 
 
 ### Service Manager
 
