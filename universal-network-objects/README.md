@@ -12,11 +12,15 @@ Source: [OpenOffice](https://wiki.openoffice.org/wiki/File:RelationshipSpecImpl.
 
 It is instructive to see how UNO is started in LibreOffice. This is done via the function `cppu::defaultBootstrap_InitialComponentContext()`. This function finds the configuration file for the URE, which stores information about the types and services that are implemented in UNO. 
 
-LibreOffice creates a service manager and a type manager. Before we can understand what a service manager and a type manager are, and how they are constructed, there are a few concepts we must understand first.
+LibreOffice creates a service manager and a type manager. Before we can understand what a service manager and a type manager are, and how they are constructed, there are a few concepts we must understand first:
 
-### Types
+* Types
+* Services
+* Interfaces
 
-#### Basic types
+## Types
+
+### Basic types
 
 UNO was designed to be language agnostic. Due to this, it has it's own set of types and these must be mapped to the language that the component is being developed in \(we call this the _language binding_\). The following are the basic, fundamental types:
 
@@ -51,7 +55,7 @@ typelib_typedescriptionreference_acquire(pType);
 typelib_typedescriptionreference_release(pType);
 ```
 
-#### Enums
+### Enums
 
 To create an enum, the typelib requires an array of `rtl_uString`s to the enumerator names, and an array of integers to define the enumerator name indices. The following is a basic unit test that creates and then releases an enumerator:
 
@@ -98,7 +102,7 @@ void Test::testNewEnum()
 
 This is reasonably self explanatory, however note that you must register enum types before they can be accessed.
 
-#### Structs
+### Structs
 
 Structs are classsed as a compound type. This means that a struct is composed of one or more UNO types. A basic struct is actually a created via the `typelib_CompoundTypeDescription` struct in the C type library. Whilst the struct is meant to be opaque, it is still interesting to see how it has been implemented by the LibreOffice developers:
 
@@ -134,7 +138,7 @@ The struct members are defined by an array of member types, `ppTypeRefs`, and na
 
 It is interesting to note, however, that there are two types of structs - a plain struct, and a parameterized struct which uses the format struct `ParameterizedStruct<T, B>`.The plain struct is defined by `typelib_CompoundTypeDescription` and parameterized structs are defined by `typelib_StructTypeDescription`.
 
-#### Types in C++
+### Types in C++
 
 The type library is wrapped by the C++ `Type` class, which wraps a `typelib_TypeDescriptionReference` pointer. To construct a new Type, you pass it a `TypeClass` enum \(translates to `typelib_TypeClass`\) and a type description string; alternatively you can pass a `typelib_TypeDescriptionReference` pointer. To create a type, you just call on the `Type` constructor.
 
@@ -160,6 +164,24 @@ css::uno::Type aTypeAny(css::uno::TypeClass_ANY, "any");
 css::uno::Type aTypeInterface(css::uno::TypeClass_INTERFACE, 
                               "com.sun.star.uno.XInterface");
 ```
+
+## UNO Environments
+
+A UNO environment manages collections of objects of the same _Object Binary Interface_ \(OBI\) and of the same _purpose_. The OBI describes how to invoke the objects methods, how to pass parameters and receive results. The purpose describes an aspect of the environment - for example, an environment may implement the UNO binary interface via C++ in a thread-safe fashion. 
+
+Each environment is described via an environmental descriptor of the format `<OBI>[:purpose]*`. Some examples are:
+
+* `java:unsafe` for a Java based environment that is thread-unsafe
+* `uno` for an environment that implements the binary UNO ABI and which is thread-safe
+* `gcc3:debug` for an environment that implements the GCC3 C++ OBI and that is thread unsafe
+
+Each component lives in a _UNO runtime environment_ \(URE\), which consists of the implementation language and the current process. This means that one process can implement multiple UREs. UREs can communicate with each other via bridges. UREs that are implemented in the one process communicate via a virtual call, and has no overhead. UREs that are implemented in separate processes communicate via UNO bridges. 
+
+![Three bridged UREs](../.gitbook/assets/bridged-ures%20%282%29.svg)
+
+## Type Manager
+
+TODO
 
 ### Services
 
@@ -243,8 +265,6 @@ The Service Manager needs the following to manage each component:
 * **Service implementations:** this provides an implementation name, in a namespace, can provide an optional contructor function to initialize the service \(there must, however, be an environment provided in the component\)
   * an implementation can have a **Service**, which is defined by a grouping of interfaces
   * an implementation can further be defined as a **Singleton**, which defines a global name for a UNO object and determines that there can only be one instance of this object that must be reachable under this name 
-
-### Type Manager
 
 
 
