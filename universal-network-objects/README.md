@@ -183,13 +183,13 @@ Each component lives in a _UNO runtime environment_ \(URE\), which consists of t
 
 TODO
 
-### Services
+## Services
 
 A service is an object that supports given interfaces. There are two forms of services. The older  style definition of a service \(otherwise called an accumulation-based service\) defines a service like a struct - it is composed of other services, interfaces and properties. The newer, preferred styles of service, is a service that implements a single interface, which can itself be derived from multiple other interfaces. 
 
 So what is an interface? An interface in LibreOffice is defined as a type and specifies a set of attributes and methods that together define one single aspect of an object. Interfaces can inherit one or more other interfaces. By defining interfaces, you clearly define the purpose of the object and allows programming logic to be based around the interface functionality, rather than the implementation details. 
 
-### Service Manager
+## Service Manager
 
 The Service Manager manages a set of components. Here is how it works:
 
