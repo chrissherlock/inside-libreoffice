@@ -20,7 +20,7 @@ With this in mind, StarView were able to create a reasonably fast, full featured
 * implements all access to components via a base interface, `XInterface`, which uses the same mechanism as COM to access it \(`queryInterface`\) which allows the interface to be extended
 * a UNO IDL compiler is included to compile UNO IDLs, which are similar to CORBA's IDL, but extends it with the `service` keyword
 * components exist within different runtime environments depending on the language they are implemented in, and use bridges to communicate with one another
-* all calls to a component in a binary environment are sent through a single, dynamic dispatch method, and all calls contain a full description of the method, which means: method name, argument types, return type, exceptions, and additional information. This simplifies bridging environments written in different language, in different processes or even in situations where the environment is on a different computing environment across a network
+* all calls to a component in a binary environment are sent through a single, dynamic dispatch method, and all calls contain a full description of the method, which means: method name, argument types, return type, exceptions, and additional information. This simplifies bridging environments written in different languages, in different processes or even in situations where the environment is on a different computing environment across a network
 
 ## Startup
 
