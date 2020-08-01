@@ -274,7 +274,7 @@ The Service Manager needs the following to manage each component:
 
 * **store** - legacy .rdb \(resource database\) format, handled services and types but service definitions are now replaced with XML files, and types replaced with unoidl format
 * **registry** - wrapper around store to handle binary type database format, the wrapper manipulates and creates the type registry.
-* **stoc** - an old registries, reflection and introspection implementation for UNO.
+* **stoc** - an old registry, reflection and introspection implementation for UNO.
 * **xmlreader** - implements a simple, fast pull parser, currently used by configmgr and stoc's simpleregistry code \(used to register UNO components in services.rdb files\). It supports a subset of XML features, but is fast and small.
 * **unoidl** - support for UNOIDL registry formats in a unoidl::Manager and unoidl::Provider implementation; also contains helper tools to covert to UNOIDL format, and a few other functions
 * **cppu** - stands for C++ UNO, and contains the definitions and implementations for binary UNO.
