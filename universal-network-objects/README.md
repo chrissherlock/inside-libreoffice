@@ -8,6 +8,20 @@ UNO runs in what is known as a UNO Runtime Environment \(URE\). It is similar in
 **Figure: Services in LibreOffice**  
 Source: [OpenOffice](https://wiki.openoffice.org/wiki/File:RelationshipSpecImpl.png), License: ALv2
 
+Sometimes a question is raised as to why LibreOffice uses its own component technology. This was a decision early in the history of StarView and, [as documented on OpenOffice.org](http://www.openoffice.org/udk/common/man/uno_the_idea.html), the chief reasons were that:
+
+* COM/DCOM did not support exception handling
+* whilst CORBA does excellent remote communication, it does not handle interprocess communication very well
+* Java RMI can only be used in Java based enviroments
+
+With this in mind, StarView were able to create a reasonably fast, full featured remote and local component technology. The UNO implementation that they came up with has the following features:
+
+* a binary specification of the memory layout for types which could be implemented for many different languages
+* implements all access to components via a base interface, `XInterface`, which uses the same mechanism as COM to access it \(`queryInterface`\) which allows the interface to be extended
+* a UNO IDL compiler is included to compile UNO IDLs, which are similar to CORBA's IDL, but extends it with the `service` keyword
+* components exist within different runtime environments depending on the language they are implemented in, and use bridges to communicate with one another
+* all calls to a component in a binary environment are sent through a single, dynamic dispatch method, and all calls contain a full description of the method, which means: method name, argument types, return type, exceptions, and additional information. This simplifies bridging environments written in different language, in different processes or even in situations where the environment is on a different computing environment across a network
+
 ## Startup
 
 It is instructive to see how UNO is started in LibreOffice. This is done via the function `cppu::defaultBootstrap_InitialComponentContext()`. This function finds the configuration file for the URE, which stores information about the types and services that are implemented in UNO. 
