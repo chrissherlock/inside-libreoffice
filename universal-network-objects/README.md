@@ -193,6 +193,132 @@ Each component lives in a _UNO runtime environment_ \(URE\), which consists of t
 
 ![Three bridged UREs](../.gitbook/assets/bridged-ures%20%282%29.svg)
 
+### Mapping UREs
+
+For two environments to call on one another, UNO maps one environment to another. To accomplish this, the CPPU module calls on the `uno_getMapping()` function. The mapping is stored in a structure, which has a pointer to an acquire, release and map function. It works as follows:
+
+```cpp
+void SAL_CALL uno_getMapping(uno_Mapping** ppMapping, uno_Environment* pFrom, uno_Environment* pTo,
+                             rtl_uString* pAddPurpose) SAL_THROW_EXTERN_C()
+{
+    assert(ppMapping != nullptr);
+    assert(pFrom != nullptr);
+    assert(pTo != nullptr);
+    if (*ppMapping)
+    {
+        (*(*ppMapping)->release)(*ppMapping);
+        *ppMapping = nullptr;
+    }
+```
+
+The function takes an output parameter to a `uno_Mapping` pointer, and three input parameters to the environment to map from, the environment to map to and the name of the environment purpose. The first task of the function is to ensure that the mapping is released, and it is then cleared.
+
+```cpp
+    Mapping aRet;
+    Environment aFrom(pFrom), aTo(pTo);
+
+    OUString aAddPurpose;
+    if (pAddPurpose)
+        aAddPurpose = pAddPurpose;
+        
+    MappingsData& rData = getMappingsData();
+```
+
+C++ mapping objects are instantiated from the C structs, and the function uses OUString for the environment purpose. 
+
+The CPPU module maintains a Standard Template Library `unordered_map` of mapping names to mapping entries, and an `unordered_map` of `uno_Mappings` to mapping entries. You can also register callbacks to find mappings. There is also a list of external bridging libraries that have already been loaded, kept so that they are not loaded a second time. This is all defined in the structure `MappingsData`, and is lazy loaded via the `getMappingsData()` function.
+
+Each mapping entry defines a numerical identifier, the mapping, a pointer to a function to free the mapping and the mapping name:
+
+```cpp
+struct MappingEntry
+{
+    sal_Int32 nRef;
+    uno_Mapping* pMapping;
+    uno_freeMappingFunc freeMapping;
+    OUString aMappingName;
+
+    MappingEntry(uno_Mapping* pMapping_, uno_freeMappingFunc freeMapping_,
+                 const OUString& rMappingName_)
+        : nRef(1)
+        , pMapping(pMapping_)
+        , freeMapping(freeMapping_)
+        , aMappingName(rMappingName_)
+    {
+    }
+};
+```
+
+The function attempt to find an appropriate mapping, first by looking up an existing registered mapping:
+
+```cpp
+    {
+        MutexGuard aGuard(rData.aMappingsMutex);
+        const t_OUString2Entry::const_iterator iFind(
+            rData.aName2Entry.find(getMappingName(aFrom, aTo, aAddPurpose)));
+        if (iFind != rData.aName2Entry.end())
+            aRet = (*iFind).second->pMapping;
+    }
+```
+
+If there are no registered mappings, then it tries to find an _identity mapping_:
+
+```cpp
+    if (!aRet.is() && pFrom == pTo && aAddPurpose.isEmpty())
+        aRet = createIdentityMapping(pFrom);
+```
+
+An identity mapping is one where the environment is mapped to itself. It is necessary to reduce confusing and redundant code in generic functions. 
+
+If it is not an identity mapping, then we first try to find a _cascade mapping_ and if this fails, then fallback on the callback chain. If this fails, then try to find a direct mapping, and if this fails then find the mapping via UNO.
+
+```cpp
+    if (!aRet.is())
+    {
+        getCascadeMapping(ppMapping, pFrom, pTo, pAddPurpose);
+
+        if (*ppMapping)
+            return;
+
+        // try callback chain
+        {
+            MutexGuard aGuard(rData.aCallbacksMutex);
+            for (const auto& rCallback : rData.aCallbacks)
+            {
+                (*rCallback)(ppMapping, pFrom, pTo, aAddPurpose.pData);
+                if (*ppMapping)
+                    return;
+            }
+        }
+
+        aRet = loadExternalMapping(aFrom, aTo, aAddPurpose); // direct try
+        if (!aRet.is())
+            aRet = getMediateMapping(aFrom, aTo, aAddPurpose); // try via uno
+    }
+```
+
+What is a cascade mapping? Simply put, the original purpose environment "cascade" through a series of mappings to get to the desired purpose environment.  
+
+The cascade algorithm works as follows:
+
+* it is a direct mapping if the purposes are the same.   An example is where you wish to map the "uno:unsafe" environment to the "gcc:unsafe" environment, you simply apply the gcc3\_uno bridge which does the mapping directly 
+* if the mapping between different purposes, a purpose bridge is used.   For example, to map from between the "uno:unsafe" purpose environment to the uno environment, the unsafe\_uno\_uno bridge is used. 
+* mediate via the uno environment. All environments have bridges back to the UNO environment.   So for example, to map the "uno:unsafe" environment to the "uno:affine" environment, the mechanism would be:  - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to map to the "uno" environment - "uno" environment then uses the affine\_uno\_uno bridge to map to the "uno:affine" purpose environment 
+* if a multi-purpose environment \(chained purpose\) is specified, then first mediate to a uno environment \(which may require mediating via intermediate purpose bridges\), then mediate via a UNO purpose bridge to the purpose required for the final environment, before finally mediating to the desired environment and purpose.   For example, to map the "gcc3:unsafe:debug" environment to the "gcc3:affine" environment the mechanism would be:  - "gcc3:unsafe:debug" environment uses the gcc3\_uno bridge to mediate to the "uno:unsafe:debug" purpose environment - "uno:unsafe:debug" environment uses the debug\_uno\_uno bridge to mediate to the "uno:unsafe" purpose environment - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to mediate to the "uno" environment - the "uno" environment then uses the affine\_uno\_uno bridge to mediate to the "uno:affine" purpose environment - "uno:affine" environment then uses the gcc3\_uno bridge to mediate to the "gcc3:affine" purpose environment 
+* always map to the closest uno purpose environment.  For example, to map the "gcc3:debug:unsafe" environment to the "gcc3:debug:affine" environment, the mechanism is:  - "gcc3:debug:unsafe" enviroment uses the gcc3\_uno bridge to map to the interim environment "uno:debug:unsafe" environment - "uno:debug:unsafe" environment mediates to the "uno:debug" purpose environment - "uno:debug" environment mediates to the "uno:debug:affine" purpose environment via the affine\_uno\_uno bridge - "uno:debug:affine" environment mediates to the "gcc3:debug:affine" environment via the gcc3\_uno bridge
+
+If it is not possible to apply a cascade mapping, then the next step is to try the registered callback chain,  if this does not work then the mapping is determined via an external library. If this does not work then the algorithm falls back to attempt to map the UREs via a default UNO mediation.
+
+The final step is to convert from the C++ `Mapping` instance to a `uno_Mapping` struct:
+
+```cpp
+    if (aRet.is())
+    {
+        (*aRet.get()->acquire)(aRet.get());
+        *ppMapping = aRet.get();
+    }
+```
+
 ## Type Manager
 
 TODO
