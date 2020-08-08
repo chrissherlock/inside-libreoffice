@@ -398,7 +398,7 @@ private:
 };
 ```
 
- Let's look at how this works. Firstly, `static_type` is defined to return the `Type` of the object. This is necessary, because I use the helper `queryInterface()` function in cppuhelper:
+Let's look at how this works. Firstly, `static_type` is defined to return the `Type` of the object. This is necessary, because I use the helper `queryInterface()` function in cppuhelper:
 
 ```cpp
 template<class Interface1>
