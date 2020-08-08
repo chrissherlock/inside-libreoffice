@@ -361,7 +361,59 @@ A service is an object that supports given interfaces. There are two forms of se
 
 ## Interfaces
 
-So what is an interface? An interface in LibreOffice is defined as a type and specifies a set of attributes and methods that together define one single aspect of an object. Interfaces can inherit one or more other interfaces. By defining interfaces, you clearly define the purpose of the object and allows programming logic to be based around the interface functionality, rather than the implementation details. 
+So what is an interface? An interface in LibreOffice is defined as a type and specifies a set of attributes and methods that together define one single aspect of an object. Interfaces can inherit one or more other interfaces. By defining interfaces, you clearly define the purpose of the object and allows programming logic to be based around the interface functionality, rather than the implementation details.
+
+All interfaces derive from XInterface. Important standard interfaces are as follows.
+
+### XInterface
+
+Every interface is ultimately derived from `XInterface`.  It provides lifetime control by reference counting and the possibility of querying for other interfaces of the same logical object. Deriving from XInterface, an object needs to implement the `acquire()` and `release()` functions - for object lifetime - and the `queryInterface()` function.
+
+The most important function is `queryInterface()` - this allows a UNO type to be safely casted, even across process boundaries. To find out if an implementation supports a given interface, it passes `queryInterface()` the Type object it wishes to check. If the implementation supports the interface, then it returns a reference to the interface being queries, otherwise if not then it returns a void type.
+
+I have [written a unit test](https://github.com/chrissherlock/libreoffice-experimental/blob/uno/cppuhelper/qa/interface/test_xinterface.cxx) that shows how XInterface is implemented. The interface name is TestInterface:
+
+```cpp
+class TestInterface : public css::uno::XInterface
+{
+public:
+    virtual ~TestInterface() {}
+    static css::uno::Type const& static_type(void* = nullptr)
+    {
+        return cppu::UnoType<TestInterface>::get();
+    }
+
+    virtual css::uno::Any queryInterface(css::uno::Type const& rType) override
+    {
+        return cppu::queryInterface(rType, this);
+    }
+    
+    virtual void acquire() override { osl_atomic_increment(&m_refCount); }
+    virtual void release() override { osl_atomic_decrement(&m_refCount); }
+
+    sal_uInt32 getNumber() { return 5; }
+
+private:
+    oslInterlockedCount m_refCount;
+};
+```
+
+ Let's look at how this works. Firstly, `static_type` is defined to return the `Type` of the object. This is necessary, because I use the helper `queryInterface()` function in cppuhelper:
+
+```cpp
+template<class Interface1>
+inline css::uno::Any SAL_CALL queryInterface(
+    const css::uno::Type & rType,
+    Interface1 * p1)
+{
+    if (rType == Interface1::static_type())
+        return css::uno::Any(&p1, rType);
+    else
+        return css::uno::Any();
+}
+```
+
+This function takes the type to be queries, and a pointer to the object to be tested. It is very simple - it calls on the object's `static_type()` function to compare it against the type being tested, and if this matches then it returns the implementation as an `Any` object. If it does not match, then it returns a void `Any` object.
 
 ## Service Manager
 
