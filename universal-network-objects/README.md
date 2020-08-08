@@ -321,7 +321,39 @@ The final step is to convert from the C++ `Mapping` instance to a `uno_Mapping` 
 
 ## Type Manager
 
-TODO
+The type manager initializes by installing a provider. The provider used is an IDL parser, which parses the UNO Interface Definition Language \(IDL\). Once the provider loads the configuration, the type provider is installed via `installTypeDescriptionManager()`:
+
+```cpp
+sal_Bool SAL_CALL installTypeDescriptionManager(
+    Reference< container::XHierarchicalNameAccess > const & xTDMgr_c )
+{
+    uno::Environment curr_env(Environment::getCurrent());
+    uno::Environment target_env(CPPU_CURRENT_LANGUAGE_BINDING_NAME);
+
+    uno::Mapping curr2target(curr_env, target_env);
+    
+    Reference<container::XHierarchicalNameAccess> xTDMgr(
+        static_cast<container::XHierarchicalNameAccess*>(
+            curr2target.mapInterface(xTDMgr_c.get(), cppu::UnoType<decltype(xTDMgr_c)>::get())),
+        SAL_NO_ACQUIRE);
+```
+
+The above code maps the interface between environments, the instantiates an `XHeirarchicalNameAccess` object.
+
+```cpp
+    Reference<lang::XComponent> xComp(xTDMgr, UNO_QUERY);
+    if (xComp.is())
+    {
+        xComp->addEventListener(new EventListenerImpl(xTDMgr));
+        // register c typelib callback
+        ::typelib_typedescription_registerCallback(xTDMgr.get(), typelib_callback);
+        return true;
+    }
+    return false;
+}
+```
+
+The type description manager adds an event listener, which when disposed revokes the callback. This callback creates a type description from a name.
 
 ## Services
 
