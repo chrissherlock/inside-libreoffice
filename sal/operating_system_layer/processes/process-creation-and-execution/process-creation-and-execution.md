@@ -581,7 +581,7 @@ Handles operating systems that have no processes.
         }
 ```
 
-**Step 4:** [fork the process](http://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html). What this means is that the process is cloned with a new process ID, and the cloned process is made the child of the process that forked it.
+**Step 4:** [fork the process](https://pubs.opengroup.org/onlinepubs/9699919799/functions/fork.html). What this means is that the process is cloned with a new process ID, and the cloned process is made the child of the process that forked it.
 
 ```c
         if ((status == 0) && ((pid = fork()) == 0))

@@ -8,7 +8,7 @@ UNO runs in what is known as a UNO Runtime Environment \(URE\). It is similar in
 **Figure: Services in LibreOffice**  
 Source: [OpenOffice](https://wiki.openoffice.org/wiki/File:RelationshipSpecImpl.png), License: ALv2
 
-Sometimes a question is raised as to why LibreOffice uses its own component technology. This was a decision early in the history of StarView and, [as documented on OpenOffice.org](http://www.openoffice.org/udk/common/man/uno_the_idea.html), the chief reasons were that:
+Sometimes a question is raised as to why LibreOffice uses its own component technology. This was a decision early in the history of StarView and, [as documented on OpenOffice.org](https://www.openoffice.org/udk/common/man/uno_the_idea.html), the chief reasons were that:
 
 * COM/DCOM did not support exception handling
 * whilst CORBA does excellent remote communication, it does not handle interprocess communication very well
@@ -503,6 +503,6 @@ The Service Manager needs the following to manage each component:
 * **unoidl** - support for UNOIDL registry formats in a unoidl::Manager and unoidl::Provider implementation; also contains helper tools to covert to UNOIDL format, and a few other functions
 * **cppu** - stands for C++ UNO, and contains the definitions and implementations for binary UNO.
 * **cppuhelper** - helpers for using cppu in C++, e.g. templates for implementing UNO components, bootstrapping
-* **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](http://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale \(Language, Country, Variant\) and MS-LangIDs.
+* **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](https://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale \(Language, Country, Variant\) and MS-LangIDs.
 * **jvmfwk** - Wrappers so you can use all the Java Runtime Environments with their slightly incompatible APIs with more ease
 

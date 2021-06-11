@@ -33,6 +33,6 @@ nmap <silent> <A-Right> :wincmd l<CR>
 
 ## Document Liberation Project
 
-* [http://www.documentliberation.org/](http://www.documentliberation.org/)
+* [https://www.documentliberation.org/](https://www.documentliberation.org/)
 * [https://davetardon.wordpress.com/category/document-liberation/](https://davetardon.wordpress.com/category/document-liberation/)
 

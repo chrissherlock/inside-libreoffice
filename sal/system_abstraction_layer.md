@@ -7,9 +7,9 @@ The System Abstraction Layer \(SAL\) contains all the modules that contain code 
 
 The header files for the SAL module are distributed amongst the following directories:
 
-* [`include/sal`](http://opengrok.libreoffice.org/xref/core/include/sal/)
-* [`include/rtl`](http://opengrok.libreoffice.org/xref/core/include/rtl/)
-* [`include/osl`](http://opengrok.libreoffice.org/xref/core/include/osl/)
+* [`include/sal`](https://opengrok.libreoffice.org/xref/core/include/sal/)
+* [`include/rtl`](https://opengrok.libreoffice.org/xref/core/include/rtl/)
+* [`include/osl`](https://opengrok.libreoffice.org/xref/core/include/osl/)
 
 The headers in the `include/sal` directory handle a number of pieces of functionality, described here.
 
@@ -17,7 +17,7 @@ The headers in the `include/sal` directory handle a number of pieces of function
 
 The `main()` entry point into LibreOffice is located in `main.h`, and is designed as a bunch of macros. As LibreOffice is a cross-platform application that runs on both Unix-based and Windows operaing systems, it must have a flexible way of starting up the program. It does this by using the C preprocessor.
 
-The macros [`SAL_MAIN_WITH_ARGS_IMPL`](http://opengrok.libreoffice.org/xref/core/include/sal/main.h#SAL_MAIN_WITH_ARGS_IMPL) and [`SAL_MAIN_IMPL`](http://opengrok.libreoffice.org/xref/core/include/sal/main.h#SAL_MAIN_IMPL) both define the `main()` function of LibreOffice. The difference, as the name suggests, is that one takes arguments from the command line, and the other does not. We shall focus on `SAL_MAIN_WITH_ARGS_IMPL`as they are both exactly the same except for one function call. The macro is defined as:
+The macros [`SAL_MAIN_WITH_ARGS_IMPL`](https://opengrok.libreoffice.org/xref/core/include/sal/main.h#SAL_MAIN_WITH_ARGS_IMPL) and [`SAL_MAIN_IMPL`](https://opengrok.libreoffice.org/xref/core/include/sal/main.h#SAL_MAIN_IMPL) both define the `main()` function of LibreOffice. The difference, as the name suggests, is that one takes arguments from the command line, and the other does not. We shall focus on `SAL_MAIN_WITH_ARGS_IMPL`as they are both exactly the same except for one function call. The macro is defined as:
 
 ```cpp
 #define SAL_MAIN_WITH_ARGS_IMPL \

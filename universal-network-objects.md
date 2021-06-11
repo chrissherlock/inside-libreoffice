@@ -23,7 +23,7 @@ UNO is a component model that allows LibreOffice to create objects that can comm
 
 * **cppuhelper** - helpers for using cppu in C++, e.g. templates for implementing UNO components, bootstrapping
 
-* **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](http://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale (Language, Country, Variant) and MS-LangIDs.
+* **i18nlangtag** - code for language tags, LanguageTag wrapper for [liblangtag](https://tagoh.github.io/liblangtag/index.html) and converter between BCP47 language tags, Locale (Language, Country, Variant) and MS-LangIDs.
 
 * **jvmfwk** - Wrappers so you can use all the Java Runtime Environments with their slightly incompatible APIs with more ease
 
