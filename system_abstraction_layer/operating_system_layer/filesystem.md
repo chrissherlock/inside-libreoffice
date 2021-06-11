@@ -60,7 +60,7 @@ There are two functions that can be called:
 
 ## File status
 
-In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in [`oslFileStatus`](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#oslFileStatus):
+In LibreOffice a file is described by its status, or list of attributes associated with the file. This is defined in [`oslFileStatus`](https://opengrok.libreoffice.org/xref/core/include/osl/file.h#oslFileStatus):
 
 ```c
 typedef struct _oslFileStatus {
@@ -129,14 +129,14 @@ As with any file system, you can perform a number of logical operations on the f
 
    The function is given a file URI, which it converts to a system path, and is provided a set of flags to tell it what mode to open the file in. A file handle that represents the file descriptor is passed back as an output parameter. This is used as a token to refer to the opened file when performing file operations.
 
-   Windows and Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/file.h#osl_File_OpenFlag_Read):
+   Windows and Unix systems use the following [flags](https://opengrok.libreoffice.org/xref/core/include/osl/file.h#osl_File_OpenFlag_Read):
 
    * `osl_File_OpenFlag_Read`
    * `osl_File_OpenFlag_Write`
    * `osl_File_OpenFlag_Create`
    * `osl_File_OpenFlag_NoLock`
 
-   Unix systems use the following [flags](http://opengrok.libreoffice.org/xref/core/include/osl/detail/file.h#osl_File_OpenFlag_Trunc):
+   Unix systems use the following [flags](https://opengrok.libreoffice.org/xref/core/include/osl/detail/file.h#osl_File_OpenFlag_Trunc):
 
    * `osl_File_OpenFlag_Trunc`
    * `osl_File_OpenFlag_NoExcl`
