@@ -98,8 +98,8 @@ If a process' parent dies and the children processes remain alive, these process
 
 The OSL uses a C API for managing the process lifecycle. The API covers:
 
-* [Process creation and execution](https://github.com/chrissherlock1/inside-libreoffice/tree/96802d8a5c983200912edf2c54b3ca238655dec1/operating_system_layer/processes/process-creation-and-execution.md)
-* [Process termination](https://github.com/chrissherlock1/inside-libreoffice/tree/96802d8a5c983200912edf2c54b3ca238655dec1/operating_system_layer/processes/process-termination.md)
-* [Inter-Process Communication](https://github.com/chrissherlock1/inside-libreoffice/tree/96802d8a5c983200912edf2c54b3ca238655dec1/operating_system_layer/processes/ipc.md)
-* [Threading](https://github.com/chrissherlock1/inside-libreoffice/tree/96802d8a5c983200912edf2c54b3ca238655dec1/operating_system_layer/processes/threading.md)
+* [Process creation and execution](process-creation-and-execution.md)
+* [Process termination](process-termination.md)
+* [Inter-Process Communication](ipc.md)
+* [Threading](threading.md)
 
