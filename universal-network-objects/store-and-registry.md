@@ -22,7 +22,7 @@ The module works on files and memory streams. Possibly the easiest way of unders
   &#x20;                  `storeAccessMode::ReadWrite)`\
   &#x20;   `{`\
   &#x20;       `{`\
-  &#x20;           `std::unique_ptr<sal_uInt8[]> pWriteBuffer;`\
+  &#x20;           `std::unique_ptr<sal_uInt8[]> pWriteBuffer(new sal_uInt8[1]);`\
   &#x20;           `pWriteBuffer[0] = 'a';`\
   ``\
   &#x20;           `sal_uInt32 writtenBytes;`\
