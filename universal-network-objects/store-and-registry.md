@@ -57,3 +57,6 @@ The module works on files and memory streams. Possibly the easiest way of unders
 
 As the store is deprecated, I will not go into how it actually stores the files.&#x20;
 
+## Registry
+
+The registry holds the system's UNO type information in a database.&#x20;
