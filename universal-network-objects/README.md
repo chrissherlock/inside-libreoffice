@@ -24,7 +24,11 @@ With this in mind, StarView were able to create a reasonably fast, full featured
 
 ## Startup
 
-It is instructive to see how UNO is started in LibreOffice. This is done via the function `cppu::defaultBootstrap_InitialComponentContext()`. This function finds the configuration file for the URE, which stores information about the types and services that are implemented in UNO.
+It is instructive to see how UNO is started in LibreOffice. This is done via the function:
+```cpp
+cppu::defaultBootstrap_InitialComponentContext()
+```
+This function finds the configuration file for the URE, which stores information about the types and services that are implemented in UNO.
 
 LibreOffice creates a service manager and a type manager. Before we can understand what a service manager and a type manager are, and how they are constructed, there are a few concepts we must understand first:
 

@@ -29,7 +29,11 @@ nmap <silent> <A-Right> :wincmd l<CR>
 
 ### git
 
-* To show all branches in a tree like structure, run:  `git config --global alias.logtree "log --graph --simplify-by-decoration --all --branches --oneline --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"`  Then you just use `git logtree`
+* To show all branches in a tree like structure, run:
+```bash
+git config --global alias.logtree "log --graph --simplify-by-decoration --all --branches --oneline --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+```
+Then you just use `git logtree`.
 
 ## Document Liberation Project
 

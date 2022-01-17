@@ -1,3 +1,4 @@
+header.md
 README.md
 arch_overview.md
 system_abstraction_layer/README.md
@@ -23,5 +24,6 @@ graphics/README.md
 graphics/tools.md
 graphics/basegfx.md
 vcl.md
-miscellaneous-odds-and-ends.md
+miscellaneous-odds-and-ends/README.md
+miscellaneous-odds-and-ends/issues.md
 
