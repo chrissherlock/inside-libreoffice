@@ -1,4 +1,4 @@
-# Issues
+## Issues
 
 The following are issues I have noticed in LibreOffice - they are my opinion, but others may disagree so take it all with a grain of salt:
 

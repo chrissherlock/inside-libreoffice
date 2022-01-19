@@ -1,2 +1,4 @@
-# pandoc is needed to generate inside-linux.odt
-pandoc --toc -V title:"Inside LibreOffice" -V author:"Chris Sherlock" `cat toc.txt` -o inside-linux.odt
+# pandoc is needed to generate odt and pdf
+# title and author comes from header.md
+pandoc --toc `cat toc.txt` -o inside-libreoffice.odt
+pandoc --toc `cat toc.txt` -o inside-libreoffice.pdf

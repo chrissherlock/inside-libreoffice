@@ -1,4 +1,4 @@
-# UNO IDL
+## UNO IDL
 
 **ROUGHT DRAFT**
 
@@ -6,7 +6,7 @@ UNOIDL (UNO Interface Definition Language) is a way of specifying types, service
 
 The BNF notation is [as follows](https://www.openoffice.org/udk/common/man/idl\_syntax.html):
 
-```
+```txt
 (1) <idl_specification> := <definition>+
 
 (2) <definition> := <type_decl> ";"
