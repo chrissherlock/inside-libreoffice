@@ -77,4 +77,28 @@ The registry holds the system's UNO type information in a database. The followin
 
 **Note:** the unit tests are all not working for this module. I have started to migrate this to Cppunit, the patch for this is waiting here: [https://gerrit.libreoffice.org/c/core/+/128031/](https://gerrit.libreoffice.org/c/core/+/128031/)
 
+#### Reading the registry
+
+All keys in the registry are part of a module. To read the registry, you must first open it. To do this, you first instantiate a `Registry` object, and call `open()`**.** You then need to open the root key (the registry is a hierarchical key/value store), and from the root key you can find your subkey.
+
+For example, say you have a registry file with a single module called ModuleA, containing a constant key "test", you would do the following:
+
+```cpp
+#include <registry/registry.hxx>
+
+Registry reg;
+reg.open("registryfile.reg", RegAccessMode::READONLY);
+
+RegistryKey root;
+reg.openRootKey(root);
+
+RegistryKey modulekey;
+root.openKey("ModuleA", modulekey);
+
+RegistryKey testkey;
+modulekey.openKey("test");
+```
+
+****
+
 **Bug:** if you create a Writer with no field/method/reference count, and then you try to add a field/method/reference then you get a segfault. A patch for this can be found here: [https://gerrit.libreoffice.org/c/core/+/128140/](https://gerrit.libreoffice.org/c/core/+/128140/)
