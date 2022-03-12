@@ -1,6 +1,6 @@
-## Store and Registry
+# Store and Registry
 
-### Store
+## Store
 
 This module implements a legacy binary UNO types format, still used by extensions and core code. Eventually the LibreOffice team want to migrate away from this format.
 
@@ -61,6 +61,8 @@ The module works on files and memory streams. Possibly the easiest way of unders
 
 As the store is deprecated, I will not go into how it actually stores the files.
 
-### Registry
+**Note:** I have written some unit tests, please see [https://gerrit.libreoffice.org/c/core/+/127674](https://gerrit.libreoffice.org/c/core/+/127674) - one day hopefully a developer will review.
+
+## Registry
 
 The registry holds the system's UNO type information in a database.
