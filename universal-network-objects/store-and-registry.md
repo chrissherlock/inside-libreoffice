@@ -75,8 +75,6 @@ The registry holds the system's UNO type information in a database. The followin
 * Services
 * Value types (aka constants)
 
-****
-
 #### Reading the registry
 
 All keys in the registry are part of a module. To read the registry, you must first open it. To do this, you first instantiate a `Registry` object, and call `open()`**.** You then need to open the root key (the registry is a hierarchical key/value store), and from the root key you can find your subkey.
