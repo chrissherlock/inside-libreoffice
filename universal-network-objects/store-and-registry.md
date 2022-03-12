@@ -99,6 +99,4 @@ RegistryKey testkey;
 modulekey.openKey("test");
 ```
 
-****
-
 **Bug:** if you create a Writer with no field/method/reference count, and then you try to add a field/method/reference then you get a segfault. A patch for this can be found here: [https://gerrit.libreoffice.org/c/core/+/128140/](https://gerrit.libreoffice.org/c/core/+/128140/)
