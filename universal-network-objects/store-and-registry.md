@@ -65,7 +65,15 @@ As the store is deprecated, I will not go into how it actually stores the files.
 
 ## Registry
 
-The registry holds the system's UNO type information in a database.
+The registry holds the system's UNO type information in a database. The following data types are stored in the registry:
+
+* Modules
+* Structs
+* Enums
+* Interfaces
+* Exceptions
+* Services
+* Value types (aka constants)
 
 **Note:** the unit tests are all not working for this module. I have started to migrate this to Cppunit, the patch for this is waiting here: [https://gerrit.libreoffice.org/c/core/+/128031/](https://gerrit.libreoffice.org/c/core/+/128031/)
 
