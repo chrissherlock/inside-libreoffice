@@ -75,7 +75,7 @@ The registry holds the system's UNO type information in a database. The followin
 * Services
 * Value types (aka constants)
 
-**Note:** the unit tests are all not working for this module. I have started to migrate this to Cppunit, the patch for this is waiting here: [https://gerrit.libreoffice.org/c/core/+/128031/](https://gerrit.libreoffice.org/c/core/+/128031/)
+****
 
 #### Reading the registry
 
@@ -98,5 +98,9 @@ root.openKey("ModuleA", modulekey);
 RegistryKey testkey;
 modulekey.openKey("test");
 ```
+
+There is another way of reading the registry. You can take the binary data and stuff it into a `Reader` instance. This exposes a fair amount of information, including a documentation field that describes what the key is used for.&#x20;
+
+**Note:** it's highly unlikely you'll actually ever need this. The only thing that uses it is a UNO IDL processor. However, that said the unit tests are all not working for this module. I have started to migrate this to Cppunit, the patch for this is waiting here: [https://gerrit.libreoffice.org/c/core/+/128031/](https://gerrit.libreoffice.org/c/core/+/128031/)
 
 **Bug:** if you create a Writer with no field/method/reference count, and then you try to add a field/method/reference then you get a segfault. A patch for this can be found here: [https://gerrit.libreoffice.org/c/core/+/128140/](https://gerrit.libreoffice.org/c/core/+/128140/)
