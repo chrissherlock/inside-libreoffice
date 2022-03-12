@@ -66,3 +66,7 @@ As the store is deprecated, I will not go into how it actually stores the files.
 ## Registry
 
 The registry holds the system's UNO type information in a database.
+
+**Note:** the unit tests are all not working for this module. I have started to migrate this to Cppunit, the patch for this is waiting here: [https://gerrit.libreoffice.org/c/core/+/128031/](https://gerrit.libreoffice.org/c/core/+/128031/)
+
+**Bug:** if you create a Writer with no field/method/reference count, and then you try to add a field/method/reference then you get a segfault. A patch for this can be found here: [https://gerrit.libreoffice.org/c/core/+/128140/](https://gerrit.libreoffice.org/c/core/+/128140/)
