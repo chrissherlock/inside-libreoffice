@@ -99,7 +99,7 @@ modulekey.openKey("test");
 
 #### UNO-IDL
 
-[Starting in LibreOffice 7.5](https://gerrit.libreoffice.org/c/core/+/122363/), developers will start to use the unoidl module to write and read UNO types. Changes made will mean that LibreOffice extensions are now incompatibile with OpenOffice.org extensions, and any LibreOffice extensions developed before LibreOffice 4.1 will no longer work either. This has been a very necessary step in degunking extemely legacy code (the idlc and regmerge utility are being removed).
+[Starting in LibreOffice 7.5](https://gerrit.libreoffice.org/c/core/+/122363/), developers will start to use the unoidl module to write and read UNO types. Changes made will mean that LibreOffice extensions are now incompatibile with OpenOffice.org extensions, and any LibreOffice extensions developed before LibreOffice 4.1 will no longer work either. This has been a very necessary step in degunking extemely legacy code (the idlc module and regmerge utility are being removed).
 
 The unoidl module actually handles more than just types, it also processes the UNO modules, services, singletons, etc. that make up actual object instances. These are managed via .idl files, and thus must be processed differently than the binary types.rdb file.&#x20;
 
