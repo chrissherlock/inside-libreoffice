@@ -97,3 +97,35 @@ RegistryKey testkey;
 modulekey.openKey("test");
 ```
 
+#### UNO-IDL
+
+[Starting in LibreOffice 7.5](https://gerrit.libreoffice.org/c/core/+/122363/), developers will start to use the unoidl module to write and read UNO types. Changes made will mean that LibreOffice extensions are now incompatibile with OpenOffice.org extensions, and any LibreOffice extensions developed before LibreOffice 4.1 will no longer work either. This has been a very necessary step in degunking extemely legacy code (the idlc and regmerge utility are being removed).
+
+The unoidl module actually handles more than just types, it also processes the UNO modules, services, singletons, etc. that make up actual object instances. These are managed via .idl files, and thus must be processed differently than the binary types.rdb file.&#x20;
+
+The first step in reading the registry is to load a _provider_, which does the hard work of actually reading from the binary types file. The provider is used to create the _root cursor_ - this cursor holds the root location in the type registry. This is then used to navigate the registry.
+
+Let's say you have a types.rdb file. To open the file for reading, you must first instantiate a provider manager, and have the manager produce the provider that does the work of parsing the rdb file:
+
+```clike
+rtl::Reference<unoidl::Manager> mgr(new unoidl::Manager);
+rtl::Reference<unoidl::Provider> prov = mgr.addProvider("types.rdb");
+```
+
+Each provider produces a root`MapCursor` which is a simple forward iterator. Each type is returned as an `Entity`.
+
+```clike
+rtl::Reference<unoidl::MapCursor> cursor = prov->getRootCursor();
+
+for (;;)
+{
+    OUString id;
+    rtl::Reference<unoidl::Entity> ent(cursor->getNext(&id));
+    
+    if (!ent.is()) {
+        break;
+    }
+    
+    // process entity
+}
+```
