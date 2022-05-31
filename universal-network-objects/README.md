@@ -484,7 +484,7 @@ The Service Manager is initialized by parsing a config file, which the environme
     <implementation name="com.sun.star.comp.io.TextInputStream">
       <service name="com.sun.star.io.TextInputStream" />
     </implementation>
-        <implementation name="com.sun.star.comp.io.TextOutputStream">
+    <implementation name="com.sun.star.comp.io.TextOutputStream">
       <service name="com.sun.star.io.TextOutputStream" />
     </implementation>
   </component>
