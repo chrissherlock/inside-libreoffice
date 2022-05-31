@@ -425,9 +425,24 @@ Note this last point: if a void `Any` object is returned, it means that interfac
 
 ## Service Manager
 
-The Service Manager manages a set of implementations of services. It is defined by [com.sun.star.lang.ServiceManager](https://www.openoffice.org/api/docs/common/ref/com/sun/star/lang/ServiceManager.html)&#x20;
+The Service Manager manages a set of implementations of services. It is defined by [com.sun.star.lang.ServiceManager](https://api.libreoffice.org/docs/idl/ref/servicecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1ServiceManager.html#details) The Service Manager provides the factory that creates services, which are created via the service name. (interestingly, ServiceManager is actually a published service in its own right).&#x20;
 
-TODO: explain this further, detail interfaces and explain ComponentContext
+The ServiceManager service implements a number of interfaces and services:
+
+* ****[**com::sun::star::lang::MultiServiceFactory**](https://api.libreoffice.org/docs/idl/ref/servicecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1MultiServiceFactory.html) - a service that creates services (factory)
+* ****[**com::sun::star::lang::XComponentContext**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XComponent.html) - an interface into a components _context_ (will be covered later)
+* [**com::sun::star::container::XContentEnumerationService**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XSet.html) - allows the enumeration of all the implementations of a particular service name.&#x20;
+* ****[**com::sun::star::beans::XSet**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XSet.html) - an interface that manages the service factory - allows the insertion or removal of [com.sun.star.lang.XSingleServiceFactory](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XSingleServiceFactory.html) or [com.sun.star.lang.XSingleComponentFactory](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XSingleComponentFactory.html) implementations to the service manager at runtime without making the changes permanent.
+
+### MultiServiceFactory
+
+The main service the ServiceManager implements is MultiServiceFactory. This creates does the work of creating the services via the functions `createInstance()` or `createInstanceWithArguments()`. If a service must be created with arguments, then it must implement the [com::sun:star::lang::XInitialization](https://opengrok.libreoffice.org/xref/core/udkapi/com/sun/star/lang/XInitialization.idl) interface.
+
+The service will also get a list of implemented service names via the function `getAvailableServiceNames()`.
+
+### XContentEnumerationService
+
+A service is added via this interface via the function `createContentEnumeration()`. This returns a [`com::sun::star::container::XEnumeration`](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XEnumeration.html) instance. The service will also get a list of implemented service names via the function `getAvailableServiceNames()` (this is a case of overlapping function names in interfaces).
 
 
 
