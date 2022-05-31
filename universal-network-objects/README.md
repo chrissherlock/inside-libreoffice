@@ -496,7 +496,7 @@ The Service Manager needs the following to manage each component:
 * **Loader**: specifies what loads the component,
 * **Environment**: it is loaded in (e.g. Java, gcc3, etc.)
 * **Module URI:** what the service is implemented in.
-* **Service implementations:** this provides an implementation name, in a namespace, can provide an optional contructor function to initialize the service (there must, however, be an environment provided in the component)
+* **Service implementations:** this provides an implementation name, in a namespace, and can provide an optional contructor function to initialize the service (there must, however, be an environment provided in the component)
   * an implementation can have a **Service**, which is defined by a grouping of interfaces
   * an implementation can further be defined as a **Singleton**, which defines a global name for a UNO object and determines that there can only be one instance of this object that must be reachable under this name
 
