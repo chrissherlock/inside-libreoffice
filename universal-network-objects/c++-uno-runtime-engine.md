@@ -2,7 +2,7 @@
 
 
 
-The C++ UNo Runtime Engine is implemented under the cppuhelper module. During bootstrap, it installs a type manager and a service manager. The service manager is installed as follows:
+The C++ UNO Runtime Engine is implemented under the cppuhelper module. During bootstrap, it installs a type manager and a service manager. The service manager is installed as follows:
 
 {% code title="cppuhelper/source/servicemanager.hxx" %}
 ```cpp
