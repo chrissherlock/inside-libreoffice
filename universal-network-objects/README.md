@@ -427,6 +427,8 @@ Note this last point: if a void `Any` object is returned, it means that interfac
 
 The Service Manager manages a set of implementations of services. It is defined by [com.sun.star.lang.ServiceManager](https://www.openoffice.org/api/docs/common/ref/com/sun/star/lang/ServiceManager.html)&#x20;
 
+TODO: explain this further, detail interfaces and explain ComponentContext
+
 
 
 ## Modules used to implement UNO
