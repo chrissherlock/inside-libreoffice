@@ -437,17 +437,21 @@ The ServiceManager service implements a number of interfaces and services:
 
 ### MultiServiceFactory
 
-The main service the ServiceManager implements is MultiServiceFactory. This creates does the work of creating the services via the functions `createInstance()` or `createInstanceWithArguments()`. If a service must be created with arguments, then it must implement the [com::sun:star::lang::XInitialization](https://opengrok.libreoffice.org/xref/core/udkapi/com/sun/star/lang/XInitialization.idl) interface.
+The main service the ServiceManager implements is MultiServiceFactory. This does the work of creating the services via the functions `createInstance()` or `createInstanceWithArguments()`. If a service must be created with arguments, then it must implement the [com::sun:star::lang::XInitialization](https://opengrok.libreoffice.org/xref/core/udkapi/com/sun/star/lang/XInitialization.idl) interface.
 
 The service will also get a list of implemented service names via the function `getAvailableServiceNames()`.
 
 ### XContentEnumerationService
 
-A service is added via this interface via the function `createContentEnumeration()`. This returns a [`com::sun::star::container::XEnumeration`](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XEnumeration.html) instance. The service will also get a list of implemented service names via the function `getAvailableServiceNames()` (this is a case of overlapping function names in interfaces).
+A service is added via this interface via the function `createContentEnumeration()`. This returns a [com::sun::star::container::XEnumeration](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XEnumeration.html) instance. The service will also get a list of implemented service names via the function `getAvailableServiceNames()` (this is a case of overlapping function names in interfaces).
 
 ### Component Context
 
 Whilst the Service Manager creates services (or components), however often a component will need to store additional state or functionality that may be required after the service has been deployed. Thus the concept of a component's context was developed. This is basically a read only container of named values. One of the named values stores a reference to the service manager.&#x20;
+
+Component context is created via the service manager. To do this, the service manager implements the [com::sun::star::lang::XComponentContext](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XMultiComponentFactory.html) - this service basically replaces the MultiServiceFactory service. This does the work of creating the services via the functions `createInstanceWithContext()` or `createInstanceWithArgumentsAndContext()`. If a service must be created with arguments, then it must implement the [com::sun:star::lang::XInitialization](https://opengrok.libreoffice.org/xref/core/udkapi/com/sun/star/lang/XInitialization.idl) interface.
+
+The service will also get a list of implemented service names via the function `getAvailableServiceNames()` (another case of overlapping function names in interfaces).
 
 ## Modules used to implement UNO
 
