@@ -429,8 +429,9 @@ The Service Manager manages a set of implementations of services. It is defined 
 
 The ServiceManager service implements a number of interfaces and services:
 
-* ****[**com::sun::star::lang::MultiServiceFactory**](https://api.libreoffice.org/docs/idl/ref/servicecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1MultiServiceFactory.html) - a service that creates services (factory)
-* ****[**com::sun::star::lang::XComponentContext**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XComponent.html) - an interface into a components _context_ (will be covered later)
+* ****[**com::sun::star::lang::MultiServiceFactory**](https://api.libreoffice.org/docs/idl/ref/servicecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1MultiServiceFactory.html) - a factory service that creates services
+* ****[**com::sun::star::lang::XMultiComponentFactory**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XMultiComponentFactory.html) - a factory service that creates services with component context
+* ****[**com::sun::star::lang::XComponentContext**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XComponent.html) - an interface into a components context
 * [**com::sun::star::container::XContentEnumerationService**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XSet.html) - allows the enumeration of all the implementations of a particular service name.&#x20;
 * ****[**com::sun::star::beans::XSet**](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XSet.html) - an interface that manages the service factory - allows the insertion or removal of [com.sun.star.lang.XSingleServiceFactory](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XSingleServiceFactory.html) or [com.sun.star.lang.XSingleComponentFactory](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1lang\_1\_1XSingleComponentFactory.html) implementations to the service manager at runtime without making the changes permanent.
 
@@ -444,7 +445,9 @@ The service will also get a list of implemented service names via the function `
 
 A service is added via this interface via the function `createContentEnumeration()`. This returns a [`com::sun::star::container::XEnumeration`](https://api.libreoffice.org/docs/idl/ref/interfacecom\_1\_1sun\_1\_1star\_1\_1container\_1\_1XEnumeration.html) instance. The service will also get a list of implemented service names via the function `getAvailableServiceNames()` (this is a case of overlapping function names in interfaces).
 
+### Component Context
 
+Whilst the Service Manager creates services (or components), however often a component will need to store additional state or functionality that may be required after the service has been deployed. Thus the concept of a component's context was developed. This is basically a read only container of named values. One of the named values stores a reference to the service manager.&#x20;
 
 ## Modules used to implement UNO
 
