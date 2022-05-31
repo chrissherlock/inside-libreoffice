@@ -421,6 +421,8 @@ inline css::uno::Any SAL_CALL queryInterface(
 
 This function takes the type to be queries, and a pointer to the object to be tested. It is very simple - it calls on the object's `static_type()` function to compare it against the type being tested, and if this matches then it returns the implementation as an `Any` object. If it does not match, then it returns a void `Any` object.
 
+Note this last point: if a void `Any` object is returned, it means that interface being queried for is not supported.
+
 ## Service Manager
 
 The Service Manager manages a set of components. Here is how it works:
