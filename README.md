@@ -22,4 +22,4 @@ Feel free to send me feedback:
 * **GitHub:** [chrissherlock](https://github.com/chrissherlock)
 * **Email:** chris.sherlock79 at gmail.com
 
-The [GitHub](https://github.com), [GitBook](https://www.gitbook.com) and [Twitter](https://twitter.com) trademarks, registered trademarks, service marks, and related branding marks are the legal property of their respective owners. The [LibreOffice](https://www.libreoffice.org) trademark and logo are the legal property of [The Document Foundation](https://www.documentfoundation.org).
+The [GitHub](https://github.com/), [GitBook](https://www.gitbook.com) and [Twitter](https://twitter.com/) trademarks, registered trademarks, service marks, and related branding marks are the legal property of their respective owners. The [LibreOffice](https://www.libreoffice.org/) trademark and logo are the legal property of [The Document Foundation](https://www.documentfoundation.org/).
