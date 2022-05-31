@@ -25,9 +25,11 @@ With this in mind, StarView were able to create a reasonably fast, full featured
 ## Startup
 
 It is instructive to see how UNO is started in LibreOffice. This is done via the function:
+
 ```cpp
 cppu::defaultBootstrap_InitialComponentContext()
 ```
+
 This function finds the configuration file for the URE, which stores information about the types and services that are implemented in UNO.
 
 LibreOffice creates a service manager and a type manager. Before we can understand what a service manager and a type manager are, and how they are constructed, there are a few concepts we must understand first:
@@ -305,11 +307,11 @@ What is a cascade mapping? Simply put, the original purpose environment "cascade
 
 The cascade algorithm works as follows:
 
-* **It is a direct mapping if the purposes are the same**.   An example is where you wish to map the "uno:unsafe" environment to the "gcc:unsafe" environment, you simply apply the gcc3\_uno bridge which does the mapping directly&#x20;
-* **If the mapping between different purposes, a purpose bridge is used.**   For example, to map from between the "uno:unsafe" purpose environment to the uno environment, the unsafe\_uno\_uno bridge is used.&#x20;
-* **Mediate via the uno environment if not a direct mapping or has no purpose bridge**.   All environments have bridges back to the UNO environment.   So for example, to map the "uno:unsafe" environment to the "uno:affine" environment, the mechanism would be:  - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to map to the "uno" environment - "uno" environment then uses the affine\_uno\_uno bridge to map to the "uno:affine" purpose environment&#x20;
-* **If a multi-purpose environment (chained purpose) is specified**   First mediate to a uno environment (which may require mediating via intermediate purpose bridges), then mediate via a UNO purpose bridge to the purpose required for the final environment, before finally mediating to the desired environment and purpose.   For example, to map the "gcc3:unsafe:debug" environment to the "gcc3:affine" environment the mechanism would be:  - "gcc3:unsafe:debug" environment uses the gcc3\_uno bridge to mediate to the "uno:unsafe:debug" purpose environment - "uno:unsafe:debug" environment uses the debug\_uno\_uno bridge to mediate to the "uno:unsafe" purpose environment - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to mediate to the "uno" environment - the "uno" environment then uses the affine\_uno\_uno bridge to mediate to the "uno:affine" purpose environment - "uno:affine" environment then uses the gcc3\_uno bridge to mediate to the "gcc3:affine" purpose environment&#x20;
-* **Always map to the closest uno purpose environment**  For example, to map the "gcc3:debug:unsafe" environment to the "gcc3:debug:affine" environment, the mechanism is:  - "gcc3:debug:unsafe" enviroment uses the gcc3\_uno bridge to map to the interim environment "uno:debug:unsafe" environment - "uno:debug:unsafe" environment mediates to the "uno:debug" purpose environment - "uno:debug" environment mediates to the "uno:debug:affine" purpose environment via the affine\_uno\_uno bridge - "uno:debug:affine" environment mediates to the "gcc3:debug:affine" environment via the gcc3\_uno bridge
+* **It is a direct mapping if the purposes are the same**. An example is where you wish to map the "uno:unsafe" environment to the "gcc:unsafe" environment, you simply apply the gcc3\_uno bridge which does the mapping directly
+* **If the mapping between different purposes, a purpose bridge is used.** For example, to map from between the "uno:unsafe" purpose environment to the uno environment, the unsafe\_uno\_uno bridge is used.
+* **Mediate via the uno environment if not a direct mapping or has no purpose bridge**. All environments have bridges back to the UNO environment. So for example, to map the "uno:unsafe" environment to the "uno:affine" environment, the mechanism would be: - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to map to the "uno" environment - "uno" environment then uses the affine\_uno\_uno bridge to map to the "uno:affine" purpose environment
+* **If a multi-purpose environment (chained purpose) is specified** First mediate to a uno environment (which may require mediating via intermediate purpose bridges), then mediate via a UNO purpose bridge to the purpose required for the final environment, before finally mediating to the desired environment and purpose. For example, to map the "gcc3:unsafe:debug" environment to the "gcc3:affine" environment the mechanism would be: - "gcc3:unsafe:debug" environment uses the gcc3\_uno bridge to mediate to the "uno:unsafe:debug" purpose environment - "uno:unsafe:debug" environment uses the debug\_uno\_uno bridge to mediate to the "uno:unsafe" purpose environment - "uno:unsafe" environment uses the unsafe\_uno\_uno bridge to mediate to the "uno" environment - the "uno" environment then uses the affine\_uno\_uno bridge to mediate to the "uno:affine" purpose environment - "uno:affine" environment then uses the gcc3\_uno bridge to mediate to the "gcc3:affine" purpose environment
+* **Always map to the closest uno purpose environment** For example, to map the "gcc3:debug:unsafe" environment to the "gcc3:debug:affine" environment, the mechanism is: - "gcc3:debug:unsafe" enviroment uses the gcc3\_uno bridge to map to the interim environment "uno:debug:unsafe" environment - "uno:debug:unsafe" environment mediates to the "uno:debug" purpose environment - "uno:debug" environment mediates to the "uno:debug:affine" purpose environment via the affine\_uno\_uno bridge - "uno:debug:affine" environment mediates to the "gcc3:debug:affine" environment via the gcc3\_uno bridge
 
 If it is not possible to apply a cascade mapping, then the next step is to try the registered callback chain, if this does not work then the mapping is determined via an external library. If this does not work then the algorithm falls back to attempt to map the UREs via a default UNO mediation.
 
@@ -357,7 +359,7 @@ The above code maps the interface between environments, the instantiates an `XHe
 }
 ```
 
-The type description manager adds an event listener, which when disposed revokes the callback. This callback creates a type description from a name.
+The type description manager adds an event listener, which when disposed invokes the callback. This callback creates a type description from a name.
 
 ## Services
 
@@ -489,12 +491,12 @@ The Service Manager is initialized by parsing a config file, which the environme
 
 The Service Manager needs the following to manage each component:
 
-* **Loader**: specifies what loads the component,&#x20;
+* **Loader**: specifies what loads the component,
 * **Environment**: it is loaded in (e.g. Java, gcc3, etc.)
 * **Module URI:** what the service is implemented in.
 * **Service implementations:** this provides an implementation name, in a namespace, can provide an optional contructor function to initialize the service (there must, however, be an environment provided in the component)
   * an implementation can have a **Service**, which is defined by a grouping of interfaces
-  * an implementation can further be defined as a **Singleton**, which defines a global name for a UNO object and determines that there can only be one instance of this object that must be reachable under this name&#x20;
+  * an implementation can further be defined as a **Singleton**, which defines a global name for a UNO object and determines that there can only be one instance of this object that must be reachable under this name
 
 ## Modules used to implement UNO
 
