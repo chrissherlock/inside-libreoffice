@@ -10,6 +10,9 @@ The UCB is setup from the desktop module via the desktop module, from [`Desktop:
 
 The actual initialization of the UCB is done via the function [`configureUcb()`](https://opengrok.libreoffice.org/xref/core/ucb/source/core/ucb.cxx#configureUcb), which validates the parameters and populates a list of providers. The actual processing is done via [`registerAtUcb()`](https://opengrok.libreoffice.org/xref/core/ucbhelper/source/provider/registerucb.cxx?r=734dc3c3\&fi=registerAtUcb#registerAtUcb).
 
-If a service name is specified, then the function can instantiate a proxy to a content provider, or if not marked as a proxy then it instantiates the content provider directly. Once this has been instatiated, it needs to be checked to see if it is a parameterized content provider in which case it registers the parameters with the provider.
+If a service name is specified, then the function can instantiate a proxy to a content provider, or if not marked as a proxy then it instantiates the content provider directly. Once this has been instantiated, it needs to be checked to see if it is a parameterized content provider in which case it registers the parameters with the provider.
 
-Once the content provider is fully instantiated then it needs to be registered with the content provider manager. This code validates that it is not already registered, or had generates an exception during registeration, in which case it rolls back the registration.
+Once the content provider is fully instantiated then it needs to be registered with the content provider manager. This code validates that it is not already registered, or had generates an exception during registration, in which case it rolls back the registration.
+
+## Accessing content
+
